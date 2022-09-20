@@ -67,7 +67,7 @@ export class XanoClient {
         return this;
     }
 
-    public get(endpoint: string, params: Record<any, any>): Promise<any> {
+    public get(endpoint: string, params: Record<any, any>): Promise<XanoResponse> {
         return this.request({
             method: XanoRequestType.GET,
             endpoint: endpoint,
