@@ -1,0 +1,1 @@
+(()=>{"use strict";!function(){function t(t){this.config=t}t.prototype.setAuthBearerToken=function(t){return this.config.authBearerToken=t,this},t.prototype.request=function(t){}}()})();
