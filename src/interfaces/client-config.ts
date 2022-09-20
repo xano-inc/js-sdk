@@ -1,7 +1,7 @@
-import { ResponseType } from "../enums/response-type";
+import { XanoResponseType } from "../enums/response-type";
 
-export interface ClientConfig {
+export interface XanoClientConfig {
     apiGroupBaseUrl: string;
     authBearerToken?: string;
-    responseType?: ResponseType;
+    responseType?: XanoResponseType;
 }

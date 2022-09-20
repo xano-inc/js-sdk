@@ -1,4 +1,4 @@
-export enum RequestType {
+export enum XanoRequestType {
     DELETE = 'delete',
     GET = 'get',
     PATCH = 'patch',

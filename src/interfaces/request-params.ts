@@ -1,7 +1,7 @@
-import { RequestType } from "../enums/request-type";
+import { XanoRequestType } from "../enums/request-type";
 
-export interface RequestParams {
+export interface XanoRequestParams {
     endpoint: string,
-    method: RequestType,
+    method: XanoRequestType,
     urlParams?: Record<any, any>
 }

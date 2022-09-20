@@ -1,0 +1,36 @@
+.container {
+    text-align: center;
+}
+
+body [data-state="initial"],
+body [data-state="loading"],
+body [data-state="loaded"],
+body [data-state="loaded-success"],
+body [data-state="loaded-error"] {
+    display: none;
+}
+
+body[data-state="initial"] [data-state="initial"],
+body[data-state="loading"] [data-state="loading"],
+body[data-state="loaded"] [data-state="loaded"],
+body[data-state="loaded-success"] [data-state="loaded-success"],
+body[data-state="loaded-error"] [data-state="loaded-error"] {
+    display: block;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.details-textarea {
+    width: 690px;
+    height: 460px;
+}
+
+.mt-15 {
+    margin-top: 15px;
+}
+
+label {
+    display: block;
+}

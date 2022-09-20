@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Xano Client Example</title>
+    <link rel="stylesheet" href="shared/main.css">
+  </head>
+  <body data-state="initial">
+    <div class="container">
+      <h1>Xano Client Example: Get JSON</h1>
+
+      <div data-state="initial">
+        <p>In this demo we will be making a GET request to Xano which then responds with a JSON array of users</p>
+
+        <label for="shouldFail">
+          <input type="checkbox" id="shouldFail" /> Check to make the request fail
+        </label>
+
+        <button class="mt-15" id="makeRequest">Make Request</button>
+      </div>
+
+      <div data-state="loading">
+        <p>Loading...</p>
+      </div>
+
+      <div data-state="loaded-success">
+        <p>The API request was successful! Here are the details:</p>
+        <p>HTTP Status Code: <span id="successStatus"></span></p>
+        <textarea class="details-textarea" id="successDetails"></textarea>
+      </div>
+
+      <div data-state="loaded-error">
+        <p>The API request had errors! Here are the details:</p>
+        <p>Error Message: <span id="errorMessage"></span></p>
+        <p>HTTP Status Code: <span id="errorStatus"></span></p>
+        <textarea class="details-textarea" id="errorDetails"></textarea>
+      </div>
+    </div>
+
+    <script type="text/javascript" src="../dist/xano.bundle.js"></script>
+    <script type="text/javascript" src="shared/main.js"></script>
+
+    <script type="text/javascript">
+        var xano = new XanoClient({
+            'apiGroupBaseUrl': 'https://x8ki-letl-twmt.n7.xano.io/api:jVuUQATw'
+        });
+
+        document.getElementById('makeRequest').addEventListener('click', function() {
+          updateDocumentState('loading');
+
+          var endpoint = '/user';
+
+          var shouldFail = document.getElementById('shouldFail').checked;
+          if (shouldFail) {
+            endpoint = '/user-fail';
+          }
+
+          xano.get(endpoint).then(
+              // Success
+              function(httpResponse) {
+                document.getElementById('successStatus').innerText = httpResponse.getStatusCode();
+                document.getElementById('successDetails').value = JSON.stringify(httpResponse.getData(), null, 2);
+
+                updateDocumentState('loaded-success');
+              },
+
+              // Error
+              function(error) {                  
+                  document.getElementById('errorMessage').innerText = error.message;
+
+                  var httpResponse = error.getHttpResponse();
+
+                  document.getElementById('errorStatus').innerText = httpResponse.getStatusCode();
+                  document.getElementById('errorDetails').value = JSON.stringify(httpResponse.getData(), null, 2);
+
+                  updateDocumentState('loaded-error');
+              }
+          );
+        });
+    </script>
+  </body>
+</html>
