@@ -18,22 +18,49 @@ export class XanoClient {
     }
 
     private isAuthenticated(): boolean {
-        return typeof this.config.authBearerToken === 'string' && this.config.authBearerToken.length > 0;
+        return typeof this.config?.authBearerToken === 'string' && this.config.authBearerToken.length > 0;
+    }
+
+    private updateUrlWithParams(url: URL, params: Record<any, any>): void {
+        let urlParams = new URLSearchParams(url.search);
+
+        Object.keys(params).forEach((index) => {
+            urlParams.set(index, params[index]);
+        });
+
+        url.search = urlParams.toString();
     }
 
     private request(params: XanoRequestParams): Promise<XanoResponse> {
-        let headers: Headers = new Headers();
+        const url = new URL(`${this.config.apiGroupBaseUrl}${params.endpoint}`);
+        const requestHeaders: HeadersInit = new Headers();
+
+        if (params.urlParams) {
+            this.updateUrlWithParams(url, params.urlParams)
+        }
 
         if (this.isAuthenticated()) {
-            headers.set('Authentication', `Bearer ${this.config.authBearerToken}`);
+            requestHeaders.set('Authentication', `Bearer ${this.config.authBearerToken}`);
+        }
+
+        if (this.config.responseType === XanoResponseType.Text) {
+            requestHeaders.set('Content-Type', 'text/plain');
+        } else if (this.config.responseType === XanoResponseType.JSON) {
+            requestHeaders.set('Content-Type', 'application/json');
+        }
+
+        let requestOptions: Partial<RequestInit> = {
+            method: params.method,
+            headers: requestHeaders
+        }
+
+        if (params.bodyParams) {
+
         }
 
         let rawResponse: Response;
 
-        return fetch(`${this.config.apiGroupBaseUrl}${params.endpoint}`, {
-            method: params.method,
-            // headers: headers
-        }).then(
+        return fetch(url.toString(), requestOptions).then(
             (response: Response) => {
                 rawResponse = response;
 
@@ -67,11 +94,19 @@ export class XanoClient {
         return this;
     }
 
-    public get(endpoint: string, params: Record<any, any>): Promise<XanoResponse> {
+    public get(endpoint: string, params?: Record<any, any>): Promise<XanoResponse> {
         return this.request({
             method: XanoRequestType.GET,
             endpoint: endpoint,
             urlParams: params
+        });
+    }
+
+    public post(endpoint: string, params?: Record<any, any>): Promise<XanoResponse> {
+        return this.request({
+            method: XanoRequestType.POST,
+            endpoint: endpoint,
+            bodyParams: params
         });
     }
 }

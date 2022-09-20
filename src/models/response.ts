@@ -1,7 +1,7 @@
 export class XanoResponse {
     private data: any;
     private response: Response;
-    
+
     constructor(response: Response, data: any) {
         this.data = data;
         this.response = response;
