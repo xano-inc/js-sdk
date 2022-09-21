@@ -1,0 +1,6 @@
+# Changelog for Xano SDK for JavaScript
+
+## 1.0.0
+* feature: Support for all supported Xano request types (GET, POST, PATCH, PUT, HEAD, DELETE)
+* feature: Added examples for all use cases
+* feature: Added test coverage
