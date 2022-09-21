@@ -17,14 +17,14 @@ describe('Xano Client', () => {
         });
     });
 
-    test('isAuthenticated to be false', () => {
-        expect((<any>xano).isAuthenticated()).toBeFalsy();
+    test('hasAuthToken to be false', () => {
+        expect((<any>xano).hasAuthToken()).toBeFalsy();
     });
 
-    test('isAuthenticated to be true', () => {
-        xano.setAuthBearerToken('abc');
+    test('hasAuthToken to be true', () => {
+        xano.setAuthToken('abc');
 
-        expect((<any>xano).isAuthenticated()).toBeTruthy();
+        expect((<any>xano).hasAuthToken()).toBeTruthy();
     });
 
     test('updateUrlWithParams with object', () => {
@@ -46,11 +46,11 @@ describe('Xano Client', () => {
         expect(url.toString()).toEqual(finalUrl);
     });
 
-    test('setAuthBearerToken updates config', () => {
-        expect((<any>xano).config.authBearerToken).toEqual(undefined);
-        const resp = xano.setAuthBearerToken('abc');
+    test('setAuthToken updates config', () => {
+        expect((<any>xano).config.authToken).toEqual(null);
+        const resp = xano.setAuthToken('abc');
         expect(resp instanceof XanoClient).toBeTruthy();
-        expect((<any>xano).config.authBearerToken).toEqual('abc');
+        expect((<any>xano).config.authToken).toEqual('abc');
     });
 
     test('setResponseType updates config', () => {
@@ -73,12 +73,57 @@ describe('Xano Client', () => {
     });
 
     test('Test request with authentication', async () => {
-        const isAuthenticatedSpy = jest.spyOn(XanoClient.prototype as any, 'isAuthenticated');
+        const hasAuthTokenSpy = jest.spyOn(XanoClient.prototype as any, 'hasAuthToken');
 
         fetchMock.mockResponseOnce(JSON.stringify({'a': 'b'}));
 
         await xano.get('/test');
 
-        expect(isAuthenticatedSpy).toBeCalledTimes(1);
+        expect(hasAuthTokenSpy).toBeCalledTimes(1);
+    });
+
+    test('buildFormData with simple object', () => {
+        const simpleObject = {
+            'a': 'b',
+            'c': 'd'
+        };
+
+        const ret = (<any>xano).buildFormData(simpleObject);
+
+        expect(ret.hasFile).toBeFalsy();
+        expect(ret.rawFormData).toEqual(simpleObject);
+    });
+
+    test('buildFormData with nested object', () => {
+        const nestedObject = {
+            'a': 'b',
+            'c': {
+                'd': 'e',
+                'f': {
+                    'g': 'h'
+                }
+            }
+        };
+
+        const expectedObject = {
+            'a': 'b',
+            'c': '{\"d\":\"e\",\"f\":{\"g\":\"h\"}}'
+        };
+
+        const ret = (<any>xano).buildFormData(nestedObject);
+
+        expect(ret.hasFile).toBeFalsy();
+        expect(ret.rawFormData).toEqual(expectedObject);
+    });
+
+    test('buildFormData with mock file to check hasFile', () => {
+        const simpleObject = {
+            'a': 'b',
+            'c': new File(null, null)
+        };
+
+        const ret = (<any>xano).buildFormData(simpleObject);
+
+        expect(ret.hasFile).toBeTruthy();
     });
 });

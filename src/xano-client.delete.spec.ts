@@ -21,7 +21,7 @@ describe('Xano Client: Delete Requests', () => {
     test('Makes successful request', async () => {
         const expectedStatusCode = 200;
 
-        fetchMock.mockResponseOnce('', {
+        fetchMock.mockResponseOnce('null', {
             status: expectedStatusCode
         });
 
@@ -38,7 +38,7 @@ describe('Xano Client: Delete Requests', () => {
     test('Makes unsuccessful request', async () => {
         const expectedStatusCode = 404;
 
-        fetchMock.mockResponseOnce('', {
+        fetchMock.mockResponseOnce('null', {
             status: expectedStatusCode
         });
 

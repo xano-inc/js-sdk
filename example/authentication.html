@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Xano Client Example</title>
+    <link rel="stylesheet" href="shared/main.css">
+</head>
+
+<body data-state="initial">
+    <div class="container">
+        <h1>Xano Client Example: Authentication</h1>
+
+        <div data-state="initial">
+            <p>In this demo we will be making a POST request to login to Xano. Upon success we will be making a GET request to get info about your user.</p>
+
+            <div>
+                <label for="email">Email</label>
+                <input type="text" id="email" value="justin@xano.com" />
+            </div>
+            <div class="mt-15">
+                <label for="password">Password</label>
+                <input type="password" id="password" value="SecurityCloseYourEyes" />
+            </div>
+
+            <button class="mt-15" id="makeRequest">Login</button>
+        </div>
+
+        <div data-state="loading">
+            <p>Loading...</p>
+        </div>
+
+        <div data-state="loaded-success">
+            <p>The API request was successful! Here are the details:</p>
+            <p>HTTP Status Code: <span id="successStatus"></span></p>
+            <textarea class="details-textarea" id="successDetails"></textarea>
+            <br />
+            <button class="reset mt-15">Reset</button>
+        </div>
+
+        <div data-state="loaded-error">
+            <p>The API request had errors! Here are the details:</p>
+            <p>Error Message: <span id="errorMessage"></span></p>
+            <p>HTTP Status Code: <span id="errorStatus"></span></p>
+            <textarea class="details-textarea" id="errorDetails"></textarea>
+            <br />
+            <button class="reset mt-15">Reset</button>
+        </div>
+    </div>
+
+    <script type="text/javascript" src="../dist/xano.bundle.js"></script>
+    <script type="text/javascript" src="shared/main.js"></script>
+
+    <script type="text/javascript">
+        var xano = new XanoClient({
+            'apiGroupBaseUrl': 'https://x8ki-letl-twmt.n7.xano.io/api:jVuUQATw'
+        });
+
+        document.getElementById('makeRequest').addEventListener('click', function () {
+            updateDocumentState('loading');
+
+            xano.post('/auth/login', {
+                'email': document.getElementById('email').value,
+                'password': document.getElementById('password').value
+            }).then(
+                // Success
+                function (httpResponse) {
+                    var body = httpResponse.getBody();
+
+                    // Update xano with the authToken from our response
+                    xano.setAuthToken(body.authToken);
+
+                    // Now future requests will be sent with the auth token
+                    xano.get('/auth/me').then(
+                        // Success
+                        function(httpResponse) {
+                            document.getElementById('successStatus').innerText = httpResponse.getStatusCode();
+                            document.getElementById('successDetails').value = JSON.stringify(httpResponse.getBody(), null, 2);
+
+                            updateDocumentState('loaded-success');
+                        },
+
+                        // Error
+                        handleError
+                    );
+                },
+
+                // Error
+                handleError
+            );
+        });
+
+        function handleError(error) {
+            document.getElementById('errorMessage').innerText = error.message;
+
+            var httpResponse = error.getHttpResponse();
+
+            document.getElementById('errorStatus').innerText = httpResponse.getStatusCode();
+            document.getElementById('errorDetails').value = JSON.stringify(httpResponse.getBody(), null, 2);
+
+            updateDocumentState('loaded-error');
+        }
+    </script>
+</body>
+
+</html>

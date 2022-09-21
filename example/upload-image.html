@@ -11,12 +11,16 @@
 
 <body data-state="initial">
     <div class="container">
-        <h1>Xano Client Example: HEAD Request</h1>
+        <h1>Xano Client Example: Upload Image</h1>
 
         <div data-state="initial">
-            <p>In this demo we will be making a HEAD request on a record in our database</p>
-            <br />
-            <button class="mt-15" id="makeRequest">Make Request</button>
+            <p>In this demo we will be making a POST request to our xano API to upload an image</p>
+
+            <label for="file">
+                <input type="file" id="file" accept="image/*" />
+            </label>
+
+            <button class="mt-15" id="makeRequest">Upload Image</button>
         </div>
 
         <div data-state="loading">
@@ -24,16 +28,20 @@
         </div>
 
         <div data-state="loaded-success">
-            <p>The API request was successful! Here are the header details:</p>
-            <p>HTTP Status Code: <span class="bold" id="successStatus"></span></p>
+            <p>The API request was successful! Here are the details:</p>
+            <p>HTTP Status Code: <span id="successStatus"></span></p>
             <textarea class="details-textarea" id="successDetails"></textarea>
+            <br />
+            <button class="reset mt-15">Reset</button>
         </div>
 
         <div data-state="loaded-error">
             <p>The API request had errors! Here are the details:</p>
-            <p>Error Message: <span class="bold" id="errorMessage"></span></p>
-            <p>HTTP Status Code: <span class="bold" id="errorStatus"></span></p>
+            <p>Error Message: <span id="errorMessage"></span></p>
+            <p>HTTP Status Code: <span id="errorStatus"></span></p>
             <textarea class="details-textarea" id="errorDetails"></textarea>
+            <br />
+            <button class="reset mt-15">Reset</button>
         </div>
     </div>
 
@@ -48,11 +56,14 @@
         document.getElementById('makeRequest').addEventListener('click', function () {
             updateDocumentState('loading');
 
-            xano.head('/calendar').then(
+            xano.post('/file_upload', {
+                'some_param': 'some_value',
+                'image': document.getElementById('file').files[0]
+            }).then(
                 // Success
                 function (httpResponse) {
                     document.getElementById('successStatus').innerText = httpResponse.getStatusCode();
-                    document.getElementById('successDetails').value = JSON.stringify(httpResponse.getHeaders(), null, 2);
+                    document.getElementById('successDetails').value = JSON.stringify(httpResponse.getBody(), null, 2);
 
                     updateDocumentState('loaded-success');
                 },

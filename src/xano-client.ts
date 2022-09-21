@@ -1,5 +1,6 @@
 import { XanoClientConfig } from "./interfaces/client-config";
 import { XanoContentType } from "./enums/content-type";
+import { XanoFormData } from "./interfaces/form-data";
 import { XanoRequestError } from "./errors/request";
 import { XanoRequestParams } from "./interfaces/request-params";
 import { XanoRequestType } from "./enums/request-type";
@@ -7,7 +8,9 @@ import { XanoResponse } from "./models/response";
 import { XanoResponseType } from "./enums/response-type";
 
 export class XanoClient {
-    private config: Partial<XanoClientConfig> = {
+    private config: XanoClientConfig = {
+        apiGroupBaseUrl: null,
+        authToken: null,
         responseType: XanoResponseType.Default
     };
 
@@ -18,8 +21,35 @@ export class XanoClient {
         };
     }
 
-    private isAuthenticated(): boolean {
-        return typeof this.config?.authBearerToken === 'string' && this.config.authBearerToken.length > 0;
+    private buildFormData(bodyData: Record<any, any>): XanoFormData {
+        let formData: FormData = new FormData();
+        let hasFile = false;
+        let rawFormData: Record<any, any> = {};
+
+        Object.entries(bodyData).forEach((entry: any) => {
+            const isFile = (entry[1] instanceof File);
+
+            if (isFile) {
+                hasFile = true;
+            }
+
+            if (typeof entry[1] === 'object' && !isFile) {
+                entry[1] = JSON.stringify(entry[1]);
+            }
+
+            rawFormData[entry[0]] = entry[1];
+            formData.append(entry[0], entry[1]);
+        });
+
+        return <XanoFormData>{
+            formData,
+            hasFile,
+            rawFormData
+        };
+    }
+
+    private hasAuthToken(): boolean {
+        return typeof this.config?.authToken === 'string' && this.config.authToken.length > 0;
     }
 
     private request(params: XanoRequestParams): Promise<XanoResponse> {
@@ -30,13 +60,11 @@ export class XanoClient {
             this.updateUrlWithParams(url, params.urlParams)
         }
 
-        if (this.isAuthenticated()) {
-            requestHeaders.set('Authentication', `Bearer ${this.config.authBearerToken}`);
+        if (this.hasAuthToken()) {
+            requestHeaders.set('Authorization', `Bearer ${this.config.authToken}`);
         }
 
         if (params.method === XanoRequestType.HEAD) {
-            requestHeaders.set('Accept', XanoContentType.Text);
-        } else if (params.method === XanoRequestType.DELETE) {
             requestHeaders.set('Accept', XanoContentType.Text);
         } else if (this.config.responseType === XanoResponseType.Text) {
             requestHeaders.set('Accept', XanoContentType.Text);
@@ -50,9 +78,15 @@ export class XanoClient {
         };
 
         if (params.bodyParams) {
-            requestHeaders.set('Content-Type', XanoContentType.JSON);
+            const ret = this.buildFormData(params.bodyParams);
 
-            requestOptions.body = JSON.stringify(params.bodyParams);
+            if (ret.hasFile) {
+                requestHeaders.delete('Content-Type');
+                requestOptions.body = ret.formData;
+            } else {
+                requestHeaders.set('Content-Type', XanoContentType.JSON);
+                requestOptions.body = JSON.stringify(ret.rawFormData);
+            }
         }
 
         let rawResponse: Response;
@@ -89,8 +123,8 @@ export class XanoClient {
         url.search = urlParams.toString();
     }
 
-    public setAuthBearerToken(bearerToken: string | null): XanoClient {
-        this.config.authBearerToken = bearerToken;
+    public setAuthToken(authToken: string | null): XanoClient {
+        this.config.authToken = authToken;
 
         return this;
     }
