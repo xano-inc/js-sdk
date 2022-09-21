@@ -52,7 +52,7 @@ describe('XanoResponse', () => {
             (data: any) => {
                 const xanoResponse = new XanoResponse(rawResponse, data);
 
-                expect(xanoResponse.getData()).toEqual(responseString);
+                expect(xanoResponse.getBody()).toEqual(responseString);
             }
         );
     });
@@ -77,7 +77,33 @@ describe('XanoResponse', () => {
             (data: any) => {
                 const xanoResponse = new XanoResponse(rawResponse, data);
 
-                expect(xanoResponse.getData()).toEqual(responseJson);
+                expect(xanoResponse.getBody()).toEqual(responseJson);
+            }
+        );
+    });
+
+    test('Should have headers', () => {
+        const requestHeaders = {
+            'content-type': 'application/json'
+        };
+
+        fetchMock.mockResponseOnce('', {
+            headers: requestHeaders
+        });
+
+        let rawResponse: Response;
+
+        fetch('test').then(
+            (response: Response) => {
+                rawResponse = response;
+
+                return response.text();
+            }
+        ).then(
+            (data: any) => {
+                const xanoResponse = new XanoResponse(rawResponse, data);
+
+                expect(xanoResponse.getHeaders()).toEqual(requestHeaders);
             }
         );
     });

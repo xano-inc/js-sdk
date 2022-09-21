@@ -18,6 +18,10 @@ body[data-state="loaded-error"] [data-state="loaded-error"] {
     display: block;
 }
 
+.bold {
+    font-weight: bold;
+}
+
 .text-center {
     text-align: center;
 }
@@ -25,6 +29,10 @@ body[data-state="loaded-error"] [data-state="loaded-error"] {
 .details-textarea {
     width: 690px;
     height: 460px;
+}
+
+.details-textarea.small {
+    height: 200px;
 }
 
 .mt-15 {

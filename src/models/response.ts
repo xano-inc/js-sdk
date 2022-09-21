@@ -1,17 +1,27 @@
 export class XanoResponse {
-    private data: any;
+    private body: any;
     private response: Response;
 
-    constructor(response: Response, data: any) {
-        this.data = data;
+    constructor(response: Response, body: any) {
+        this.body = body;
         this.response = response;
+    }
+
+    public getBody(): any {
+        return this.body;
+    }
+
+    public getHeaders(): Record<string, string> {
+        let headers: Record<string, string> = {};
+
+        this.response.headers.forEach((value, key) => {
+            headers[key] = value;
+        });
+
+        return headers;
     }
 
     public getStatusCode(): number {
         return this.response.status;
-    }
-
-    public getData(): any {
-        return this.data;
     }
 }

@@ -50,7 +50,7 @@ describe('Xano Client', () => {
                 const errorXanoResponse = error.getHttpResponse();
 
                 expect(errorXanoResponse.getStatusCode()).toEqual(200);
-                expect(errorXanoResponse.getData()).toEqual(responseBody);
+                expect(errorXanoResponse.getBody()).toEqual(responseBody);
             }
         );
     });

@@ -6,8 +6,8 @@
     "scripts": {
         "test": "jest",
         "test:coverage": "jest --collectCoverage",
-        "run:dev": "npx webpack --mode development",
-        "run:prod": "npx webpack --mode production",
+        "build:dev": "npx webpack --mode development",
+        "build:prod": "npx webpack --mode production",
         "watch:dev": "npx webpack --mode development --watch",
         "watch:prod": "npx webpack --mode production --watch"
     },

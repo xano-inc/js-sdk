@@ -9,18 +9,20 @@
     <link rel="stylesheet" href="shared/main.css">
 </head>
 
-<body data-state="initial">
+<body data-state="loading">
     <div class="container">
-        <h1>Xano Client Example: Get Text</h1>
+        <h1>Xano Client Example: Delete Record</h1>
 
         <div data-state="initial">
-            <p>In this demo we will be making a GET request to Xano which then responds with the date and time in Los Angeles</p>
+            <p>In this demo we will be making a GET request to get an event from our database then making a DELETE request to delete it.</p>
 
-            <label for="shouldFail">
-                <input type="checkbox" id="shouldFail" /> Check to make the request fail
-            </label>
+            <div>
+                <textarea id="currentEvent" class="details-textarea small"></textarea>
+            </div>
 
-            <button class="mt-15" id="makeRequest">Make Request</button>
+            <button class="mt-15" id="makeRequest">Delete it!</button>
+            <br />
+            <small>Don't worry - you can run this as many times as you want :)</small>
         </div>
 
         <div data-state="loading">
@@ -29,19 +31,16 @@
 
         <div data-state="loaded-success">
             <p>The API request was successful! Here are the details:</p>
-            <p>HTTP Status Code: <span id="successStatus"></span></p>
-            <textarea class="details-textarea" id="successDetails"></textarea>
+            <p>HTTP Status Code: <span class="bold" id="successStatus"></span></p>
             <br />
             <button class="reset mt-15">Reset</button>
         </div>
 
         <div data-state="loaded-error">
             <p>The API request had errors! Here are the details:</p>
-            <p>Error Message: <span id="errorMessage"></span></p>
-            <p>HTTP Status Code: <span id="errorStatus"></span></p>
+            <p>Error Message: <span class="bold" id="errorMessage"></span></p>
+            <p>HTTP Status Code: <span class="bold" id="errorStatus"></span></p>
             <textarea class="details-textarea" id="errorDetails"></textarea>
-            <br />
-            <button class="reset mt-15">Reset</button>
         </div>
     </div>
 
@@ -50,28 +49,32 @@
 
     <script type="text/javascript">
         var xano = new XanoClient({
-            'apiGroupBaseUrl': 'https://x8ki-letl-twmt.n7.xano.io/api:jVuUQATw',
-            'responseType': 'text' // Set response type for all requests
+            'apiGroupBaseUrl': 'https://x8ki-letl-twmt.n7.xano.io/api:jVuUQATw'
         });
 
-        // Or you can set responseType prior to a specific request
-        xano.setResponseType('text');
+        var event = {};
+
+        // Load the event from the API
+        xano.get('/calendar').then(
+            function(httpResponse) {
+                event = httpResponse.getBody();
+
+                document.getElementById('currentEvent').value = JSON.stringify(event, null, 2);
+
+                updateDocumentState('initial');
+            },
+            function(error) {
+                updateDocumentState('loaded-error');
+            }
+        );
 
         document.getElementById('makeRequest').addEventListener('click', function () {
             updateDocumentState('loading');
 
-            var endpoint = '/text-response';
-
-            var shouldFail = document.getElementById('shouldFail').checked;
-            if (shouldFail) {
-                endpoint = '/fail';
-            }
-
-            xano.get(endpoint).then(
+            xano.delete('/calendar/' + event.id).then(
                 // Success
                 function (httpResponse) {
                     document.getElementById('successStatus').innerText = httpResponse.getStatusCode();
-                    document.getElementById('successDetails').value = httpResponse.getBody();
 
                     updateDocumentState('loaded-success');
                 },
@@ -83,7 +86,7 @@
                     var httpResponse = error.getHttpResponse();
 
                     document.getElementById('errorStatus').innerText = httpResponse.getStatusCode();
-                    document.getElementById('errorDetails').value = httpResponse.getBody();
+                    document.getElementById('errorDetails').value = JSON.stringify(httpResponse.getBody(), null, 2);
 
                     updateDocumentState('loaded-error');
                 }

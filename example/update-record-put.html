@@ -9,18 +9,18 @@
     <link rel="stylesheet" href="shared/main.css">
 </head>
 
-<body data-state="initial">
+<body data-state="loading">
     <div class="container">
-        <h1>Xano Client Example: Get JSON</h1>
+        <h1>Xano Client Example: Update Record (PUT HTTP Method)</h1>
 
         <div data-state="initial">
-            <p>In this demo we will be making a GET request to Xano which then responds with a JSON array of users</p>
+            <p>In this demo we will be making a GET request to get an event from our database then updating the date field with the PUT request</p>
 
-            <label for="shouldFail">
-                <input type="checkbox" id="shouldFail" /> Check to make the request fail
-            </label>
+            <div>
+                <textarea id="currentEvent" class="details-textarea small"></textarea>
+            </div>
 
-            <button class="mt-15" id="makeRequest">Make Request</button>
+            <button class="mt-15" id="makeRequest">Update Date To Now</button>
         </div>
 
         <div data-state="loading">
@@ -29,19 +29,16 @@
 
         <div data-state="loaded-success">
             <p>The API request was successful! Here are the details:</p>
-            <p>HTTP Status Code: <span id="successStatus"></span></p>
+            <p>HTTP Status Code: <span class="bold" id="successStatus"></span></p>
+            <p>Date before update: <span class="bold" id="originalDate"></span></p>
             <textarea class="details-textarea" id="successDetails"></textarea>
-            <br />
-            <button class="reset mt-15">Reset</button>
         </div>
 
         <div data-state="loaded-error">
             <p>The API request had errors! Here are the details:</p>
-            <p>Error Message: <span id="errorMessage"></span></p>
-            <p>HTTP Status Code: <span id="errorStatus"></span></p>
+            <p>Error Message: <span class="bold" id="errorMessage"></span></p>
+            <p>HTTP Status Code: <span class="bold" id="errorStatus"></span></p>
             <textarea class="details-textarea" id="errorDetails"></textarea>
-            <br />
-            <button class="reset mt-15">Reset</button>
         </div>
     </div>
 
@@ -53,17 +50,31 @@
             'apiGroupBaseUrl': 'https://x8ki-letl-twmt.n7.xano.io/api:jVuUQATw'
         });
 
+        var event = {};
+
+        // Load the event from the API
+        xano.get('/calendar').then(
+            function(httpResponse) {
+                event = httpResponse.getBody();
+
+                document.getElementById('currentEvent').value = JSON.stringify(event, null, 2);
+                document.getElementById('originalDate').innerText = event.date;
+
+                updateDocumentState('initial');
+            },
+            function(error) {
+                updateDocumentState('loaded-error');
+            }
+        );
+
         document.getElementById('makeRequest').addEventListener('click', function () {
             updateDocumentState('loading');
 
-            var endpoint = '/user';
-
-            var shouldFail = document.getElementById('shouldFail').checked;
-            if (shouldFail) {
-                endpoint = '/fail';
-            }
-
-            xano.get(endpoint).then(
+            xano.put('/calendar', {
+                'name': event.name,
+                'created_at': event.created_at,
+                'date': Math.floor(Date.now() / 1000) // unix timestamp
+            }).then(
                 // Success
                 function (httpResponse) {
                     document.getElementById('successStatus').innerText = httpResponse.getStatusCode();

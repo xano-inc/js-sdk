@@ -1,8 +1,8 @@
 export enum XanoRequestType {
-    DELETE = 'delete',
-    GET = 'get',
-    HEAD = 'head',
-    PATCH = 'patch',
-    POST = 'post',
-    PUT = 'put',
+    DELETE = 'DELETE',
+    GET = 'GET',
+    HEAD = 'HEAD',
+    PATCH = 'PATCH',
+    POST = 'POST',
+    PUT = 'PUT',
 }

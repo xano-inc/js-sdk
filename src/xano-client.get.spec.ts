@@ -1,9 +1,9 @@
 import fetchMock from 'jest-fetch-mock'
 import { XanoClient } from './xano-client';
+import { XanoRequestError } from './errors/request';
 import { XanoResponse } from './models/response';
 import { XanoResponseType } from './enums/response-type';
 import { describe, expect, test } from '@jest/globals';
-import { XanoRequestError } from './errors/request';
 
 describe('Xano Client: GET Requests', () => {
     const apiGroupBaseUrl = 'https://x8ki-letl-twmt.n7.xano.io/api:jVuUQATw';
@@ -32,7 +32,7 @@ describe('Xano Client: GET Requests', () => {
         await xano.get('/test').then(
             (response: XanoResponse) => {
                 expect(response.getStatusCode()).toEqual(expectedStatusCode);
-                expect(response.getData()).toEqual(expectedResponse);
+                expect(response.getBody()).toEqual(expectedResponse);
             }
         );
     });
@@ -55,7 +55,7 @@ describe('Xano Client: GET Requests', () => {
                 const response = error.getHttpResponse();
 
                 expect(response.getStatusCode()).toEqual(expectedStatusCode);
-                expect(response.getData()).toEqual(expectedResponse);
+                expect(response.getBody()).toEqual(expectedResponse);
             }
         );
     });
@@ -73,7 +73,7 @@ describe('Xano Client: GET Requests', () => {
         await xano.get('/test').then(
             (response: XanoResponse) => {
                 expect(response.getStatusCode()).toEqual(expectedStatusCode);
-                expect(response.getData()).toEqual(expectedResponse);
+                expect(response.getBody()).toEqual(expectedResponse);
             }
         );
     });
@@ -96,7 +96,7 @@ describe('Xano Client: GET Requests', () => {
                 const response = error.getHttpResponse();
 
                 expect(response.getStatusCode()).toEqual(expectedStatusCode);
-                expect(response.getData()).toEqual(expectedResponse);
+                expect(response.getBody()).toEqual(expectedResponse);
             }
         );
     });
