@@ -5,3 +5,4 @@ export interface XanoRequestParams {
     method: XanoRequestType;
     urlParams?: Record<any, any>;
 }
+//# sourceMappingURL=request-params.d.ts.map

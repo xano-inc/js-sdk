@@ -4,3 +4,4 @@ export interface XanoClientConfig {
     authToken?: string | null;
     responseType?: XanoResponseType;
 }
+//# sourceMappingURL=client-config.d.ts.map

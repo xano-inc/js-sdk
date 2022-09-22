@@ -3,3 +3,4 @@ export declare enum XanoContentType {
     Multipart = "multipart/form-data",
     Text = "text/plain"
 }
+//# sourceMappingURL=content-type.d.ts.map

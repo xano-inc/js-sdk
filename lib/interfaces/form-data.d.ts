@@ -3,3 +3,4 @@ export interface XanoFormData {
     hasFile: boolean;
     rawFormData: Record<any, any>;
 }
+//# sourceMappingURL=form-data.d.ts.map

@@ -17,3 +17,4 @@ export declare class XanoClient {
     post(endpoint: string, params?: Record<any, any>): Promise<XanoResponse>;
     put(endpoint: string, params?: Record<any, any>): Promise<XanoResponse>;
 }
+//# sourceMappingURL=xano-client.d.ts.map

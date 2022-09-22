@@ -6,3 +6,4 @@ export declare enum XanoRequestType {
     POST = "POST",
     PUT = "PUT"
 }
+//# sourceMappingURL=request-type.d.ts.map

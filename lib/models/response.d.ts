@@ -6,3 +6,4 @@ export declare class XanoResponse {
     getHeaders(): Record<string, string>;
     getStatusCode(): number;
 }
+//# sourceMappingURL=response.d.ts.map

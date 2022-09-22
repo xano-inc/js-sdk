@@ -3,3 +3,4 @@ export declare enum XanoResponseType {
     Text = "text",
     Default = "json"
 }
+//# sourceMappingURL=response-type.d.ts.map

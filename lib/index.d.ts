@@ -7,3 +7,4 @@ export { XanoFormData } from './interfaces/form-data';
 export { XanoRequestParams } from './interfaces/request-params';
 export { XanoResponse } from './models/response';
 export { XanoClient } from './xano-client';
+//# sourceMappingURL=index.d.ts.map
