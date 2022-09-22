@@ -57,7 +57,7 @@ This is the primary client class of Xano. It can be instantiated with the follow
 | `responseType` | XanoResponseType | json | values: json or text. The response type of the API whether it responds in JSON or Text |
 
 Usage: 
-```JavaScript
+```js
 import { XanoClient } from '@xano/js-sdk';
 
 const xano = new XanoClient({
@@ -74,7 +74,7 @@ Sets the authentication token which makes future requests authenticated.
 | `authToken` | string \| null | Can be created from the /auth/login endpoint. Null will clear the token
 
 Usage:
-```JavaScript
+```js
 xano.setAuthToken('eyJhbGciOiJBMjU2S1ciLCJlbmMiOiJBM....');
 ```
 
@@ -87,7 +87,7 @@ Sets the response type you are expecting for the following requests.
 | `responseType` | XanoResponseType | json, text | The expected response type
 
 Usage in JS:
-```JavaScript
+```js
 xano.setResponseType('json');
 ```
 
@@ -106,7 +106,7 @@ Makes a GET HTTP request to Xano
 | `params` | object | no | URL params to attach to the request
 
 Usage:
-```JavaScript
+```js
 xano.get('/users', {
     'sort_by': 'name'
 });
@@ -122,7 +122,7 @@ Makes a POST HTTP request to Xano
 | `params` | object | no | body params to attach to the request
 
 Usage:
-```JavaScript
+```js
 xano.post('/users', {
     'first_name': 'Justin',
     'last_name': 'Albrecht'
@@ -139,7 +139,7 @@ Makes a PATCH HTTP request to Xano
 | `params` | object | no | body params to attach to the request
 
 Usage:
-```JavaScript
+```js
 xano.patch('/users', {
     'first_name': 'Justin'
 });
@@ -155,7 +155,7 @@ Makes a PUT HTTP request to Xano
 | `params` | object | no | body params to attach to the request
 
 Usage:
-```JavaScript
+```js
 xano.put('/users', {
     'last_name': 'Albrecht'
 });
@@ -171,7 +171,7 @@ Makes a DELETE HTTP request to Xano
 | `params` | object | no | body params to attach to the request
 
 Usage:
-```JavaScript
+```js
 xano.delete('/users/1', {
     'optional': 'abc'
 });
@@ -187,7 +187,7 @@ Makes a HEAD HTTP request to Xano
 | `params` | object | no | URL params to attach to the request
 
 Usage:
-```JavaScript
+```js
 xano.head('/users/1', {
     'optional': 'abc'
 });
