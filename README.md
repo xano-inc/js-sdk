@@ -270,7 +270,7 @@ xano.get('/users').then(
 
 ### `XanoRequestError`
 
-The response class of a failed GET/POST/PATCH/PUT/DELETE/HEAD request
+The response class of a failed `GET`/`POST`/`PATCH`/`PUT`/`DELETE`/`HEAD` request.
 
 This class extends the JS [Error](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error) class
 
