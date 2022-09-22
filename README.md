@@ -53,8 +53,8 @@ This is the primary client class of Xano. It can be instantiated with the follow
 | Param | Type | Default | Description |
 | --- | --- | --- | --- |
 | `apiGroupBaseUrl` | `string \| null` | `null` | API Group Base URL can be found on the API Group dashboard
-| `authToken` | `string \| null` | `null` | Auth token generated in Xano from a login route (ex. /auth/login)
-| `responseType` | `XanoResponseType` | `json` | values: `json`, `text`. The response type of the API whether it responds in JSON or Text
+| `authToken` | `string \| null` | `null` | Auth token generated in Xano from a login route (ex. `/auth/login`)
+| `responseType` | `XanoResponseType` | `json` | Values: `json`, `text`. The response type of the API whether it responds in JSON or Text
 
 Usage: 
 ```js
@@ -71,7 +71,7 @@ Sets the authentication token which makes future requests authenticated.
 
 | Param | Type | Description |
 | --- | --- | --- |
-| `authToken` | `string \| null` | Can be created from the /auth/login endpoint. Null will clear the token
+| `authToken` | `string \| null` | Can be created from the `/auth/login` endpoint. Null will clear the token
 
 Usage:
 ```js
