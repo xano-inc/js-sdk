@@ -30,9 +30,9 @@ Use `npm` to install the Xano JS SDK module:
 npm install @xano/js-sdk
 ```
 
-OR use it directly from Unpkg (replace VERSION with the npm version found at the top of this page):
+OR use it directly from Unpkg:
 ```html
-<script type="text/javascript" src="https://unpkg.com/@xano/js-sdk@VERSION/dist/xano.min.js"></script>
+<script type="text/javascript" src="https://unpkg.com/@xano/js-sdk@latest/dist/xano.min.js"></script>
 ```
 
 OR use our pre-bundled JS bundle:
@@ -42,7 +42,7 @@ OR use our pre-bundled JS bundle:
 
 ## Examples
 
-Examples for all methods and simple use-cases can be found in the `/examples` folder
+Examples for all methods and simple use-cases can be found in the `/examples` folder.
 
 ## Usage
 
@@ -52,9 +52,9 @@ This is the primary client class of Xano. It can be instantiated with the follow
 
 | Param | Type | Default | Description |
 | --- | --- | --- | --- |
-| `apiGroupBaseUrl` | string \| null | null | API Group Base URL can be found on the API Group dashboard
-| `authToken` | string \| null | null | Auth token generated in Xano from a login route (ex. /auth/login)
-| `responseType` | XanoResponseType | json | values: json or text. The response type of the API whether it responds in JSON or Text |
+| `apiGroupBaseUrl` | `string \| null` | `null` | API Group Base URL can be found on the API Group dashboard
+| `authToken` | `string \| null` | `null` | Auth token generated in Xano from a login route (ex. /auth/login)
+| `responseType` | `XanoResponseType` | `json` | values: `json`, `text`. The response type of the API whether it responds in JSON or Text
 
 Usage: 
 ```js
@@ -71,7 +71,7 @@ Sets the authentication token which makes future requests authenticated.
 
 | Param | Type | Description |
 | --- | --- | --- |
-| `authToken` | string \| null | Can be created from the /auth/login endpoint. Null will clear the token
+| `authToken` | `string \| null` | Can be created from the /auth/login endpoint. Null will clear the token
 
 Usage:
 ```js
@@ -84,7 +84,7 @@ Sets the response type you are expecting for the following requests.
 
 | Param | Type | Values | Description |
 | --- | --- | --- | --- |
-| `responseType` | XanoResponseType | json, text | The expected response type
+| `responseType` | `XanoResponseType` | `json`, `text` | The expected response type
 
 Usage in JS:
 ```js
@@ -92,7 +92,7 @@ xano.setResponseType('json');
 ```
 
 Usage in TypeScript:
-```js
+```typescript
 xano.setResponseType(XanoResponseType.JSON);
 ```
 
@@ -104,8 +104,8 @@ This function returns a Promise that resolves to `XanoResponse` on success and `
 
 | Param | Type | Required | Description |
 | --- | --- | --- | --- |
-| `endpoint` | string | yes | The endpoint starting with a `/` (ex. `/users`)
-| `params` | object | no | URL params to attach to the request
+| `endpoint` | `string` | `yes` | The endpoint starting with a `/` (ex. `/users`)
+| `params` | `object` | `no` | URL params to attach to the request
 
 Usage:
 ```js
@@ -129,8 +129,8 @@ This function returns a Promise that resolves to `XanoResponse` on success and `
 
 | Param | Type | Required | Description |
 | --- | --- | --- | --- |
-| `endpoint` | string | yes | The endpoint starting with a `/` (ex. `/users`)
-| `params` | object | no | body params to attach to the request
+| `endpoint` | `string` | `yes` | The endpoint starting with a `/` (ex. `/users`)
+| `params` | `object` | `no` | body params to attach to the request
 
 Usage:
 ```js
@@ -155,8 +155,8 @@ This function returns a Promise that resolves to `XanoResponse` on success and `
 
 | Param | Type | Required | Description |
 | --- | --- | --- | --- |
-| `endpoint` | string | yes | The endpoint starting with a `/` (ex. `/users`)
-| `params` | object | no | body params to attach to the request
+| `endpoint` | `string` | `yes` | The endpoint starting with a `/` (ex. `/users`)
+| `params` | `object` | `no` | body params to attach to the request
 
 Usage:
 ```js
@@ -180,8 +180,8 @@ This function returns a Promise that resolves to `XanoResponse` on success and `
 
 | Param | Type | Required | Description |
 | --- | --- | --- | --- |
-| `endpoint` | string | yes | The endpoint starting with a `/` (ex. `/users`)
-| `params` | object | no | body params to attach to the request
+| `endpoint` | `string` | `yes` | The endpoint starting with a `/` (ex. `/users`)
+| `params` | `object` | `no` | body params to attach to the request
 
 Usage:
 ```js
@@ -205,8 +205,8 @@ This function returns a Promise that resolves to `XanoResponse` on success and `
 
 | Param | Type | Required | Description |
 | --- | --- | --- | --- |
-| `endpoint` | string | yes | The endpoint starting with a `/` (ex. `/users`)
-| `params` | object | no | body params to attach to the request
+| `endpoint` | `string` | `yes` | The endpoint starting with a `/` (ex. `/users`)
+| `params` | `object` | `no` | body params to attach to the request
 
 Usage:
 ```js
@@ -230,8 +230,8 @@ This function returns a Promise that resolves to `XanoResponse` on success and `
 
 | Param | Type | Required | Description |
 | --- | --- | --- | --- |
-| `endpoint` | string | yes | The endpoint starting with a `/` (ex. `/users`)
-| `params` | object | no | URL params to attach to the request
+| `endpoint` | `string` | `yes` | The endpoint starting with a `/` (ex. `/users`)
+| `params` | `object` | `no` | URL params to attach to the request
 
 Usage:
 ```js
@@ -249,13 +249,13 @@ xano.head('/users/1', {
 
 ### `XanoResponse`
 
-The response class of a successful GET/POST/PATCH/PUT/DELETE/HEAD request
+The response class of a successful `GET`/`POST`/`PATCH`/`PUT`/`DELETE`/`HEAD` request.
 
 | Param | Type | Return Type | Description |
 | --- | --- | --- | --- |
-| `getBody` | function | any | If ResponseType is set to JSON it will be the JSON encoded result. If its set to text then the raw text is returned
-| `getHeaders` | function | object | key/value pairs of the response headers
-| `getStatusCode` | function | number | The status code of the HTTP request
+| `getBody` | `function` | `any` | If ResponseType is set to JSON it will be the JSON encoded result. If its set to text then the raw text is returned
+| `getHeaders` | `function` | `object` | key/value pairs of the response headers
+| `getStatusCode` | `function` | `number` | The status code of the HTTP request
 
 Usage: 
 ```js
@@ -276,8 +276,8 @@ This class extends the JS [Error](https://developer.mozilla.org/en-US/docs/Web/J
 
 | Param | Type | Return Type | Description |
 | --- | --- | --- | --- |
-| `getHttpResponse` | function | XanoResponse | Returns XanoResponse to get more information like HTTP status, headers, etc
-| `message` | string | string | A generic human readable error message
+| `getHttpResponse` | `function` | `XanoResponse` | Returns XanoResponse to get more information like HTTP status, headers, etc
+| `message` | `string` | `string` | A generic human readable error message
 
 Usage: 
 ```js
