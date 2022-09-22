@@ -42,7 +42,7 @@ OR use our pre-bundled JS bundle:
 
 ## Examples
 
-Examples for all methods and simple use-cases can be found in the `examples/` folder
+Examples for all methods and simple use-cases can be found in the `/examples` folder
 
 ## Usage
 
