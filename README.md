@@ -16,6 +16,7 @@ have encountered using other tools. :muscle:
 
 ## Xano Links
 
+- :globe_with_meridians: [Xano Homepage](https://xano.com/)
 - :rocket: [Xano Documentation](https://docs.xano.com/)
 - :book: [Xano Blog](https://www.xano.com/blog/)
 - :house_with_garden: [Xano Community](https://community.xano.com/home)
@@ -29,9 +30,9 @@ Use `npm` to install the Xano JS SDK module:
 npm install @xano/js-sdk
 ```
 
-OR use it directly from Unpkg:
+OR use it directly from Unpkg (replace VERSION with the npm version found at the top of this page):
 ```html
-<script type="text/javascript" src="https://unpkg.com/@xano/js-sdk@1.0.3/dist/xano.min.js"></script>
+<script type="text/javascript" src="https://unpkg.com/@xano/js-sdk@VERSION/dist/xano.min.js"></script>
 ```
 
 OR use our pre-bundled JS bundle:
