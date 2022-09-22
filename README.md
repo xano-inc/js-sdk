@@ -92,13 +92,15 @@ xano.setResponseType('json');
 ```
 
 Usage in TypeScript:
-```TypeScript
+```js
 xano.setResponseType(XanoResponseType.JSON);
 ```
 
 ### `XanoClient.get`
 
-Makes a GET HTTP request to Xano
+Makes a GET HTTP request to Xano.
+
+This function returns a Promise that resolves to `XanoResponse` on success and `XanoRequestError` on failure.
 
 | Param | Type | Required | Description |
 | --- | --- | --- | --- |
@@ -109,12 +111,21 @@ Usage:
 ```js
 xano.get('/users', {
     'sort_by': 'name'
-});
+}).then(
+    (response) => {
+        // Success!
+    },
+    (error) => {
+        // Failure
+    }
+);
 ```
 
 ### `XanoClient.post`
 
-Makes a POST HTTP request to Xano
+Makes a POST HTTP request to Xano.
+
+This function returns a Promise that resolves to `XanoResponse` on success and `XanoRequestError` on failure.
 
 | Param | Type | Required | Description |
 | --- | --- | --- | --- |
@@ -126,12 +137,21 @@ Usage:
 xano.post('/users', {
     'first_name': 'Justin',
     'last_name': 'Albrecht'
-});
+}).then(
+    (response) => {
+        // Success!
+    },
+    (error) => {
+        // Failure
+    }
+);
 ```
 
 ### `XanoClient.patch`
 
-Makes a PATCH HTTP request to Xano
+Makes a PATCH HTTP request to Xano.
+
+This function returns a Promise that resolves to `XanoResponse` on success and `XanoRequestError` on failure.
 
 | Param | Type | Required | Description |
 | --- | --- | --- | --- |
@@ -142,12 +162,21 @@ Usage:
 ```js
 xano.patch('/users', {
     'first_name': 'Justin'
-});
+}).then(
+    (response) => {
+        // Success!
+    },
+    (error) => {
+        // Failure
+    }
+);
 ```
 
 ### `XanoClient.put`
 
-Makes a PUT HTTP request to Xano
+Makes a PUT HTTP request to Xano.
+
+This function returns a Promise that resolves to `XanoResponse` on success and `XanoRequestError` on failure.
 
 | Param | Type | Required | Description |
 | --- | --- | --- | --- |
@@ -158,12 +187,21 @@ Usage:
 ```js
 xano.put('/users', {
     'last_name': 'Albrecht'
-});
+}).then(
+    (response) => {
+        // Success!
+    },
+    (error) => {
+        // Failure
+    }
+);
 ```
 
 ### `XanoClient.delete`
 
-Makes a DELETE HTTP request to Xano
+Makes a DELETE HTTP request to Xano.
+
+This function returns a Promise that resolves to `XanoResponse` on success and `XanoRequestError` on failure.
 
 | Param | Type | Required | Description |
 | --- | --- | --- | --- |
@@ -174,12 +212,21 @@ Usage:
 ```js
 xano.delete('/users/1', {
     'optional': 'abc'
-});
+}).then(
+    (response) => {
+        // Success!
+    },
+    (error) => {
+        // Failure
+    }
+);
 ```
 
 ### `XanoClient.head`
 
-Makes a HEAD HTTP request to Xano
+Makes a HEAD HTTP request to Xano.
+
+This function returns a Promise that resolves to `XanoResponse` on success and `XanoRequestError` on failure.
 
 | Param | Type | Required | Description |
 | --- | --- | --- | --- |
@@ -190,7 +237,62 @@ Usage:
 ```js
 xano.head('/users/1', {
     'optional': 'abc'
-});
+}).then(
+    (response) => {
+        // Success!
+    },
+    (error) => {
+        // Failure
+    }
+);
+```
+
+### `XanoResponse`
+
+The response class of a successful GET/POST/PATCH/PUT/DELETE/HEAD request
+
+| Param | Type | Return Type | Description |
+| --- | --- | --- | --- |
+| `getBody` | function | any | If ResponseType is set to JSON it will be the JSON encoded result. If its set to text then the raw text is returned
+| `getHeaders` | function | object | key/value pairs of the response headers
+| `getStatusCode` | function | number | The status code of the HTTP request
+
+Usage: 
+```js
+xano.get('/users').then(
+    (response) => {
+        const body = response.getBody();
+        const headers = response.getHeaders();
+        const statusCode = response.getStatusCode();
+    }
+);
+```
+
+### `XanoRequestError`
+
+The response class of a failed GET/POST/PATCH/PUT/DELETE/HEAD request
+
+This class extends the JS [Error](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error) class
+
+| Param | Type | Return Type | Description |
+| --- | --- | --- | --- |
+| `getHttpResponse` | function | XanoResponse | Returns XanoResponse to get more information like HTTP status, headers, etc
+| `message` | string | string | A generic human readable error message
+
+Usage: 
+```js
+xano.get('/users').then(
+    (response) => {
+
+    },
+    (error) => {
+        const xanoHttpResponse = error.getHttpResponse();
+
+        const body = xanoHttpResponse.getBody();
+        const headers = xanoHttpResponse.getHeaders();
+        const statusCode = xanoHttpResponse.getStatusCode();
+    }
+);
 ```
 
 ## TypeScript support
