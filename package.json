@@ -1,11 +1,11 @@
 {
   "name": "@xano/js-sdk",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Xano JavaScript SDK",
   "main": "lib/index",
   "types": "lib/index.d",
   "files": [
-    "lib/index.js"
+    "lib"
   ],
   "scripts": {
     "test": "jest",
