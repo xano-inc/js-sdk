@@ -1,6 +1,6 @@
 import fetchMock from 'jest-fetch-mock'
-import { XanoClient } from './xano-client';
-import { XanoResponseType } from './enums/response-type';
+import { XanoClient } from '../src/xano-client';
+import { XanoResponseType } from '../src/enums/response-type';
 import { describe, expect, test } from '@jest/globals';
 
 describe('Xano Client', () => {

@@ -14,7 +14,7 @@ export class XanoResponse {
     public getHeaders(): Record<string, string> {
         let headers: Record<string, string> = {};
 
-        this.response.headers.forEach((value, key) => {
+        this.response.headers.forEach((value: string, key: string) => {
             headers[key] = value;
         });
 

@@ -1,5 +1,5 @@
-import { XanoRequestError } from './request';
-import { XanoResponse } from '../models/response';
+import { XanoRequestError } from '../../src/errors/request';
+import { XanoResponse } from '../../src/models/response';
 import { describe, expect, test } from '@jest/globals';
 
 describe('Xano Client', () => {

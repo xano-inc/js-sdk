@@ -1,5 +1,5 @@
 import fetchMock from 'jest-fetch-mock'
-import { XanoResponse } from './response';
+import { XanoResponse } from '../../src/models/response';
 import { describe, expect, test } from '@jest/globals';
 
 describe('XanoResponse', () => {

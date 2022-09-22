@@ -1,10 +1,10 @@
 import fetchMock from 'jest-fetch-mock'
-import { XanoClient } from './xano-client';
-import { XanoRequestError } from './errors/request';
-import { XanoResponse } from './models/response';
+import { XanoClient } from '../src/xano-client';
+import { XanoRequestError } from '../src/errors/request';
+import { XanoResponse } from '../src/models/response';
 import { describe, expect, test } from '@jest/globals';
 
-describe('Xano Client: Delete Requests', () => {
+describe('Xano Client: PATCH Requests', () => {
     const apiGroupBaseUrl = 'https://x8ki-letl-twmt.n7.xano.io/api:jVuUQATw';
 
     let xano: XanoClient;
@@ -18,38 +18,43 @@ describe('Xano Client: Delete Requests', () => {
         });
     });
 
-    test('Makes successful request', async () => {
+    test('Returns successful JSON', async () => {
         const expectedStatusCode = 200;
+        const expectedResponse = {
+            'message': 'This is a response'
+        };
 
-        fetchMock.mockResponseOnce('null', {
+        fetchMock.mockResponseOnce(JSON.stringify(expectedResponse), {
             status: expectedStatusCode
         });
 
-        await xano.delete('/test').then(
+        await xano.patch('/test').then(
             (response: XanoResponse) => {
                 expect(response.getStatusCode()).toEqual(expectedStatusCode);
-            },
-            (response: XanoResponse) => {
-                fail('Request unsuccessful when it should have succeeded');
+                expect(response.getBody()).toEqual(expectedResponse);
             }
         );
     });
 
-    test('Makes unsuccessful request', async () => {
+    test('Returns error JSON', async () => {
         const expectedStatusCode = 404;
+        const expectedResponse = {
+            'message': 'This is a response'
+        };
 
-        fetchMock.mockResponseOnce('null', {
+        fetchMock.mockResponseOnce(JSON.stringify(expectedResponse), {
             status: expectedStatusCode
         });
 
-        await xano.delete('/test').then(
+        await xano.patch('/test').then(
             (response: XanoResponse) => {
-                fail('Request successful when it should have failed');
+                fail('Responded with success even though it should be error');
             },
             (error: XanoRequestError) => {
                 const response = error.getHttpResponse();
 
                 expect(response.getStatusCode()).toEqual(expectedStatusCode);
+                expect(response.getBody()).toEqual(expectedResponse);
             }
         );
     });

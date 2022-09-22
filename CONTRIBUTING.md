@@ -1,1 +1,1 @@
-# Contributing to the Xano SDK for JavaScript
+# Contributing to the Xano JavaScript SDK

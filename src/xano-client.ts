@@ -95,17 +95,18 @@ export class XanoClient {
             (response: Response) => {
                 rawResponse = response;
 
-                switch (requestHeaders.get('Accept')) {
-                    case XanoContentType.JSON: return response.json();
-                    case XanoContentType.Text: return response.text();
+                if (requestHeaders.get('Accept') === XanoContentType.JSON) {
+                    return response.json();
                 }
+
+                return response.text();
             }
         ).then(
             (data: any) => {
                 const response = new XanoResponse(rawResponse, data);
 
                 if (!rawResponse.ok) {
-                    throw new XanoRequestError('There was an error with your request', response)
+                    throw new XanoRequestError('There was an error with your request', response);
                 }
 
                 return response;

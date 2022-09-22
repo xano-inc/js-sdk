@@ -1,11 +1,11 @@
 import fetchMock from 'jest-fetch-mock'
-import { XanoClient } from './xano-client';
-import { XanoRequestError } from './errors/request';
-import { XanoResponse } from './models/response';
-import { XanoResponseType } from './enums/response-type';
+import { XanoClient } from '../src/xano-client';
+import { XanoRequestError } from '../src/errors/request';
+import { XanoResponse } from '../src/models/response';
+import { XanoResponseType } from '../src/enums/response-type';
 import { describe, expect, test } from '@jest/globals';
 
-describe('Xano Client: POST Requests', () => {
+describe('Xano Client: GET Requests', () => {
     const apiGroupBaseUrl = 'https://x8ki-letl-twmt.n7.xano.io/api:jVuUQATw';
 
     let xano: XanoClient;
@@ -29,7 +29,7 @@ describe('Xano Client: POST Requests', () => {
             status: expectedStatusCode
         });
 
-        await xano.post('/test').then(
+        await xano.get('/test').then(
             (response: XanoResponse) => {
                 expect(response.getStatusCode()).toEqual(expectedStatusCode);
                 expect(response.getBody()).toEqual(expectedResponse);
@@ -47,7 +47,7 @@ describe('Xano Client: POST Requests', () => {
             status: expectedStatusCode
         });
 
-        await xano.post('/test').then(
+        await xano.get('/test').then(
             (response: XanoResponse) => {
                 fail('Responded with success even though it should be error');
             },
@@ -70,7 +70,7 @@ describe('Xano Client: POST Requests', () => {
 
         xano.setResponseType(XanoResponseType.Text);
 
-        await xano.post('/test').then(
+        await xano.get('/test').then(
             (response: XanoResponse) => {
                 expect(response.getStatusCode()).toEqual(expectedStatusCode);
                 expect(response.getBody()).toEqual(expectedResponse);
@@ -88,7 +88,7 @@ describe('Xano Client: POST Requests', () => {
 
         xano.setResponseType(XanoResponseType.Text);
 
-        await xano.post('/test').then(
+        await xano.get('/test').then(
             (response: XanoResponse) => {
                 fail('Responded with success even though it should be error');
             },

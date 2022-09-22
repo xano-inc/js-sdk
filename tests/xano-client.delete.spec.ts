@@ -1,10 +1,10 @@
 import fetchMock from 'jest-fetch-mock'
-import { XanoClient } from './xano-client';
-import { XanoRequestError } from './errors/request';
-import { XanoResponse } from './models/response';
+import { XanoClient } from '../src/xano-client';
+import { XanoRequestError } from '../src/errors/request';
+import { XanoResponse } from '../src/models/response';
 import { describe, expect, test } from '@jest/globals';
 
-describe('Xano Client: HEAD Requests', () => {
+describe('Xano Client: Delete Requests', () => {
     const apiGroupBaseUrl = 'https://x8ki-letl-twmt.n7.xano.io/api:jVuUQATw';
 
     let xano: XanoClient;
@@ -20,19 +20,14 @@ describe('Xano Client: HEAD Requests', () => {
 
     test('Makes successful request', async () => {
         const expectedStatusCode = 200;
-        const expectedHeaders = {
-            'content-type': 'application/json'
-        }
 
-        fetchMock.mockResponseOnce('', {
-            headers: expectedHeaders,
-            status: expectedStatusCode,
+        fetchMock.mockResponseOnce('null', {
+            status: expectedStatusCode
         });
 
-        await xano.head('/test').then(
+        await xano.delete('/test').then(
             (response: XanoResponse) => {
                 expect(response.getStatusCode()).toEqual(expectedStatusCode);
-                expect(response.getHeaders()).toEqual(expectedHeaders);
             },
             (response: XanoResponse) => {
                 fail('Request unsuccessful when it should have succeeded');
@@ -43,11 +38,11 @@ describe('Xano Client: HEAD Requests', () => {
     test('Makes unsuccessful request', async () => {
         const expectedStatusCode = 404;
 
-        fetchMock.mockResponseOnce('', {
+        fetchMock.mockResponseOnce('null', {
             status: expectedStatusCode
         });
 
-        await xano.head('/test').then(
+        await xano.delete('/test').then(
             (response: XanoResponse) => {
                 fail('Request successful when it should have failed');
             },
