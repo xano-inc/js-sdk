@@ -63,10 +63,12 @@ xano.post('/file_upload', {
         // Success!
     },
     (error) => {
-        // Error
+        // Failure
     }
 );
 ```
+
+NodeJS users should refer to our `XanoFile` class.
 
 ## NodeJS
 
