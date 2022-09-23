@@ -1,7 +1,6 @@
 // Enums
 export { XanoContentType } from './enums/content-type';
 export { XanoRequestType } from './enums/request-type';
-export { XanoResponseType } from './enums/response-type';
 
 // Errors
 export { XanoRequestError } from './errors/request';
@@ -16,3 +15,4 @@ export { XanoResponse } from './models/response';
 
 // Client
 export { XanoClient } from './xano-client';
+export { XanoNodeClient } from './xano-node-client';

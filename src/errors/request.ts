@@ -1,4 +1,4 @@
-import { XanoResponse } from "../models/response";
+import { XanoResponse } from '../models/response';
 
 export class XanoRequestError extends Error {
     public getHttpResponse: () => XanoResponse;

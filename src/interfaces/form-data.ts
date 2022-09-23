@@ -1,5 +1,5 @@
 export interface XanoFormData {
-    formData: FormData;
+    formData: any;
     hasFile: boolean;
     rawFormData: Record<any, any>;
 }

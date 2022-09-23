@@ -1,0 +1,1 @@
+{"version":3,"file":"xano-node-client.d.ts","sourceRoot":"","sources":["../src/xano-node-client.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,UAAU,EAAE,MAAM,eAAe,CAAC;AAG3C,qBAAa,cAAe,SAAQ,UAAU;IAC1C,SAAS,CAAC,mBAAmB,IAAI,GAAG;IAIpC,SAAS,CAAC,MAAM,CAAC,QAAQ,EAAE,GAAG,GAAG,OAAO;CAG3C"}
