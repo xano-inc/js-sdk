@@ -6,6 +6,6 @@ export { XanoFormData } from './interfaces/form-data';
 export { XanoRequestParams } from './interfaces/request-params';
 export { XanoFile } from './models/file';
 export { XanoResponse } from './models/response';
-export { XanoClient } from './xano-client';
-export { XanoNodeClient } from './xano-node-client';
+export { XanoClient } from './client';
+export { XanoNodeClient } from './node-client';
 //# sourceMappingURL=index.d.ts.map

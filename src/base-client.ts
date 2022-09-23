@@ -1,4 +1,4 @@
-import { Axios, AxiosRequestConfig, AxiosResponse } from 'axios';
+import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 import { XanoClientConfig } from './interfaces/client-config';
 import { XanoContentType } from './enums/content-type';
 import { XanoFile } from './models/file';
@@ -98,11 +98,11 @@ export abstract class XanoBaseClient {
 
         axiosConfig.headers = requestHeaders;
 
-        return (new Axios({})).request(axiosConfig).then(
+        return axios.request(axiosConfig).then(
             (response: AxiosResponse) => {
                 const resp = new XanoResponse(response);
 
-                if (response.status < 200 || response.status > 299) {
+                if (response.status < 200 || response.status >= 300) {
                     throw new XanoRequestError('There was an error with your request', resp);
                 }
 

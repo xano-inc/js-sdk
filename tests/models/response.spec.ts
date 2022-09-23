@@ -1,110 +1,74 @@
-import fetchMock from 'jest-fetch-mock'
+import mockAxios from 'jest-mock-axios';
+import { AxiosResponse, AxiosResponseHeaders } from 'axios';
 import { XanoResponse } from '../../src/models/response';
 import { describe, expect, test } from '@jest/globals';
 
 describe('XanoResponse', () => {
     beforeEach(() => {
-        fetchMock.resetMocks();
+        mockAxios.reset();
     });
 
-    test('Status code is 200', () => {
-        fetchMock.mockResponseOnce('Response Body Text', {
+    test('Status should return', () => {
+        const xanoResponse = new XanoResponse(<AxiosResponse>{
+            data: '',
+            headers: {},
             status: 200
         });
 
-        fetch('test').then(
-            (response: Response) => {
-                const xanoResponse = new XanoResponse(response, {});
-
-                expect(xanoResponse.getStatusCode()).toEqual(200);
-            }
-        );
+        expect(xanoResponse.getStatusCode()).toEqual(200);
     });
 
-    test('Status code is 404', () => {
-        fetchMock.mockResponseOnce('Response Body Text', {
-            status: 404
-        });
-
-        fetch('test').then(
-            (response: Response) => {
-                const xanoResponse = new XanoResponse(response, {});
-
-                expect(xanoResponse.getStatusCode()).toEqual(404);
-            }
-        );
-    });
-
-    test('Should have string data', () => {
-        const responseString = 'Response Body Text';
-
-        fetchMock.mockResponseOnce(responseString);
-
-        let rawResponse: Response;
-
-        fetch('test').then(
-            (response: Response) => {
-                rawResponse = response;
-
-                return response.text();
-            }
-        ).then(
-            (data: any) => {
-                const xanoResponse = new XanoResponse(rawResponse, data);
-
-                expect(xanoResponse.getBody()).toEqual(responseString);
-            }
-        );
-    });
-
-    test('Should have JSON data', () => {
-        const responseJson = {
-            'a': 'b',
-            'c': 'd'
-        };
-
-        fetchMock.mockResponseOnce(JSON.stringify(responseJson));
-
-        let rawResponse: Response;
-
-        fetch('test').then(
-            (response: Response) => {
-                rawResponse = response;
-
-                return response.json();
-            }
-        ).then(
-            (data: any) => {
-                const xanoResponse = new XanoResponse(rawResponse, data);
-
-                expect(xanoResponse.getBody()).toEqual(responseJson);
-            }
-        );
-    });
-
-    test('Should have headers', () => {
-        const requestHeaders = {
+    test('Headers should return', () => {
+        const expectedHeaders = {
             'content-type': 'application/json'
         };
 
-        fetchMock.mockResponseOnce('', {
-            headers: requestHeaders
+        const xanoResponse = new XanoResponse(<AxiosResponse>{
+            data: '',
+            headers: <AxiosResponseHeaders>expectedHeaders,
+            status: 200
         });
 
-        let rawResponse: Response;
+        expect(xanoResponse.getHeaders()).toEqual(expectedHeaders);
+    });
 
-        fetch('test').then(
-            (response: Response) => {
-                rawResponse = response;
+    test('Body should return a string', () => {
+        const expectedResult: string = 'abcdef';
 
-                return response.text();
-            }
-        ).then(
-            (data: any) => {
-                const xanoResponse = new XanoResponse(rawResponse, data);
+        const xanoResponse = new XanoResponse(<AxiosResponse>{
+            data: expectedResult,
+            status: 200
+        });
 
-                expect(xanoResponse.getHeaders()).toEqual(requestHeaders);
-            }
-        );
+        expect(xanoResponse.getBody()).toEqual(expectedResult);
+    });
+
+    test('Body should return a JSON string', () => {
+        const expectedResult: string = '{"a":"b"}';
+
+        const xanoResponse = new XanoResponse(<AxiosResponse>{
+            data: expectedResult,
+            status: 200
+        });
+
+        expect(xanoResponse.getBody()).toEqual(expectedResult);
+    });
+
+    test('Body should JSON based on response header', () => {
+        const expectedResult = {
+            'a': 'b'
+        };
+
+        const headers = {
+            'content-type': 'application/json'
+        };
+
+        const xanoResponse = new XanoResponse(<AxiosResponse>{
+            data: JSON.stringify(expectedResult),
+            headers: <AxiosResponseHeaders>headers,
+            status: 200
+        });
+
+        expect(xanoResponse.getBody()).toEqual(expectedResult);
     });
 });

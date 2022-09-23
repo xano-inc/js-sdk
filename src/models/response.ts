@@ -2,17 +2,19 @@ import { AxiosResponse } from 'axios';
 
 export class XanoResponse {
     private body: any;
+    private headers: Record<string, string>;
     private response: AxiosResponse;
 
     constructor(response: AxiosResponse) {
-        this.response = response;
         this.body = response.data;
+        this.headers = response.headers ?? {};
+        this.response = response;
 
         if (typeof this.body === 'string' && this.body.length > 0) {
-            const contentType = response.headers['content-type'] ?? '';
+            const contentType = this.headers['content-type'] ?? '';
             if (contentType.indexOf('application/json') === 0) {
                 try {
-                    this.body = JSON.parse(this.response.data);
+                    this.body = JSON.parse(this.body);
                 } catch (e) { }
             }
         }
@@ -23,7 +25,7 @@ export class XanoResponse {
     }
 
     public getHeaders(): Record<string, string> {
-        return this.response.headers;
+        return this.headers;
     }
 
     public getStatusCode(): number {

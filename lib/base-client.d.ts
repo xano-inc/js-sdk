@@ -1,6 +1,6 @@
 import { XanoClientConfig } from './interfaces/client-config';
 import { XanoResponse } from './models/response';
-export declare abstract class BaseClient {
+export declare abstract class XanoBaseClient {
     private config;
     constructor(config: XanoClientConfig);
     protected abstract getFormDataInstance(): any;

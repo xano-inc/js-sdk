@@ -1,57 +1,29 @@
 import { XanoRequestError } from '../../src/errors/request';
 import { XanoResponse } from '../../src/models/response';
 import { describe, expect, test } from '@jest/globals';
+import { AxiosResponse } from 'axios';
 
-describe('Xano Client', () => {
-    beforeEach(() => {
-        fetchMock.resetMocks()
+describe('XanoResponse', () => {
+    const expectedErrorMessage = 'Test message';
+    const expectedErrorHttpStatus = 404;
+
+    const xanoResponse = new XanoResponse(<AxiosResponse>{
+        data: '',
+        headers: {},
+        status: expectedErrorHttpStatus
     });
 
-    test('Message should be set', () => {
-        const expectedMessage = 'This is a message';
+    const err: XanoRequestError = new XanoRequestError(expectedErrorMessage, xanoResponse);
 
-        fetchMock.mockResponseOnce('Response Body Text', {
-            status: 200
-        });
-
-        fetch('test').then(
-            (response: Response) => {
-                const xanoResponse = new XanoResponse(response, {});
-
-                const error = new XanoRequestError(expectedMessage, xanoResponse);
-
-                expect(error.message).toEqual(expectedMessage);
-            }
-        );
+    test('Should have a message', () => {
+        expect(err.message).toEqual(expectedErrorMessage);
     });
 
-    test('Should have XanoResponse', () => {
-        const expectedMessage = 'This is a message';
-        const responseBody = 'Response Body Text';
-
-        fetchMock.mockResponseOnce(responseBody, {
-            status: 200
-        });
-
-        let rawResponse: Response;
-
-        fetch('test').then(
-            (response: Response) => {
-                rawResponse = response;
-
-                return response.text();
-            }
-        ).then(
-            (data: any) => {
-                const xanoResponse = new XanoResponse(rawResponse, data);
-
-                const error = new XanoRequestError(expectedMessage, xanoResponse);
-
-                const errorXanoResponse = error.getHttpResponse();
-
-                expect(errorXanoResponse.getStatusCode()).toEqual(200);
-                expect(errorXanoResponse.getBody()).toEqual(responseBody);
-            }
-        );
+    test('Should return XanoResponse', () => {
+        expect((err.getHttpResponse() instanceof XanoResponse)).toBeTruthy();
     });
+
+    test('Should return XanoResponse with correct status', () => {
+        expect(err.getHttpResponse().getStatusCode()).toEqual(expectedErrorHttpStatus);
+    })
 });
