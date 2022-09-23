@@ -11,6 +11,7 @@ export { XanoFormData } from './interfaces/form-data';
 export { XanoRequestParams } from './interfaces/request-params';
 
 // Models
+export { XanoFile } from './models/file';
 export { XanoResponse } from './models/response';
 
 // Client

@@ -1,6 +1,5 @@
 import { BaseClient } from './base-client';
 export declare class XanoClient extends BaseClient {
     protected getFormDataInstance(): any;
-    protected isFile(instance: any): boolean;
 }
 //# sourceMappingURL=xano-client.d.ts.map

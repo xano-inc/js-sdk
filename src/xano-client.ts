@@ -4,8 +4,4 @@ export class XanoClient extends BaseClient {
     protected getFormDataInstance(): any {
         return new FormData;
     }
-
-    protected isFile(instance: any): boolean {
-        return (instance instanceof File);
-    }
 }

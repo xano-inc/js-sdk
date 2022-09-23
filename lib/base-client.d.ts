@@ -4,9 +4,9 @@ export declare abstract class BaseClient {
     private config;
     constructor(config: XanoClientConfig);
     protected abstract getFormDataInstance(): any;
-    protected abstract isFile(instance: any): boolean;
     private buildFormData;
     private hasAuthToken;
+    private isFileType;
     private request;
     setAuthToken(authToken: string | null): this;
     delete(endpoint: string, params?: Record<any, any>): Promise<XanoResponse>;
