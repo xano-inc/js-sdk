@@ -72,7 +72,7 @@ xano.post('/file_upload', {
 );
 ```
 
-NodeJS users should refer to our [XanoFile](#XanoFile) class.
+NodeJS users should refer to our [XanoFile](#xanofile) class.
 
 ## Client Documentation
 
