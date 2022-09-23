@@ -6,6 +6,7 @@ import { XanoRequestParams } from "./interfaces/request-params";
 import { XanoRequestType } from "./enums/request-type";
 import { XanoResponse } from "./models/response";
 import { XanoResponseType } from "./enums/response-type";
+import { Axios, AxiosRequestConfig, AxiosResponse } from "axios";
 
 export class XanoClient {
     private config: XanoClientConfig = {
@@ -52,76 +53,57 @@ export class XanoClient {
         return typeof this.config?.authToken === 'string' && this.config.authToken.length > 0;
     }
 
-    private request(params: XanoRequestParams): Promise<XanoResponse> {
-        const requestHeaders: HeadersInit = new Headers();
-        const url = new URL(`${this.config.apiGroupBaseUrl}${params.endpoint}`);
+    private request(params: XanoRequestParams): Promise<any> {
+        const axiosConfig = <AxiosRequestConfig>{
+            baseURL: this.config.apiGroupBaseUrl,
+            headers: {},
+            method: params.method,
+            responseType: this.config.responseType,
+            url: params.endpoint,
+        };
+
+        const requestHeaders = {};
 
         if (params.urlParams) {
-            this.updateUrlWithParams(url, params.urlParams)
+            axiosConfig.params = params.urlParams;
         }
 
         if (this.hasAuthToken()) {
-            requestHeaders.set('Authorization', `Bearer ${this.config.authToken}`);
+            requestHeaders['Authorization'] = `Bearer ${this.config.authToken}`;
         }
 
         if (params.method === XanoRequestType.HEAD) {
-            requestHeaders.set('Accept', XanoContentType.Text);
-        } else if (this.config.responseType === XanoResponseType.Text) {
-            requestHeaders.set('Accept', XanoContentType.Text);
-        } else if (this.config.responseType === XanoResponseType.JSON) {
-            requestHeaders.set('Accept', XanoContentType.JSON);
+            // requestHeaders['Accept'] = XanoContentType.Text;
         }
-
-        let requestOptions: Partial<RequestInit> = {
-            headers: requestHeaders,
-            method: params.method
-        };
 
         if (params.bodyParams) {
             const ret = this.buildFormData(params.bodyParams);
 
             if (ret.hasFile) {
-                requestHeaders.delete('Content-Type');
-                requestOptions.body = ret.formData;
+                // delete requestHeaders['Content-Type'];
+                // axiosConfig.data = ret.formData;
             } else {
-                requestHeaders.set('Content-Type', XanoContentType.JSON);
-                requestOptions.body = JSON.stringify(ret.rawFormData);
+                requestHeaders['Content-Type'] = XanoContentType.JSON;
+
+                axiosConfig.data = ret.rawFormData;
             }
         }
 
-        let rawResponse: Response;
+        return (new Axios({})).request(axiosConfig)
+            .catch((error) => {
+                console.log('error')
+            })
+            .then(
+                (response: AxiosResponse) => {
+                    const resp = new XanoResponse(response);
 
-        return fetch(url.toString(), requestOptions).then(
-            (response: Response) => {
-                rawResponse = response;
+                    if (response.status < 200 || response.status > 299) {
+                        throw new XanoRequestError('There was an error with your request', resp);
+                    }
 
-                if (requestHeaders.get('Accept') === XanoContentType.JSON) {
-                    return response.json();
+                    return resp;
                 }
-
-                return response.text();
-            }
-        ).then(
-            (data: any) => {
-                const response = new XanoResponse(rawResponse, data);
-
-                if (!rawResponse.ok) {
-                    throw new XanoRequestError('There was an error with your request', response);
-                }
-
-                return response;
-            }
-        );
-    }
-
-    private updateUrlWithParams(url: URL, params: Record<any, any>): void {
-        let urlParams = new URLSearchParams(url.search);
-
-        Object.keys(params).forEach((index) => {
-            urlParams.set(index, params[index]);
-        });
-
-        url.search = urlParams.toString();
+            );
     }
 
     public setAuthToken(authToken: string | null): XanoClient {

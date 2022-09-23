@@ -1,24 +1,18 @@
-export class XanoResponse {
-    private body: any;
-    private response: Response;
+import { AxiosResponse } from "axios";
 
-    constructor(response: Response, body: any) {
-        this.body = body;
+export class XanoResponse {
+    private response: AxiosResponse;
+
+    constructor(response: AxiosResponse) {
         this.response = response;
     }
 
     public getBody(): any {
-        return this.body;
+        return this.response.data;
     }
 
     public getHeaders(): Record<string, string> {
-        let headers: Record<string, string> = {};
-
-        this.response.headers.forEach((value: string, key: string) => {
-            headers[key] = value;
-        });
-
-        return headers;
+        return this.response.headers;
     }
 
     public getStatusCode(): number {

@@ -7,7 +7,6 @@ export declare class XanoClient {
     private buildFormData;
     private hasAuthToken;
     private request;
-    private updateUrlWithParams;
     setAuthToken(authToken: string | null): XanoClient;
     setResponseType(responseType: XanoResponseType): XanoClient;
     delete(endpoint: string, params?: Record<any, any>): Promise<XanoResponse>;

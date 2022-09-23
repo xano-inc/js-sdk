@@ -1,7 +1,7 @@
+import { AxiosResponse } from "axios";
 export declare class XanoResponse {
-    private body;
     private response;
-    constructor(response: Response, body: any);
+    constructor(response: AxiosResponse);
     getBody(): any;
     getHeaders(): Record<string, string>;
     getStatusCode(): number;
