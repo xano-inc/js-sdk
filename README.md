@@ -25,31 +25,54 @@ have encountered using other tools. :muscle:
 
 ## Installation
 
-Use `npm` to install the Xano JS SDK module:
+Include our script tag directly from jsDelivr:
+
+```html
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@xano/js-sdk@latest/dist/xano.min.js"></script>
+```
+
+OR use `npm` to install the Xano JS SDK module:
 
 ```sh
 npm install @xano/js-sdk
 ```
 
-OR use it directly from Unpkg:
-```html
-<script type="text/javascript" src="https://unpkg.com/@xano/js-sdk@latest/dist/xano.min.js"></script>
-```
-
 OR use our pre-bundled JS bundle:
+
 ```html
 <script type="text/javascript" src="dist/xano.min.js"></script>
 ```
 
 ## Examples
 
+### Pre-baked Examples
+
 Examples for all methods and simple use-cases can be found in the `/examples` folder.
+
+### Uploading a file
+
+Uploading a file can be a pretty complex process but we tried our best to make it as easy as possible - simply include the file as a parameter just like you would any other:
+
+```js
+const file = document.getElementById('file').files[0];
+
+xano.post('/file_upload', {
+    'file': file
+}).then(
+    (response) => {
+        // Success!
+    },
+    (error) => {
+        // Error
+    }
+);
+```
 
 ## NodeJS
 
 NodeJS users should use our `XanoNodeClient` instead of `XanoClient`. The documentation is the same, it just takes care of some inconsistencies from the web behind the scenes.
 
-## Usage
+## Client Documentation
 
 ### `XanoClient`
 
