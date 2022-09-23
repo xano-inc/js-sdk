@@ -43,6 +43,10 @@ OR use our pre-bundled JS bundle:
 <script type="text/javascript" src="dist/xano.min.js"></script>
 ```
 
+## NodeJS
+
+NodeJS users should use our `XanoNodeClient` instead of `XanoClient`. The documentation is the same, it just takes care of some inconsistencies from the web behind the scenes.
+
 ## Examples
 
 ### Pre-baked Examples
@@ -68,11 +72,7 @@ xano.post('/file_upload', {
 );
 ```
 
-NodeJS users should refer to our `XanoFile` class.
-
-## NodeJS
-
-NodeJS users should use our `XanoNodeClient` instead of `XanoClient`. The documentation is the same, it just takes care of some inconsistencies from the web behind the scenes.
+NodeJS users should refer to our [XanoFile](#XanoFile) class.
 
 ## Client Documentation
 
