@@ -1,4 +1,4 @@
-import { XanoClient } from './xano-client';
+import { XanoClient } from './client';
 
 declare global {
     var XanoClient: any;

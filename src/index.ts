@@ -15,5 +15,5 @@ export { XanoFile } from './models/file';
 export { XanoResponse } from './models/response';
 
 // Client
-export { XanoClient } from './xano-client';
-export { XanoNodeClient } from './xano-node-client';
+export { XanoClient } from './client';
+export { XanoNodeClient } from './node-client';

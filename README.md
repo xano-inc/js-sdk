@@ -1,7 +1,8 @@
 # Xano JavaScript SDK
 
-The Xano JavaScript SDK is built in pure TypeScript with no external dependencies. Under
-the hood the SDK uses [fetch](https://caniuse.com/fetch) which is supported by all modern browsers
+The Xano JavaScript SDK is built in pure TypeScript. Under
+the hood the SDK uses [Axios](https://github.com/axios/axios) which is not only supported by all modern browsers but allows us to
+be compatible with NodeJS as well.
 
 [![npm version](https://img.shields.io/npm/v/@xano/js-sdk.svg?style=flat-square)](https://www.npmjs.com/package/@xano/js-sdk)
 
@@ -44,6 +45,10 @@ OR use our pre-bundled JS bundle:
 
 Examples for all methods and simple use-cases can be found in the `/examples` folder.
 
+## NodeJS
+
+NodeJS users should use our `XanoNodeClient` instead of `XanoClient`. The documentation is the same, it just takes care of some inconsistencies from the web behind the scenes.
+
 ## Usage
 
 ### `XanoClient`
@@ -54,7 +59,6 @@ This is the primary client class of Xano. It can be instantiated with the follow
 | --- | --- | --- | --- |
 | `apiGroupBaseUrl` | `string \| null` | `null` | API Group Base URL can be found on the API Group dashboard
 | `authToken` | `string \| null` | `null` | Auth token generated in Xano from a login route (ex. `/auth/login`)
-| `responseType` | `XanoResponseType` | `json` | Values: `json`, `text`. The response type of the API whether it responds in JSON or Text
 
 Usage: 
 ```js
@@ -76,24 +80,6 @@ Sets the authentication token which makes future requests authenticated.
 Usage:
 ```js
 xano.setAuthToken('eyJhbGciOiJBMjU2S1ciLCJlbmMiOiJBM....');
-```
-
-### `XanoClient.setResponseType`
-
-Sets the response type you are expecting for the following requests.
-
-| Param | Type | Values | Description |
-| --- | --- | --- | --- |
-| `responseType` | `XanoResponseType` | `json`, `text` | The expected response type
-
-Usage in JS:
-```js
-xano.setResponseType('json');
-```
-
-Usage in TypeScript:
-```typescript
-xano.setResponseType(XanoResponseType.JSON);
 ```
 
 ### `XanoClient.get`
@@ -272,7 +258,7 @@ xano.get('/users').then(
 
 The response class of a failed `GET`/`POST`/`PATCH`/`PUT`/`DELETE`/`HEAD` request.
 
-This class extends the JS [Error](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error) class
+This class extends the JS [Error](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error) class.
 
 | Param | Type | Return Type | Description |
 | --- | --- | --- | --- |
@@ -291,6 +277,41 @@ xano.get('/users').then(
         const body = xanoHttpResponse.getBody();
         const headers = xanoHttpResponse.getHeaders();
         const statusCode = xanoHttpResponse.getStatusCode();
+    }
+);
+```
+
+### `XanoFile`
+
+`XanoFile` is a class for NodeJS only!
+
+The `XanoFile` class is required to upload a file from the NodeJS file system.
+
+| Param | Type | Description |
+| --- | --- | --- |
+| `name` | `string` | The name of the file
+| `buffer` | `Buffer` | Buffer of the file
+
+Usage:
+```js
+const fs = require('fs/promises');
+
+const fileName = '512x512bb.jpg';
+
+fs.readFile('./' + fileName).then(
+    (imageBuffer) => {
+        const xImage = new XanoFile(fileName, imageBuffer);
+
+        xano.post('/file_upload', {
+            'image': xImage
+        }).then(
+            (response) => {
+                // Success!
+            },
+            (error) => {
+                // Error
+            }
+        )
     }
 );
 ```

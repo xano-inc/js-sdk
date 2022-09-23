@@ -8,7 +8,7 @@ import { XanoRequestParams } from './interfaces/request-params';
 import { XanoRequestType } from './enums/request-type';
 import { XanoResponse } from './models/response';
 
-export abstract class BaseClient {
+export abstract class XanoBaseClient {
     private config: XanoClientConfig = {
         apiGroupBaseUrl: null,
         authToken: null
@@ -74,14 +74,11 @@ export abstract class BaseClient {
             baseURL: this.config.apiGroupBaseUrl,
             headers: {},
             method: params.method,
+            params: params.urlParams,
             url: params.endpoint,
         };
 
         const requestHeaders = {};
-
-        if (params.urlParams) {
-            axiosConfig.params = params.urlParams;
-        }
 
         if (this.hasAuthToken()) {
             requestHeaders['Authorization'] = `Bearer ${this.config.authToken}`;
