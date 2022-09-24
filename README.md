@@ -287,7 +287,7 @@ This class extends the JS [Error](https://developer.mozilla.org/en-US/docs/Web/J
 
 | Param | Type | Return Type | Description |
 | --- | --- | --- | --- |
-| `getHttpResponse` | `function` | `XanoResponse` | Returns XanoResponse to get more information like HTTP status, headers, etc
+| `getResponse` | `function` | `XanoResponse` | Returns XanoResponse to get more information like HTTP status, headers, etc
 | `message` | `string` | `string` | A generic human readable error message
 
 Usage: 
@@ -297,7 +297,7 @@ xano.get('/users').then(
 
     },
     (error) => {
-        const xanoHttpResponse = error.getHttpResponse();
+        const xanoHttpResponse = error.getResponse();
 
         const body = xanoHttpResponse.getBody();
         const headers = xanoHttpResponse.getHeaders();

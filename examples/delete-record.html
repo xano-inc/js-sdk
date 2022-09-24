@@ -83,7 +83,7 @@
                 function (error) {
                     document.getElementById('errorMessage').innerText = error.message;
 
-                    var httpResponse = error.getHttpResponse();
+                    var httpResponse = error.getResponse();
 
                     document.getElementById('errorStatus').innerText = httpResponse.getStatusCode();
                     document.getElementById('errorDetails').value = JSON.stringify(httpResponse.getBody(), null, 2);

@@ -25,13 +25,10 @@ describe('Xano Client: PUT Requests', () => {
 
         xano.put('/test');
 
-        expect(mockAxios.request).toHaveBeenCalledWith({
-            baseURL: apiGroupBaseUrl,
-            headers: {},
-            method: 'PUT',
-            params: undefined,
-            url: '/test'
-        });
+        const req = mockAxios.lastReqGet();
+
+        expect(req.method).toEqual('PUT');
+        expect(req.config.data).toEqual(undefined);
     });
 
     test('PUT function is called with params', () => {
@@ -46,15 +43,9 @@ describe('Xano Client: PUT Requests', () => {
             'a': 'b'
         });
 
-        expect(mockAxios.request).toHaveBeenCalledWith({
-            baseURL: apiGroupBaseUrl,
-            data: '{"a":"b"}',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            method: 'PUT',
-            params: undefined,
-            url: '/test'
-        });
+        const req = mockAxios.lastReqGet();
+
+        expect(req.method).toEqual('PUT');
+        expect(req.config.data).toEqual('{"a":"b"}');
     });
 });

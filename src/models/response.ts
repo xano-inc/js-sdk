@@ -3,12 +3,12 @@ import { AxiosResponse } from 'axios';
 export class XanoResponse {
     private body: any;
     private headers: Record<string, string>;
-    private response: AxiosResponse;
+    private status: number;
 
     constructor(response: AxiosResponse) {
         this.body = response.data;
         this.headers = response.headers ?? {};
-        this.response = response;
+        this.status = response.status;
 
         if (typeof this.body === 'string' && this.body.length > 0) {
             const contentType = this.headers['content-type'] ?? '';
@@ -29,6 +29,6 @@ export class XanoResponse {
     }
 
     public getStatusCode(): number {
-        return this.response.status;
+        return this.status;
     }
 }

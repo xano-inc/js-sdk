@@ -25,13 +25,10 @@ describe('Xano Client: PATCH Requests', () => {
 
         xano.patch('/test');
 
-        expect(mockAxios.request).toHaveBeenCalledWith({
-            baseURL: apiGroupBaseUrl,
-            headers: {},
-            method: 'PATCH',
-            params: undefined,
-            url: '/test'
-        });
+        const req = mockAxios.lastReqGet();
+
+        expect(req.method).toEqual('PATCH');
+        expect(req.config.data).toEqual(undefined);
     });
 
     test('PATCH function is called with params', () => {
@@ -46,15 +43,9 @@ describe('Xano Client: PATCH Requests', () => {
             'a': 'b'
         });
 
-        expect(mockAxios.request).toHaveBeenCalledWith({
-            baseURL: apiGroupBaseUrl,
-            data: '{"a":"b"}',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            method: 'PATCH',
-            params: undefined,
-            url: '/test'
-        });
+        const req = mockAxios.lastReqGet();
+
+        expect(req.method).toEqual('PATCH');
+        expect(req.config.data).toEqual('{"a":"b"}');
     });
 });

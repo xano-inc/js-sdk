@@ -48,15 +48,10 @@ describe('Xano Client', () => {
         xano.setAuthToken(bearerToken);
         xano.get('/test');
 
-        expect(mockAxios.request).toHaveBeenCalledWith({
-            baseURL: apiGroupBaseUrl,
-            headers: {
-                'Authorization': `Bearer ${bearerToken}`
-            },
-            method: 'GET',
-            params: undefined,
-            url: '/test'
-        });
+        const req = mockAxios.lastReqGet();
+
+        expect(req.method).toEqual('GET');
+        expect(req.config.headers['Authorization']).toEqual(`Bearer ${bearerToken}`);
     });
 
     test('File upload includes multipart header', () => {

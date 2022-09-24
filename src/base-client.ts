@@ -76,6 +76,7 @@ export abstract class XanoBaseClient {
             method: params.method,
             params: params.urlParams,
             url: params.endpoint,
+            validateStatus: () => true,
         };
 
         const requestHeaders = {};

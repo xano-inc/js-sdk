@@ -25,16 +25,17 @@ describe('Xano Client: GET Requests', () => {
 
         xano.get('/test');
 
-        expect(mockAxios.request).toHaveBeenCalledWith({
-            baseURL: apiGroupBaseUrl,
-            headers: {},
-            method: 'GET',
-            params: undefined,
-            url: '/test'
-        });
+        const req = mockAxios.lastReqGet();
+
+        expect(req.method).toEqual('GET');
+        expect(req.config.params).toEqual(undefined);
     });
 
     test('GET function is called with params', () => {
+        const expectedParams = {
+            'a': 'b'
+        };
+
         mockAxios.mockResponseFor({
             url: '/test',
             method: 'get'
@@ -42,18 +43,11 @@ describe('Xano Client: GET Requests', () => {
             data: 'test'
         }, true);
 
-        xano.get('/test', {
-            'a': 'b'
-        });
+        xano.get('/test', expectedParams);
 
-        expect(mockAxios.request).toHaveBeenCalledWith({
-            baseURL: apiGroupBaseUrl,
-            headers: {},
-            method: 'GET',
-            params: {
-                'a': 'b'
-            },
-            url: '/test'
-        });
+        const req = mockAxios.lastReqGet();
+
+        expect(req.method).toEqual('GET');
+        expect(req.config.params).toEqual(expectedParams);
     });
 });

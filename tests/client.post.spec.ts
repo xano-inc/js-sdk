@@ -25,13 +25,10 @@ describe('Xano Client: POST Requests', () => {
 
         xano.post('/test');
 
-        expect(mockAxios.request).toHaveBeenCalledWith({
-            baseURL: apiGroupBaseUrl,
-            headers: {},
-            method: 'POST',
-            params: undefined,
-            url: '/test'
-        });
+        const req = mockAxios.lastReqGet();
+
+        expect(req.method).toEqual('POST');
+        expect(req.config.data).toEqual(undefined);
     });
 
     test('POST function is called with params', () => {
@@ -46,15 +43,9 @@ describe('Xano Client: POST Requests', () => {
             'a': 'b'
         });
 
-        expect(mockAxios.request).toHaveBeenCalledWith({
-            baseURL: apiGroupBaseUrl,
-            data: '{"a":"b"}',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            method: 'POST',
-            params: undefined,
-            url: '/test'
-        });
+        const req = mockAxios.lastReqGet();
+
+        expect(req.method).toEqual('POST');
+        expect(req.config.data).toEqual('{"a":"b"}');
     });
 });

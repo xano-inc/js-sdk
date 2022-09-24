@@ -25,13 +25,10 @@ describe('Xano Client: Delete Requests', () => {
 
         xano.delete('/test');
 
-        expect(mockAxios.request).toHaveBeenCalledWith({
-            baseURL: apiGroupBaseUrl,
-            headers: {},
-            method: 'DELETE',
-            params: undefined,
-            url: '/test'
-        });
+        const req = mockAxios.lastReqGet();
+
+        expect(req.method).toEqual('DELETE');
+        expect(req.config.params).toEqual(undefined);
     });
 
     test('Delete function is called with params', () => {
@@ -46,15 +43,9 @@ describe('Xano Client: Delete Requests', () => {
             'a': 'b'
         });
 
-        expect(mockAxios.request).toHaveBeenCalledWith({
-            baseURL: apiGroupBaseUrl,
-            data: '{"a":"b"}',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            method: 'DELETE',
-            params: undefined,
-            url: '/test'
-        });
+        const req = mockAxios.lastReqGet();
+
+        expect(req.method).toEqual('DELETE');
+        expect(req.config.data).toEqual('{"a":"b"}');
     });
 });

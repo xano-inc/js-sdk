@@ -1,13 +1,13 @@
 import { XanoResponse } from '../models/response';
 
 export class XanoRequestError extends Error {
-    public getHttpResponse: () => XanoResponse;
+    public getResponse: () => XanoResponse;
 
-    constructor(message: string, httpResponse: XanoResponse) {
+    constructor(message: string, response: XanoResponse) {
         super(message);
 
-        this.getHttpResponse = (): XanoResponse => {
-            return httpResponse;
+        this.getResponse = (): XanoResponse => {
+            return response;
         };
     }
 }

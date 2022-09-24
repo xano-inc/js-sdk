@@ -20,10 +20,10 @@ describe('XanoResponse', () => {
     });
 
     test('Should return XanoResponse', () => {
-        expect((err.getHttpResponse() instanceof XanoResponse)).toBeTruthy();
+        expect((err.getResponse() instanceof XanoResponse)).toBeTruthy();
     });
 
     test('Should return XanoResponse with correct status', () => {
-        expect(err.getHttpResponse().getStatusCode()).toEqual(expectedErrorHttpStatus);
+        expect(err.getResponse().getStatusCode()).toEqual(expectedErrorHttpStatus);
     })
 });
