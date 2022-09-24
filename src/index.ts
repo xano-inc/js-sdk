@@ -1,3 +1,7 @@
+// Clients
+export { XanoClient } from './client';
+export { XanoNodeClient } from './node-client';
+
 // Enums
 export { XanoContentType } from './enums/content-type';
 export { XanoRequestType } from './enums/request-type';
@@ -13,7 +17,3 @@ export { XanoRequestParams } from './interfaces/request-params';
 // Models
 export { XanoFile } from './models/file';
 export { XanoResponse } from './models/response';
-
-// Client
-export { XanoClient } from './client';
-export { XanoNodeClient } from './node-client';

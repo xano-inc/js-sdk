@@ -336,7 +336,7 @@ fs.readFile('./' + fileName).then(
             (error) => {
                 // Error
             }
-        )
+        );
     }
 );
 ```
