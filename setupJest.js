@@ -30,6 +30,7 @@ class LocalStorageMock {
 }
 
 global.localStorage = new LocalStorageMock();
+global.sessionStorage = new LocalStorageMock();
 
 // Mock document
 global.document = {

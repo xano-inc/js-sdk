@@ -1,9 +1,9 @@
+import { XanoBaseStorage } from '../../src/models/base-storage';
 import { XanoCookieStorage } from '../../src/models/cookie-storage';
-import { XanoStorage } from '../../src/models/storage';
-import { describe, expect, test, beforeEach } from '@jest/globals';
+import { beforeEach, describe, expect, test } from '@jest/globals';
 
 describe('XanoCookieStorage', () => {
-    let storage: XanoStorage;
+    let storage: XanoBaseStorage;
 
     function removeBadTestKeys(resp: Record<string, string>): Record<string, string> {
         delete resp['expires'];

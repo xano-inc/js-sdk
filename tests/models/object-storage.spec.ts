@@ -1,11 +1,12 @@
-import { XanoStorage } from '../../src/models/storage';
-import { describe, expect, test } from '@jest/globals';
+import { XanoBaseStorage } from '../../src/models/base-storage';
+import { XanoObjectStorage } from '../../src/models/object-storage';
+import { beforeEach, describe, expect, test } from '@jest/globals';
 
-describe('XanoStorage', () => {
-    const storage = new XanoStorage();
+describe('XanoObjectStorage', () => {
+    let storage: XanoBaseStorage;
 
     beforeEach(() => {
-        storage.clear();
+        storage = new XanoObjectStorage();
     });
 
     test('Should default to empty', () => {

@@ -47,7 +47,7 @@ OR use our pre-bundled JS bundle:
 
 NodeJS users should use our `XanoNodeClient` instead of `XanoClient`. The documentation is the same, it just takes care of some inconsistencies from the web behind the scenes.
 
-Since NodeJS isn't a browser, the `storage` configuration is defaulted to [XanoStorage](#xanostorage).
+Since NodeJS isn't a browser, the `storage` configuration is defaulted to [XanoObjectStorage](#xanobasestorage).
 
 ## Examples
 
@@ -86,7 +86,7 @@ This is the primary client class of Xano. It can be instantiated with the follow
 | --- | --- | --- | --- |
 | `apiGroupBaseUrl` | `string \| null` | `null` | API Group Base URL can be found on the API Group dashboard
 | `authToken` | `string \| null` | `null` | Auth token generated in Xano from a login route (ex. `/auth/login`). Depending on `storage` this value will persist when set/cleared
-| `storage` | `XanoStorage` | `XanoLocalStorage` | The storage mechanism where we store persistant information like `authToken`
+| `storage` | `XanoBaseStorage` | `XanoLocalStorage` | The storage mechanism where we store persistant information like `authToken`
 
 Usage: 
 ```js
@@ -357,28 +357,37 @@ fs.readFile('./' + fileName).then(
 );
 ```
 
-### `XanoStorage`
+### `XanoBaseStorage`
 
-The base storage class used internally for storing/retrieving information like the Auth bearer token.
+The `XanoBaseStorage` class is extended for storing/retrieving information like the `authToken`.
 
-Xano supplies three Storage classes by default:
-| Class Name | Storage Mechanism | Persistant
-| --- | --- | --- |
-| `XanoStorage` | `Object` | `no`
-| `XanoLocalStorage` | `localStorage` | `yes`
-| `XanoCookieStorage` | `document.cookie` | `yes`
+Xano supplies four Storage classes by default:
+| Class Name | Storage Mechanism | Persistant | NodeJS Compatible
+| --- | --- | --- | --- |
+| `XanoCookieStorage` | `document.cookie` | `yes` | `no`
+| `XanoLocalStorage` | `localStorage` | `yes` | `no`
+| `XanoSessionStorage` | `sessionStorage` | `yes` | `no`
+| `XanoObjectStorage` | `Object` | `no` | `yes`
 
-NodeJS Users: `XanoStorage` is the only compatible NodeJS storage class and is NOT persistant.
-
-Each class share the following functions:
+Each class that extends `XanoBaseStorage` share the following functions:
 
 | Function | Params | Return Type | Description |
 | --- | --- | --- | --- |
 | `clear` | | `void` | Clears all storage keys
-| `getAll` | | `Record<string, string>` | Returns all data stored in `XanoStorage`
+| `getAll` | | `Record<string, string>` | Returns all data stored in `XanoBaseStorage`
 | `getItem` | `key: string` | `string \| null` | Returns the value for the `key`, or `null` if not set
 | `removeItem` | `key: string` | `void` | Removes the `key` and `value` from storage
 | `setItem` | `key: string`, `value: string` | `void` | Updates storage for `key` with `value`
+
+Usage: 
+```js
+import { XanoClient, XanoSessionStorage } from '@xano/js-sdk';
+
+const xano = new XanoClient({
+    'apiGroupBaseUrl': 'https://x8ki-letl-twmt.n7.xano.io/api:jVuUQATw',
+    'storage': new XanoSessionStorage()
+});
+```
 
 ## TypeScript support
 
