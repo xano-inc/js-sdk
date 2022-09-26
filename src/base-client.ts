@@ -7,18 +7,29 @@ import { XanoRequestError } from './errors/request';
 import { XanoRequestParams } from './interfaces/request-params';
 import { XanoRequestType } from './enums/request-type';
 import { XanoResponse } from './models/response';
+import { XanoStorage } from './models/storage';
+import { XanoStorageKeys } from './enums/storage-keys';
 
 export abstract class XanoBaseClient {
     private config: XanoClientConfig = {
         apiGroupBaseUrl: null,
-        authToken: null
+        authToken: null,
+        storage: new XanoStorage()
     };
 
-    constructor(config: XanoClientConfig) {
+    constructor(config: Partial<XanoClientConfig>) {
         this.config = {
             ...this.config,
             ...config
         };
+
+        if (this.config.authToken !== undefined) {
+            if (typeof this.config.authToken === 'string') {
+                this.config.storage.setItem(XanoStorageKeys.AuthToken, this.config.authToken);
+            } else {
+                this.config.storage.removeItem(XanoStorageKeys.AuthToken);
+            }
+        }
     }
 
     protected abstract getFormDataInstance(): any;
@@ -55,10 +66,6 @@ export abstract class XanoBaseClient {
         };
     }
 
-    private hasAuthToken(): boolean {
-        return typeof this.config?.authToken === 'string' && this.config.authToken.length > 0;
-    }
-
     private isFileType(instance: any): boolean {
         if (typeof File !== 'undefined') {
             if (instance instanceof File) {
@@ -82,7 +89,9 @@ export abstract class XanoBaseClient {
         const requestHeaders = {};
 
         if (this.hasAuthToken()) {
-            requestHeaders['Authorization'] = `Bearer ${this.config.authToken}`;
+            const authToken = this.config.storage.getItem(XanoStorageKeys.AuthToken);
+
+            requestHeaders['Authorization'] = `Bearer ${authToken}`;
         }
 
         if (params.bodyParams) {
@@ -112,8 +121,18 @@ export abstract class XanoBaseClient {
         );
     }
 
+    public hasAuthToken(): boolean {
+        const authToken = this.config.storage.getItem(XanoStorageKeys.AuthToken);
+
+        return typeof authToken === 'string' && authToken.length > 0;
+    }
+
     public setAuthToken(authToken: string | null): this {
-        this.config.authToken = authToken;
+        if (authToken === null) {
+            this.config.storage.removeItem(XanoStorageKeys.AuthToken);
+        } else {
+            this.config.storage.setItem(XanoStorageKeys.AuthToken, authToken);
+        }
 
         return this;
     }

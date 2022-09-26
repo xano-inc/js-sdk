@@ -4,6 +4,7 @@ import { XanoFile } from '../src/models/file';
 import { XanoNodeClient as XanoClient } from '../src/node-client';
 import { XanoRequestError } from '../src/errors/request';
 import { XanoResponse } from '../src/models/response';
+import { XanoStorageKeys } from '../src/enums/storage-keys';
 import { describe, expect, test } from '@jest/globals';
 
 describe('Xano Client', () => {
@@ -18,21 +19,28 @@ describe('Xano Client', () => {
         });
     });
 
-    test('hasAuthToken to be false', () => {
-        expect((<any>xano).hasAuthToken()).toBeFalsy();
+    test('Initialiing with authToken updates storage', () => {
+        xano = new XanoClient({
+            'apiGroupBaseUrl': apiGroupBaseUrl,
+            'authToken': 'abcdef'
+        });
+
+        expect((<any>xano).config.storage.getItem(XanoStorageKeys.AuthToken)).toEqual('abcdef');
     });
 
-    test('hasAuthToken to be true', () => {
-        xano.setAuthToken('abc');
-
-        expect((<any>xano).hasAuthToken()).toBeTruthy();
-    });
-
-    test('setAuthToken updates config', () => {
-        expect((<any>xano).config.authToken).toEqual(null);
+    test('setAuthToken updates storage', () => {
+        expect((<any>xano).config.storage.getItem(XanoStorageKeys.AuthToken)).toEqual(null);
         const resp = xano.setAuthToken('abc');
         expect(resp instanceof XanoClient).toBeTruthy();
-        expect((<any>xano).config.authToken).toEqual('abc');
+        expect((<any>xano).config.storage.getItem(XanoStorageKeys.AuthToken)).toEqual('abc');
+    });
+
+    test('setAuthToken properly updates hasAuthToken', () => {
+        xano.setAuthToken('abc');
+        expect(xano.hasAuthToken()).toBeTruthy();
+
+        xano.setAuthToken(null);
+        expect(xano.hasAuthToken()).toBeFalsy();
     });
 
     test('Request includes auth token', () => {

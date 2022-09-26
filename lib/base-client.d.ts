@@ -2,12 +2,12 @@ import { XanoClientConfig } from './interfaces/client-config';
 import { XanoResponse } from './models/response';
 export declare abstract class XanoBaseClient {
     private config;
-    constructor(config: XanoClientConfig);
+    constructor(config: Partial<XanoClientConfig>);
     protected abstract getFormDataInstance(): any;
     private buildFormData;
-    private hasAuthToken;
     private isFileType;
     private request;
+    hasAuthToken(): boolean;
     setAuthToken(authToken: string | null): this;
     delete(endpoint: string, params?: Record<any, any>): Promise<XanoResponse>;
     get(endpoint: string, params?: Record<any, any>): Promise<XanoResponse>;
