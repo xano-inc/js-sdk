@@ -7,14 +7,14 @@ import { XanoRequestError } from './errors/request';
 import { XanoRequestParams } from './interfaces/request-params';
 import { XanoRequestType } from './enums/request-type';
 import { XanoResponse } from './models/response';
-import { XanoStorage } from './models/storage';
+import { XanoObjectStorage } from './models/object-storage';
 import { XanoStorageKeys } from './enums/storage-keys';
 
 export abstract class XanoBaseClient {
     private config: XanoClientConfig = {
         apiGroupBaseUrl: null,
         authToken: null,
-        storage: new XanoStorage()
+        storage: new XanoObjectStorage()
     };
 
     constructor(config: Partial<XanoClientConfig>) {

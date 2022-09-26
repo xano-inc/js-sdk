@@ -1,12 +1,12 @@
-import { XanoLocalStorage } from '../../src/models/local-storage';
 import { XanoBaseStorage } from '../../src/models/base-storage';
+import { XanoSessionStorage } from '../../src/models/session-storage';
 import { beforeEach, describe, expect, test } from '@jest/globals';
 
-describe('XanoLocalStorage', () => {
+describe('XanoSessionStorage', () => {
     let storage: XanoBaseStorage;
 
     beforeEach(() => {
-        storage = new XanoLocalStorage();
+        storage = new XanoSessionStorage();
     });
 
     test('Should default to empty', () => {

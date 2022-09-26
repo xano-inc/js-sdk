@@ -1,5 +1,5 @@
-import { XanoStorage } from './storage';
-export declare class XanoCookieStorage extends XanoStorage {
+import { XanoBaseStorage } from './base-storage';
+export declare class XanoCookieStorage extends XanoBaseStorage {
     private cookiePath;
     private expirationDays;
     constructor(cookiePath?: string, expirationDays?: number);

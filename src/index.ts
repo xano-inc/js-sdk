@@ -16,8 +16,12 @@ export { XanoFormData } from './interfaces/form-data';
 export { XanoRequestParams } from './interfaces/request-params';
 
 // Models
-export { XanoCookieStorage } from './models/cookie-storage';
 export { XanoFile } from './models/file';
-export { XanoLocalStorage } from './models/local-storage';
 export { XanoResponse } from './models/response';
-export { XanoStorage } from './models/storage';
+
+// Storage
+export { XanoBaseStorage } from './models/base-storage';
+export { XanoCookieStorage } from './models/cookie-storage';
+export { XanoLocalStorage } from './models/local-storage';
+export { XanoObjectStorage } from './models/object-storage';
+export { XanoSessionStorage } from './models/session-storage';

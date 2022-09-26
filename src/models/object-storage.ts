@@ -1,4 +1,6 @@
-export class XanoStorage {
+import { XanoBaseStorage } from './base-storage';
+
+export class XanoObjectStorage extends XanoBaseStorage {
     private storage: Record<string, string> = {};
 
     public clear(): void {
