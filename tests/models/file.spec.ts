@@ -1,7 +1,7 @@
 import { XanoFile } from '../../src/models/file';
 import { describe, expect, test } from '@jest/globals';
 
-describe('XanoResponse', () => {
+describe('XanoFile', () => {
     const expectedName = 'test.csv';
     const expectedBuffer = Buffer.from('Welcome');
 

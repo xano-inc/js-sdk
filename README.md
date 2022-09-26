@@ -47,6 +47,8 @@ OR use our pre-bundled JS bundle:
 
 NodeJS users should use our `XanoNodeClient` instead of `XanoClient`. The documentation is the same, it just takes care of some inconsistencies from the web behind the scenes.
 
+Since NodeJS isn't a browser, the `storage` configuration is defaulted to [XanoStorage](#xanostorage).
+
 ## Examples
 
 ### Pre-baked Examples
@@ -83,7 +85,8 @@ This is the primary client class of Xano. It can be instantiated with the follow
 | Param | Type | Default | Description |
 | --- | --- | --- | --- |
 | `apiGroupBaseUrl` | `string \| null` | `null` | API Group Base URL can be found on the API Group dashboard
-| `authToken` | `string \| null` | `null` | Auth token generated in Xano from a login route (ex. `/auth/login`)
+| `authToken` | `string \| null` | `null` | Auth token generated in Xano from a login route (ex. `/auth/login`). Depending on `storage` this value will persist when set/cleared
+| `storage` | `XanoStorage` | `XanoLocalStorage` | The storage mechanism where we store persistant information like `authToken`
 
 Usage: 
 ```js
@@ -94,13 +97,26 @@ const xano = new XanoClient({
 });
 ```
 
+### `XanoClient.hasAuthToken`
+
+Checks to see if the `authToken` has been set.
+
+Usage:
+```js
+xano.setAuthToken('eyJhbGciOiJBMjU2S1ciLCJlbmMiOiJBM....');
+
+console.log(xano.hasAuthToken()); // true
+```
+
 ### `XanoClient.setAuthToken`
 
 Sets the authentication token which makes future requests authenticated.
 
+Depending on `storage` when configuring `XanoClient` this value could persist across browser reloads.
+
 | Param | Type | Description |
 | --- | --- | --- |
-| `authToken` | `string \| null` | Can be created from the `/auth/login` endpoint. Null will clear the token
+| `authToken` | `string \| null` | Can be created from the `/auth/login` endpoint. `null` will clear the token
 
 Usage:
 ```js
@@ -340,6 +356,29 @@ fs.readFile('./' + fileName).then(
     }
 );
 ```
+
+### `XanoStorage`
+
+The base storage class used internally for storing/retrieving information like the Auth bearer token.
+
+Xano supplies three Storage classes by default:
+| Class Name | Storage Mechanism | Persistant
+| --- | --- | --- |
+| `XanoStorage` | `Object` | `no`
+| `XanoLocalStorage` | `localStorage` | `yes`
+| `XanoCookieStorage` | `document.cookie` | `yes`
+
+NodeJS Users: `XanoStorage` is the only compatible NodeJS storage class and is NOT persistant.
+
+Each class share the following functions:
+
+| Function | Params | Return Type | Description |
+| --- | --- | --- | --- |
+| `clear` | | `void` | Clears all storage keys
+| `getAll` | | `Record<string, string>` | Returns all data stored in `XanoStorage`
+| `getItem` | `key: string` | `string \| null` | Returns the value for the `key`, or `null` if not set
+| `removeItem` | `key: string` | `void` | Removes the `key` and `value` from storage
+| `setItem` | `key: string`, `value: string` | `void` | Updates storage for `key` with `value`
 
 ## TypeScript support
 
