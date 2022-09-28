@@ -86,6 +86,7 @@ This is the primary client class of Xano. It can be instantiated with the follow
 | --- | --- | --- | --- |
 | `apiGroupBaseUrl` | `string \| null` | `null` | API Group Base URL can be found on the API Group dashboard
 | `authToken` | `string \| null` | `null` | Auth token generated in Xano from a login route (ex. `/auth/login`). Depending on `storage` this value will persist when set/cleared
+| `responseObjectPrefix` | `string \| null` | `null` | If the API response body is an object then this will prefix all keys with this value
 | `storage` | `XanoBaseStorage` | `XanoLocalStorage` | The storage mechanism where we store persistant information like `authToken`
 
 Usage: 
@@ -278,11 +279,11 @@ xano.head('/users/1', {
 
 The response class of a successful `GET`/`POST`/`PATCH`/`PUT`/`DELETE`/`HEAD` request.
 
-| Param | Type | Return Type | Description |
+| Function | Params | Return Type | Description |
 | --- | --- | --- | --- |
-| `getBody` | `function` | `any` | If ResponseType is set to JSON it will be the JSON encoded result. If its set to text then the raw text is returned
-| `getHeaders` | `function` | `object` | key/value pairs of the response headers
-| `getStatusCode` | `function` | `number` | The status code of the HTTP request
+| `getBody` | `objectPrefix: string` | `any` | <ul><li>If the API response is JSON it will be the JSON encoded result</li><li>If the API response is text then it will be the text result</li><li>If `objectPrefix` is set and the response is a JSON object then all keys will be prefixed with this value</li><li>`objectPrefix` will take priority over setting it on `XanoClient` through `responseObjectPrefix`</li></ul>
+| `getHeaders` |  | `object` | key/value pairs of the response headers
+| `getStatusCode` |  | `number` | The status code of the HTTP request
 
 Usage: 
 ```js
