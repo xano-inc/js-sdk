@@ -71,4 +71,52 @@ describe('XanoResponse', () => {
 
         expect(xanoResponse.getBody()).toEqual(expectedResult);
     });
+
+    test('Body should have JSON prefixed', () => {
+        const xanoResponse = new XanoResponse(<AxiosResponse>{
+            data: JSON.stringify({
+                'a': 'b'
+            }),
+            headers: <AxiosResponseHeaders>{
+                'content-type': 'application/json'
+            },
+            status: 200
+        }, 'xano_');
+
+        expect(xanoResponse.getBody()).toEqual({
+            'xano_a': 'b'
+        });
+    });
+
+    test('Body should not have Array prefixed', () => {
+        const expectedResult = [
+            {
+                name: 'Justin'
+            },
+            {
+                name: 'Eli'
+            }
+        ];
+
+        const xanoResponse = new XanoResponse(<AxiosResponse>{
+            data: JSON.stringify(expectedResult),
+            headers: <AxiosResponseHeaders>{
+                'content-type': 'application/json'
+            },
+            status: 200
+        }, 'xano_');
+
+        expect(xanoResponse.getBody()).toEqual(expectedResult);
+    });
+
+    test('Body should not have String prefixed', () => {
+        const expectedResult = 'This response is just a string';
+
+        const xanoResponse = new XanoResponse(<AxiosResponse>{
+            data: expectedResult,
+            status: 200
+        }, 'xano_');
+
+        expect(xanoResponse.getBody()).toEqual(expectedResult);
+    });
 });

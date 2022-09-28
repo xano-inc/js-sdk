@@ -14,6 +14,7 @@ export abstract class XanoBaseClient {
     private config: XanoClientConfig = {
         apiGroupBaseUrl: null,
         authToken: null,
+        responseObjectPrefix: '',
         storage: new XanoObjectStorage()
     };
 
@@ -110,7 +111,7 @@ export abstract class XanoBaseClient {
 
         return axios.request(axiosConfig).then(
             (response: AxiosResponse) => {
-                const resp = new XanoResponse(response);
+                const resp = new XanoResponse(response, this.config.responseObjectPrefix ?? '');
 
                 if (response.status < 200 || response.status >= 300) {
                     throw new XanoRequestError('There was an error with your request', resp);
