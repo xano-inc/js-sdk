@@ -5,6 +5,8 @@ export declare class XanoResponse {
     private objectPrefix;
     private status;
     constructor(response: AxiosResponse, objectPrefix?: string);
+    private prefixArray;
+    private prefixObject;
     getBody(objectPrefix?: string): any;
     getHeaders(): Record<string, string>;
     getStatusCode(): number;

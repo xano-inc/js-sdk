@@ -88,25 +88,30 @@ describe('XanoResponse', () => {
         });
     });
 
-    test('Body should not have Array prefixed', () => {
-        const expectedResult = [
-            {
-                name: 'Justin'
-            },
-            {
-                name: 'Eli'
-            }
-        ];
-
+    test('Body should have Array prefixed', () => {
         const xanoResponse = new XanoResponse(<AxiosResponse>{
-            data: JSON.stringify(expectedResult),
+            data: JSON.stringify([
+                {
+                    name: 'Justin Albrecht'
+                },
+                {
+                    name: 'Eli Beachy'
+                }
+            ]),
             headers: <AxiosResponseHeaders>{
                 'content-type': 'application/json'
             },
             status: 200
         }, 'xano_');
 
-        expect(xanoResponse.getBody()).toEqual(expectedResult);
+        expect(xanoResponse.getBody()).toEqual([
+            {
+                xano_name: 'Justin Albrecht'
+            },
+            {
+                xano_name: 'Eli Beachy'
+            }
+        ]);
     });
 
     test('Body should not have String prefixed', () => {
