@@ -22,19 +22,39 @@ export class XanoResponse {
         }
     }
 
+    private prefixArray(arr: any[], objectPrefix: string): any[] {
+        let prefixedArray: any = [];
+
+        arr.forEach((item) => {
+            const prefixedItem = this.prefixObject(item, objectPrefix);
+
+            prefixedArray.push(prefixedItem);
+        });
+
+        return prefixedArray;
+    }
+
+    private prefixObject(obj: Record<any, any>, objectPrefix: string): Record<any, any> {
+        let prefixedObject = {};
+
+        Object.keys(obj).forEach((key) => {
+            const prefixedKey = `${objectPrefix}${key}`;
+
+            prefixedObject[prefixedKey] = obj[key];
+        });
+
+        return prefixedObject;
+    }
+
     public getBody(objectPrefix: string = ''): any {
         objectPrefix = objectPrefix || this.objectPrefix;
 
-        if (objectPrefix && typeof this.body === 'object' && !Array.isArray(this.body)) {
-            let prefixedBody = {};
-
-            Object.keys(this.body).forEach((key) => {
-                const prefixedKey = `${objectPrefix}${key}`;
-
-                prefixedBody[prefixedKey] = this.body[key];
-            });
-
-            return prefixedBody;
+        if (objectPrefix && typeof this.body === 'object') {
+            if (Array.isArray(this.body)) {
+                return this.prefixArray(this.body, objectPrefix);
+            } else {
+                return this.prefixObject(this.body, objectPrefix);
+            }
         }
 
         return this.body;

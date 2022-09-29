@@ -16,6 +16,10 @@
         <div data-state="initial">
             <p>In this demo we will be making a GET request to get an event from our database then calling getBody with the objectPrefix param</p>
 
+            <label for="shouldBeObject">
+                <input type="checkbox" id="shouldBeObject" /> Check to to change response to an array of objects
+            </label>
+
             <button class="mt-15" id="makeRequest">Make Request</button>
         </div>
 
@@ -33,6 +37,9 @@
 
             <p>Response with Prefix:</p>
             <textarea class="details-textarea small" id="successDetailsPrefix"></textarea>
+
+            <br />
+            <button class="reset mt-15">Reset</button>
         </div>
 
         <div data-state="loaded-error">
@@ -57,7 +64,14 @@
         document.getElementById('makeRequest').addEventListener('click', function () {
             updateDocumentState('loading');
 
-            xano.get('/calendar').then(
+            let endpoint = '/calendar';
+
+            var shouldBeObject = document.getElementById('shouldBeObject').checked;
+            if (shouldBeObject) {
+                endpoint = '/user';
+            }
+
+            xano.get(endpoint).then(
                 // Success
                 function (httpResponse) {
                     document.getElementById('successStatus').innerText = httpResponse.getStatusCode();
