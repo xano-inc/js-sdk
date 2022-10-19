@@ -19,11 +19,22 @@ describe('Xano Client', () => {
         });
     });
 
-    test('Initialiing with authToken updates storage', () => {
+    test('Initializing with authToken updates storage', () => {
         xano = new XanoClient({
             'apiGroupBaseUrl': apiGroupBaseUrl,
             'authToken': 'abcdef'
         });
+
+        expect((<any>xano).config.storage.getItem(XanoStorageKeys.AuthToken)).toEqual('abcdef');
+    });
+
+    test('Initializing without authToken uses existing storage value', () => {
+        xano = new XanoClient({
+            'apiGroupBaseUrl': apiGroupBaseUrl
+        });
+
+        // Manually set storage key outside of XanoClient
+        (<any>xano).config.storage.storage[XanoStorageKeys.AuthToken] = 'abcdef';
 
         expect((<any>xano).config.storage.getItem(XanoStorageKeys.AuthToken)).toEqual('abcdef');
     });
