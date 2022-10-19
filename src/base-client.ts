@@ -24,8 +24,8 @@ export abstract class XanoBaseClient {
             ...config
         };
 
-        if (this.config.authToken !== undefined) {
-            if (typeof this.config.authToken === 'string') {
+        if (config?.authToken !== undefined) {
+            if (typeof this.config.authToken === 'string' && this.config.authToken.length > 0) {
                 this.config.storage.setItem(XanoStorageKeys.AuthToken, this.config.authToken);
             } else {
                 this.config.storage.removeItem(XanoStorageKeys.AuthToken);
