@@ -34,6 +34,7 @@ export abstract class XanoBaseClient {
     }
 
     protected abstract getFormDataInstance(): any;
+    protected abstract appendFormData(formData: any, key: string, value: any): void;
 
     private buildFormData(bodyData: Record<any, any>): XanoFormData {
         const formData = this.getFormDataInstance();
@@ -42,13 +43,8 @@ export abstract class XanoBaseClient {
 
         Object.entries(bodyData).forEach((entry: any) => {
             const isFileType = this.isFileType(entry[1]);
-
             if (isFileType) {
                 hasFile = true;
-            }
-
-            if (typeof entry[1] === 'object' && !isFileType) {
-                entry[1] = JSON.stringify(entry[1]);
             }
 
             rawFormData[entry[0]] = entry[1];
@@ -56,7 +52,7 @@ export abstract class XanoBaseClient {
             if (entry[1] instanceof XanoFile) {
                 formData.append(entry[0], entry[1].getBuffer(), entry[1].getName());
             } else {
-                formData.append(entry[0], entry[1]);
+                this.appendFormData(formData, entry[0], entry[1]);
             }
         });
 

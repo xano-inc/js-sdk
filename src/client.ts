@@ -14,4 +14,8 @@ export class XanoClient extends XanoBaseClient {
     protected getFormDataInstance(): any {
         return new FormData;
     }
+
+    protected appendFormData(formData: any, key: string, value: any): void {
+        formData.append(key, value);
+    }
 }

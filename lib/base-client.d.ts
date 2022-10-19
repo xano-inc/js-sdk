@@ -4,6 +4,7 @@ export declare abstract class XanoBaseClient {
     private config;
     constructor(config: Partial<XanoClientConfig>);
     protected abstract getFormDataInstance(): any;
+    protected abstract appendFormData(formData: any, key: string, value: any): void;
     private buildFormData;
     private isFileType;
     private request;

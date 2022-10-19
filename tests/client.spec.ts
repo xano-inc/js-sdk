@@ -141,15 +141,10 @@ describe('Xano Client', () => {
             }
         };
 
-        const expectedObject = {
-            'a': 'b',
-            'c': '{\"d\":\"e\",\"f\":{\"g\":\"h\"}}'
-        };
-
         const ret = (<any>xano).buildFormData(nestedObject);
 
         expect(ret.hasFile).toBeFalsy();
-        expect(ret.rawFormData).toEqual(expectedObject);
+        expect(ret.rawFormData).toEqual(nestedObject);
     });
 
     test('buildFormData with mock file to check hasFile', () => {

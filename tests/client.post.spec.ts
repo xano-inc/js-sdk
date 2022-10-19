@@ -48,4 +48,28 @@ describe('Xano Client: POST Requests', () => {
         expect(req.method).toEqual('POST');
         expect(req.config.data).toEqual('{"a":"b"}');
     });
+
+    test('POST function is called with nested params', () => {
+        mockAxios.mockResponseFor({
+            url: '/test',
+            method: 'post'
+        }, {
+            data: 'test'
+        }, true);
+
+        xano.post('/test', {
+            'a': 'b',
+            'c': {
+                'd': {
+                    'e': 'f',
+                },
+                'g': 'h',
+            }
+        });
+
+        const req = mockAxios.lastReqGet();
+
+        expect(req.method).toEqual('POST');
+        expect(req.config.data).toEqual('{\"a\":\"b\",\"c\":{\"d\":{\"e\":\"f\"},\"g\":\"h\"}}');
+    });
 });
