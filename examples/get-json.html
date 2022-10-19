@@ -53,6 +53,20 @@
             'apiGroupBaseUrl': 'https://x8ki-letl-twmt.n7.xano.io/api:jVuUQATw'
         });
 
+        var x2 = new XanoClient({
+            'apiGroupBaseUrl': 'https://xxfo-0dml-kzcl.dev.xano.io/api:dGBlkH15'
+        });
+
+        x2.post('/user/3', {
+            'a': 'b',
+            'c': {
+                'd': {
+                    'e': 'f',
+                },
+                'g': 'h',
+            }
+        })
+
         document.getElementById('makeRequest').addEventListener('click', function () {
             updateDocumentState('loading');
 
