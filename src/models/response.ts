@@ -39,20 +39,41 @@ export class XanoResponse {
 
         Object.keys(obj).forEach((key) => {
             const prefixedKey = `${objectPrefix}${key}`;
+            const type = this.typeOf(obj[key]);
 
-            prefixedObject[prefixedKey] = obj[key];
+            if (type === 'array') {
+                prefixedObject[prefixedKey] = this.prefixArray(obj[key], objectPrefix);
+            } else if (type === 'object') {
+                prefixedObject[prefixedKey] = this.prefixObject(obj[key], objectPrefix);
+            } else {
+                prefixedObject[prefixedKey] = obj[key];
+            }
         });
 
         return prefixedObject;
     }
 
+    private typeOf(data: any): string {
+        if (data === null) {
+            return 'null';
+        }
+
+        const type = typeof data;
+        if (type === 'object' && Array.isArray(data)) {
+            return 'array';
+        }
+
+        return type;
+    }
+
     public getBody(objectPrefix: string = ''): any {
         objectPrefix = objectPrefix || this.objectPrefix;
 
-        if (objectPrefix && typeof this.body === 'object') {
-            if (Array.isArray(this.body)) {
+        if (objectPrefix) {
+            const type = this.typeOf(this.body);
+            if (type === 'array') {
                 return this.prefixArray(this.body, objectPrefix);
-            } else {
+            } else if (type === 'object') {
                 return this.prefixObject(this.body, objectPrefix);
             }
         }
