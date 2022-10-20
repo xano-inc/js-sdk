@@ -28,6 +28,15 @@ describe('Xano Client', () => {
         expect((<any>xano).config.storage.getItem(XanoStorageKeys.AuthToken)).toEqual('abcdef');
     });
 
+    test('Initializing with empty string authToken clears storage', () => {
+        xano = new XanoClient({
+            'apiGroupBaseUrl': apiGroupBaseUrl,
+            'authToken': ''
+        });
+
+        expect((<any>xano).config.storage.getItem(XanoStorageKeys.AuthToken)).toEqual(null);
+    });
+
     test('Initializing without authToken uses existing storage value', () => {
         xano = new XanoClient({
             'apiGroupBaseUrl': apiGroupBaseUrl
@@ -71,6 +80,46 @@ describe('Xano Client', () => {
 
         expect(req.method).toEqual('GET');
         expect(req.config.headers['Authorization']).toEqual(`Bearer ${bearerToken}`);
+    });
+
+    test('Initializing with dataSource updates config', () => {
+        const dataSource = 'test';
+
+        xano = new XanoClient({
+            'apiGroupBaseUrl': apiGroupBaseUrl,
+            'dataSource': dataSource
+        });
+
+        expect((<any>xano).config.dataSource).toEqual(dataSource);
+        expect(xano.hasDataSource()).toEqual(true);
+    });
+
+    test('Initializing without dataSource keeps dataSource null', () => {
+        xano = new XanoClient({
+            'apiGroupBaseUrl': apiGroupBaseUrl,
+        });
+
+        expect((<any>xano).config.dataSource).toEqual(null);
+        expect(xano.hasDataSource()).toEqual(false);
+    });
+
+    test('Request includes data source header', () => {
+        mockAxios.mockResponseFor({
+            url: '/test',
+            method: 'get'
+        }, {
+            data: 'test'
+        }, true);
+
+        const dataSource = 'laksdjfasdf';
+
+        xano.setDataSource(dataSource);
+        xano.get('/test');
+
+        const req = mockAxios.lastReqGet();
+
+        expect(req.method).toEqual('GET');
+        expect(req.config.headers['X-Data-Source']).toEqual(dataSource);
     });
 
     test('File upload includes multipart header', () => {

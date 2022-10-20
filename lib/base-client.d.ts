@@ -10,6 +10,8 @@ export declare abstract class XanoBaseClient {
     private request;
     hasAuthToken(): boolean;
     setAuthToken(authToken: string | null): this;
+    hasDataSource(): boolean;
+    setDataSource(dataSource: string | null): this;
     delete(endpoint: string, params?: Record<any, any>): Promise<XanoResponse>;
     get(endpoint: string, params?: Record<any, any>): Promise<XanoResponse>;
     head(endpoint: string, params?: Record<any, any>): Promise<XanoResponse>;
