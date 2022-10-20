@@ -1,6 +1,6 @@
 {
     "name": "@xano/js-sdk",
-    "version": "1.0.16",
+    "version": "1.0.17",
     "description": "Xano JavaScript SDK",
     "main": "lib/index",
     "types": "lib/index.d",
@@ -61,7 +61,8 @@
             "!src/index.ts",
             "!src/index.web.ts",
             "!src/**/enums/*.ts",
-            "!src/**/interfaces/*ts"
+            "!src/**/interfaces/*ts",
+            "!src/models/base-storage.ts"
         ]
     }
 }

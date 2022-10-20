@@ -86,6 +86,7 @@ This is the primary client class of Xano. It can be instantiated with the follow
 | --- | --- | --- | --- |
 | `apiGroupBaseUrl` | `string \| null` | `null` | API Group Base URL can be found on the API Group dashboard
 | `authToken` | `string \| null` | `null` | Auth token generated in Xano from a login route (ex. `/auth/login`). Depending on `storage` this value will persist when set/cleared
+| `dataSource` | `string \| null` | `null` | Name of the [Xano Data Source](https://docs.xano.com/database/data-sources) to use as the `X-Data-Source` header
 | `responseObjectPrefix` | `string \| null` | `null` | If the API response body is an object or an array of objects then this will prefix all keys with this value
 | `storage` | `XanoBaseStorage` | `XanoLocalStorage` | The storage mechanism where we store persistant information like `authToken`
 
@@ -122,6 +123,32 @@ Depending on `storage` when configuring `XanoClient` this value could persist ac
 Usage:
 ```js
 xano.setAuthToken('eyJhbGciOiJBMjU2S1ciLCJlbmMiOiJBM....');
+```
+
+### `XanoClient.hasDataSource`
+
+Checks to see if the `dataSource` has been set.
+
+Usage:
+```js
+xano.setDataSource('develop');
+
+console.log(xano.hasDataSource()); // true
+```
+
+### `XanoClient.setDataSource`
+
+Sets the data source which makes future requests include the `X-Data-Source` header.
+
+More information about data sources can be [found here](https://docs.xano.com/database/data-sources)
+
+| Param | Type | Description |
+| --- | --- | --- |
+| `dataSource` | `string \| null` | The name of the data source to use
+
+Usage:
+```js
+xano.setDataSource('develop');
 ```
 
 ### `XanoClient.get`

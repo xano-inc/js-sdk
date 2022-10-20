@@ -14,6 +14,7 @@ export abstract class XanoBaseClient {
     private config: XanoClientConfig = {
         apiGroupBaseUrl: null,
         authToken: null,
+        dataSource: null,
         responseObjectPrefix: '',
         storage: new XanoObjectStorage()
     };
@@ -91,6 +92,10 @@ export abstract class XanoBaseClient {
             requestHeaders['Authorization'] = `Bearer ${authToken}`;
         }
 
+        if (this.hasDataSource()) {
+            requestHeaders['X-Data-Source'] = this.config.dataSource;
+        }
+
         if (params.bodyParams) {
             const ret = this.buildFormData(params.bodyParams);
 
@@ -130,6 +135,16 @@ export abstract class XanoBaseClient {
         } else {
             this.config.storage.setItem(XanoStorageKeys.AuthToken, authToken);
         }
+
+        return this;
+    }
+
+    public hasDataSource(): boolean {
+        return (typeof this.config.dataSource === 'string' && this.config.dataSource.length > 0);
+    }
+
+    public setDataSource(dataSource: string | null): this {
+        this.config.dataSource = dataSource;
 
         return this;
     }
