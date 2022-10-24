@@ -4,7 +4,7 @@ The Xano JavaScript SDK is built in pure TypeScript. Under
 the hood the SDK uses [Axios](https://github.com/axios/axios) which is not only supported by all modern browsers but allows us to
 be compatible with NodeJS as well.
 
-Questions, comments or suggestions? Join us in the [Xano Builders Slack](https://join.slack.com/t/xanobuilders/shared_invite/zt-1i9p6s1on-XIAP6ezx2nBFB8FpR7OWuA)
+Questions, comments or suggestions? Join the #js-sdk channel in the [Xano Builders Slack](https://join.slack.com/t/xanobuilders/shared_invite/zt-1i9p6s1on-XIAP6ezx2nBFB8FpR7OWuA)
 
 [![npm version](https://img.shields.io/npm/v/@xano/js-sdk.svg?style=flat-square)](https://www.npmjs.com/package/@xano/js-sdk)
 
