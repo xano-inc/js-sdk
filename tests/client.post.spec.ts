@@ -72,4 +72,27 @@ describe('Xano Client: POST Requests', () => {
         expect(req.method).toEqual('POST');
         expect(req.config.data).toEqual('{\"a\":\"b\",\"c\":{\"d\":{\"e\":\"f\"},\"g\":\"h\"}}');
     });
+
+    test('POST function is called with params and custom headers', () => {
+        mockAxios.mockResponseFor({
+            url: '/test',
+            method: 'post'
+        }, {
+            data: 'test'
+        }, true);
+
+        xano.post('/test', {
+            'a': 'b'
+        },{
+            custom_header_1: 'abc',
+            custom_header_2: 'def'
+        });
+
+        const req = mockAxios.lastReqGet();
+
+        expect(req.method).toEqual('POST');
+        expect(req.config.data).toEqual('{"a":"b"}');
+        expect(req.config.headers.custom_header_1).toEqual('abc');
+        expect(req.config.headers.custom_header_2).toEqual('def');
+    });
 });

@@ -108,7 +108,7 @@ export abstract class XanoBaseClient {
             }
         }
 
-        axiosConfig.headers = requestHeaders;
+        axiosConfig.headers = params.headerParams ? {...requestHeaders, ...params.headerParams} : requestHeaders;
 
         return axios.request(axiosConfig).then(
             (response: AxiosResponse) => {
@@ -149,51 +149,57 @@ export abstract class XanoBaseClient {
         return this;
     }
 
-    public delete(endpoint: string, params?: Record<any, any>): Promise<XanoResponse> {
+    public delete(endpoint: string, params?: Record<any, any>, headers?: Record<any, any>): Promise<XanoResponse> {
         return this.request({
             bodyParams: params,
             endpoint: endpoint,
             method: XanoRequestType.DELETE,
+            headerParams: headers,
         });
     }
 
-    public get(endpoint: string, params?: Record<any, any>): Promise<XanoResponse> {
+    public get(endpoint: string, params?: Record<any, any>, headers?: Record<any, any>): Promise<XanoResponse> {
         return this.request({
             endpoint: endpoint,
             method: XanoRequestType.GET,
             urlParams: params,
+            headerParams: headers,
         });
     }
 
-    public head(endpoint: string, params?: Record<any, any>): Promise<XanoResponse> {
+    public head(endpoint: string, params?: Record<any, any>, headers?: Record<any, any>): Promise<XanoResponse> {
         return this.request({
             endpoint: endpoint,
             method: XanoRequestType.HEAD,
             urlParams: params,
+            headerParams: headers,
         });
     }
 
-    public patch(endpoint: string, params?: Record<any, any>): Promise<XanoResponse> {
+    public patch(endpoint: string, params?: Record<any, any>, headers?: Record<any, any>): Promise<XanoResponse> {
         return this.request({
             bodyParams: params,
             endpoint: endpoint,
             method: XanoRequestType.PATCH,
+            headerParams: headers,
         });
     }
 
-    public post(endpoint: string, params?: Record<any, any>): Promise<XanoResponse> {
+    public post(endpoint: string, params?: Record<any, any>, headers?: Record<any, any>): Promise<XanoResponse> {
         return this.request({
             bodyParams: params,
             endpoint: endpoint,
             method: XanoRequestType.POST,
+            headerParams: headers,
         });
     }
 
-    public put(endpoint: string, params?: Record<any, any>): Promise<XanoResponse> {
+    public put(endpoint: string, params?: Record<any, any>, headers?: Record<any, any>): Promise<XanoResponse> {
         return this.request({
             bodyParams: params,
             endpoint: endpoint,
             method: XanoRequestType.PUT,
+            headerParams: headers,
         });
     }
 }
