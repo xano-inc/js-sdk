@@ -50,4 +50,30 @@ describe('Xano Client: HEAD Requests', () => {
         expect(req.method).toEqual('HEAD');
         expect(req.config.params).toEqual(expectedParams);
     });
+    
+    test('HEAD function is called with params and custom headers', () => {
+        const expectedParams = {
+            'a': 'b'
+        };
+
+        const expectedHeaders = {
+            'header_1': 'abc',
+            'header_2': 'def'
+        };
+
+        mockAxios.mockResponseFor({
+            url: '/test',
+            method: 'head'
+        }, {
+            data: 'test'
+        }, true);
+
+        xano.head('/test', expectedParams, expectedHeaders);
+
+        const req = mockAxios.lastReqGet();
+
+        expect(req.method).toEqual('HEAD');
+        expect(req.config.params).toEqual(expectedParams);
+        expect(req.config.headers).toEqual(expectedHeaders);
+    });
 });

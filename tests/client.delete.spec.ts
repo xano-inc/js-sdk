@@ -48,4 +48,27 @@ describe('Xano Client: Delete Requests', () => {
         expect(req.method).toEqual('DELETE');
         expect(req.config.data).toEqual('{"a":"b"}');
     });
+
+    test('DELETE function is called with params and custom headers', () => {
+        mockAxios.mockResponseFor({
+            url: '/test',
+            method: 'delete'
+        }, {
+            data: 'test'
+        },true);
+
+        xano.delete('/test', {
+            'a': 'b'
+        },{
+            custom_header_1: 'abc',
+            custom_header_2: 'def'
+        });
+
+        const req = mockAxios.lastReqGet();
+
+        expect(req.method).toEqual('DELETE');
+        expect(req.config.data).toEqual('{"a":"b"}');
+        expect(req.config.headers.custom_header_1).toEqual('abc');
+        expect(req.config.headers.custom_header_2).toEqual('def');
+    });
 });

@@ -50,4 +50,30 @@ describe('Xano Client: GET Requests', () => {
         expect(req.method).toEqual('GET');
         expect(req.config.params).toEqual(expectedParams);
     });
+
+    test('GET function is called with params and custom headers', () => {
+        const expectedParams = {
+            'a': 'b'
+        };
+
+        const expectedHeaders = {
+            'header_1': 'abc',
+            'header_2': 'def'
+        };
+
+        mockAxios.mockResponseFor({
+            url: '/test',
+            method: 'get'
+        }, {
+            data: 'test'
+        }, true);
+
+        xano.get('/test', expectedParams, expectedHeaders);
+
+        const req = mockAxios.lastReqGet();
+
+        expect(req.method).toEqual('GET');
+        expect(req.config.params).toEqual(expectedParams);
+        expect(req.config.headers).toEqual(expectedHeaders);
+    });
 });
