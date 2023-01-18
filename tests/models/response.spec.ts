@@ -12,7 +12,7 @@ describe('XanoResponse', () => {
         const xanoResponse = new XanoResponse(<AxiosResponse>{
             data: '',
             headers: {},
-            status: 200
+            status: 200,
         });
 
         expect(xanoResponse.getStatusCode()).toEqual(200);
@@ -20,13 +20,13 @@ describe('XanoResponse', () => {
 
     test('Headers should return', () => {
         const expectedHeaders = {
-            'content-type': 'application/json'
+            'content-type': 'application/json',
         };
 
         const xanoResponse = new XanoResponse(<AxiosResponse>{
             data: '',
             headers: <AxiosResponseHeaders>expectedHeaders,
-            status: 200
+            status: 200,
         });
 
         expect(xanoResponse.getHeaders()).toEqual(expectedHeaders);
@@ -37,7 +37,7 @@ describe('XanoResponse', () => {
 
         const xanoResponse = new XanoResponse(<AxiosResponse>{
             data: expectedResult,
-            status: 200
+            status: 200,
         });
 
         expect(xanoResponse.getBody()).toEqual(expectedResult);
@@ -48,7 +48,7 @@ describe('XanoResponse', () => {
 
         const xanoResponse = new XanoResponse(<AxiosResponse>{
             data: expectedResult,
-            status: 200
+            status: 200,
         });
 
         expect(xanoResponse.getBody()).toEqual(expectedResult);
@@ -56,100 +56,109 @@ describe('XanoResponse', () => {
 
     test('Body should JSON based on response header', () => {
         const expectedResult = {
-            'a': 'b'
+            a: 'b',
         };
 
         const headers = {
-            'content-type': 'application/json'
+            'content-type': 'application/json',
         };
 
         const xanoResponse = new XanoResponse(<AxiosResponse>{
             data: JSON.stringify(expectedResult),
             headers: <AxiosResponseHeaders>headers,
-            status: 200
+            status: 200,
         });
 
         expect(xanoResponse.getBody()).toEqual(expectedResult);
     });
 
     test('Body should have JSON prefixed', () => {
-        const xanoResponse = new XanoResponse(<AxiosResponse>{
-            data: JSON.stringify({
-                'a': 'b'
-            }),
-            headers: <AxiosResponseHeaders>{
-                'content-type': 'application/json'
+        const xanoResponse = new XanoResponse(
+            <AxiosResponse>{
+                data: JSON.stringify({
+                    a: 'b',
+                }),
+                headers: <AxiosResponseHeaders>{
+                    'content-type': 'application/json',
+                },
+                status: 200,
             },
-            status: 200
-        }, 'xano_');
+            'xano_'
+        );
 
         expect(xanoResponse.getBody()).toEqual({
-            'xano_a': 'b'
+            xano_a: 'b',
         });
     });
 
     test('Body should have Array prefixed', () => {
-        const xanoResponse = new XanoResponse(<AxiosResponse>{
-            data: JSON.stringify([
-                {
-                    name: 'Justin Albrecht'
+        const xanoResponse = new XanoResponse(
+            <AxiosResponse>{
+                data: JSON.stringify([
+                    {
+                        name: 'Justin Albrecht',
+                    },
+                    {
+                        name: 'Eli Beachy',
+                    },
+                ]),
+                headers: <AxiosResponseHeaders>{
+                    'content-type': 'application/json',
                 },
-                {
-                    name: 'Eli Beachy'
-                }
-            ]),
-            headers: <AxiosResponseHeaders>{
-                'content-type': 'application/json'
+                status: 200,
             },
-            status: 200
-        }, 'xano_');
+            'xano_'
+        );
 
         expect(xanoResponse.getBody()).toEqual([
             {
-                xano_name: 'Justin Albrecht'
+                xano_name: 'Justin Albrecht',
             },
             {
-                xano_name: 'Eli Beachy'
-            }
+                xano_name: 'Eli Beachy',
+            },
         ]);
     });
 
     test('Body should have recursive Array and Objects prefixed', () => {
-        const xanoResponse = new XanoResponse(<AxiosResponse>{
-            data: JSON.stringify({
-                itemsReceived: 2,
-                curPage: 1,
-                nextPage: null,
-                prevPage: null,
-                itemsTotal: 2,
-                pageTotal: 1,
-                items: [
-                    {
-                        name: 'Justin Albrecht',
-                        roles: [
-                            {
-                                name: 'Developer'
-                            }
-                        ]
-                    },
-                    {
-                        name: 'Eli Beachy',
-                        roles: [
-                            {
-                                name: 'Bubble Expert'
-                            },
-                            {
-                                name: 'Beta Tester'
-                            }
-                        ]
-                    }
-                ]
-            }),
-            headers: <AxiosResponseHeaders>{
-                'content-type': 'application/json'
+        const xanoResponse = new XanoResponse(
+            <AxiosResponse>{
+                data: JSON.stringify({
+                    itemsReceived: 2,
+                    curPage: 1,
+                    nextPage: null,
+                    prevPage: null,
+                    itemsTotal: 2,
+                    pageTotal: 1,
+                    items: [
+                        {
+                            name: 'Justin Albrecht',
+                            roles: [
+                                {
+                                    name: 'Developer',
+                                },
+                            ],
+                        },
+                        {
+                            name: 'Eli Beachy',
+                            roles: [
+                                {
+                                    name: 'Bubble Expert',
+                                },
+                                {
+                                    name: 'Beta Tester',
+                                },
+                            ],
+                        },
+                    ],
+                }),
+                headers: <AxiosResponseHeaders>{
+                    'content-type': 'application/json',
+                },
+                status: 200,
             },
-            status: 200
-        }, 'xano_');
+            'xano_'
+        );
 
         expect(xanoResponse.getBody()).toEqual({
             xano_itemsReceived: 2,
@@ -163,33 +172,82 @@ describe('XanoResponse', () => {
                     xano_name: 'Justin Albrecht',
                     xano_roles: [
                         {
-                            xano_name: 'Developer'
-                        }
-                    ]
+                            xano_name: 'Developer',
+                        },
+                    ],
                 },
                 {
                     xano_name: 'Eli Beachy',
                     xano_roles: [
                         {
-                            xano_name: 'Bubble Expert'
+                            xano_name: 'Bubble Expert',
                         },
                         {
-                            xano_name: 'Beta Tester'
-                        }
-                    ]
-                }
-            ]
+                            xano_name: 'Beta Tester',
+                        },
+                    ],
+                },
+            ],
         });
     });
 
     test('Body should not have String prefixed', () => {
         const expectedResult = 'This response is just a string';
 
-        const xanoResponse = new XanoResponse(<AxiosResponse>{
-            data: expectedResult,
-            status: 200
-        }, 'xano_');
+        const xanoResponse = new XanoResponse(
+            <AxiosResponse>{
+                data: expectedResult,
+                status: 200,
+            },
+            'xano_'
+        );
 
         expect(xanoResponse.getBody()).toEqual(expectedResult);
+    });
+
+    test('Body should have skipped simple array prefixing', () => {
+        const xanoResponse = new XanoResponse(
+            <AxiosResponse>{
+                data: JSON.stringify({ text_array: ['text 1', 'text 2'] }),
+                headers: <AxiosResponseHeaders>{
+                    'content-type': 'application/json',
+                },
+                status: 200,
+            },
+            'xano_'
+        );
+
+        expect(xanoResponse.getBody()).toEqual({
+            xano_text_array: ['text 1', 'text 2'],
+        });
+    });
+
+    test('Body should have prefixed array with strings and arrays and objects', () => {
+        const xanoResponse = new XanoResponse(
+            <AxiosResponse>{
+                data: JSON.stringify({
+                    text_array: [
+                        'text 1',
+                        'text 2',
+                        [1, { test: 1 }, 3],
+                        { a: 'b' },
+                    ],
+                }),
+                headers: <AxiosResponseHeaders>{
+                    'content-type': 'application/json',
+                },
+                status: 200,
+            },
+            'xano_'
+        );
+
+        expect(xanoResponse.getBody()).toEqual({
+            xano_text_array: [
+                'text 1',
+                'text 2',
+                [1, { xano_test: 1 }, 3],
+                { xano_a: 'b' },
+            ],
+        });
     });
 });
