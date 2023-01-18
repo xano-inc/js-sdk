@@ -17,7 +17,7 @@ export class XanoResponse {
             if (contentType.indexOf('application/json') === 0) {
                 try {
                     this.body = JSON.parse(this.body);
-                } catch (e) { }
+                } catch (e) {}
             }
         }
     }
@@ -26,15 +26,23 @@ export class XanoResponse {
         let prefixedArray: any = [];
 
         arr.forEach((item) => {
-            const prefixedItem = this.prefixObject(item, objectPrefix);
-
-            prefixedArray.push(prefixedItem);
+            const type = this.typeOf(item);
+            if (type === 'array') {
+                prefixedArray.push(this.prefixArray(item, objectPrefix));
+            } else if (type === 'object') {
+                prefixedArray.push(this.prefixObject(item, objectPrefix));
+            } else {
+                prefixedArray.push(item);
+            }
         });
 
         return prefixedArray;
     }
 
-    private prefixObject(obj: Record<any, any>, objectPrefix: string): Record<any, any> {
+    private prefixObject(
+        obj: Record<any, any>,
+        objectPrefix: string
+    ): Record<any, any> {
         let prefixedObject = {};
 
         Object.keys(obj).forEach((key) => {
@@ -42,9 +50,15 @@ export class XanoResponse {
             const type = this.typeOf(obj[key]);
 
             if (type === 'array') {
-                prefixedObject[prefixedKey] = this.prefixArray(obj[key], objectPrefix);
+                prefixedObject[prefixedKey] = this.prefixArray(
+                    obj[key],
+                    objectPrefix
+                );
             } else if (type === 'object') {
-                prefixedObject[prefixedKey] = this.prefixObject(obj[key], objectPrefix);
+                prefixedObject[prefixedKey] = this.prefixObject(
+                    obj[key],
+                    objectPrefix
+                );
             } else {
                 prefixedObject[prefixedKey] = obj[key];
             }
