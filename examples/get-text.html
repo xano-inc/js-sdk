@@ -51,11 +51,7 @@
     <script type="text/javascript">
         var xano = new XanoClient({
             'apiGroupBaseUrl': 'https://x8ki-letl-twmt.n7.xano.io/api:jVuUQATw',
-            'responseType': 'text' // Set response type for all requests
         });
-
-        // Or you can set responseType prior to a specific request
-        xano.setResponseType('text');
 
         document.getElementById('makeRequest').addEventListener('click', function () {
             updateDocumentState('loading');
@@ -83,7 +79,7 @@
                     var httpResponse = error.getResponse();
 
                     document.getElementById('errorStatus').innerText = httpResponse.getStatusCode();
-                    document.getElementById('errorDetails').value = httpResponse.getBody();
+                    document.getElementById('errorDetails').value = JSON.stringify(httpResponse.getBody(), null, '  ');
 
                     updateDocumentState('loaded-error');
                 }
