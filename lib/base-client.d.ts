@@ -12,11 +12,11 @@ export declare abstract class XanoBaseClient {
     setAuthToken(authToken: string | null): this;
     hasDataSource(): boolean;
     setDataSource(dataSource: string | null): this;
-    delete(endpoint: string, params?: Record<any, any>): Promise<XanoResponse>;
-    get(endpoint: string, params?: Record<any, any>): Promise<XanoResponse>;
-    head(endpoint: string, params?: Record<any, any>): Promise<XanoResponse>;
-    patch(endpoint: string, params?: Record<any, any>): Promise<XanoResponse>;
-    post(endpoint: string, params?: Record<any, any>): Promise<XanoResponse>;
-    put(endpoint: string, params?: Record<any, any>): Promise<XanoResponse>;
+    delete(endpoint: string, params?: Record<any, any>, headers?: Record<any, any>): Promise<XanoResponse>;
+    get(endpoint: string, params?: Record<any, any>, headers?: Record<any, any>): Promise<XanoResponse>;
+    head(endpoint: string, params?: Record<any, any>, headers?: Record<any, any>): Promise<XanoResponse>;
+    patch(endpoint: string, params?: Record<any, any>, headers?: Record<any, any>): Promise<XanoResponse>;
+    post(endpoint: string, params?: Record<any, any>, headers?: Record<any, any>): Promise<XanoResponse>;
+    put(endpoint: string, params?: Record<any, any>, headers?: Record<any, any>): Promise<XanoResponse>;
 }
 //# sourceMappingURL=base-client.d.ts.map

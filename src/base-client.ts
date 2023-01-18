@@ -14,20 +14,27 @@ export abstract class XanoBaseClient {
     private config: XanoClientConfig = {
         apiGroupBaseUrl: null,
         authToken: null,
+        customAxiosRequestConfig: {},
         dataSource: null,
         responseObjectPrefix: '',
-        storage: new XanoObjectStorage()
+        storage: new XanoObjectStorage(),
     };
 
     constructor(config: Partial<XanoClientConfig>) {
         this.config = {
             ...this.config,
-            ...config
+            ...config,
         };
 
         if (config?.authToken !== undefined) {
-            if (typeof this.config.authToken === 'string' && this.config.authToken.length > 0) {
-                this.config.storage.setItem(XanoStorageKeys.AuthToken, this.config.authToken);
+            if (
+                typeof this.config.authToken === 'string' &&
+                this.config.authToken.length > 0
+            ) {
+                this.config.storage.setItem(
+                    XanoStorageKeys.AuthToken,
+                    this.config.authToken
+                );
             } else {
                 this.config.storage.removeItem(XanoStorageKeys.AuthToken);
             }
@@ -35,7 +42,11 @@ export abstract class XanoBaseClient {
     }
 
     protected abstract getFormDataInstance(): any;
-    protected abstract appendFormData(formData: any, key: string, value: any): void;
+    protected abstract appendFormData(
+        formData: any,
+        key: string,
+        value: any
+    ): void;
 
     private buildFormData(bodyData: Record<any, any>): XanoFormData {
         const formData = this.getFormDataInstance();
@@ -51,7 +62,11 @@ export abstract class XanoBaseClient {
             rawFormData[entry[0]] = entry[1];
 
             if (entry[1] instanceof XanoFile) {
-                formData.append(entry[0], entry[1].getBuffer(), entry[1].getName());
+                formData.append(
+                    entry[0],
+                    entry[1].getBuffer(),
+                    entry[1].getName()
+                );
             } else {
                 this.appendFormData(formData, entry[0], entry[1]);
             }
@@ -60,7 +75,7 @@ export abstract class XanoBaseClient {
         return <XanoFormData>{
             formData,
             hasFile,
-            rawFormData
+            rawFormData,
         };
     }
 
@@ -76,55 +91,72 @@ export abstract class XanoBaseClient {
 
     private request(params: XanoRequestParams): Promise<any> {
         const axiosConfig = <AxiosRequestConfig>{
+            ...this.config.customAxiosRequestConfig,
             baseURL: this.config.apiGroupBaseUrl,
-            headers: {},
             method: params.method,
             params: params.urlParams,
             url: params.endpoint,
             validateStatus: () => true,
         };
 
-        const requestHeaders = {};
+        if (!axiosConfig.headers) {
+            axiosConfig.headers = {};
+        }
+
+        if (params.headerParams) {
+            axiosConfig.headers = {
+                ...axiosConfig.headers,
+                ...params.headerParams,
+            };
+        }
 
         if (this.hasAuthToken()) {
-            const authToken = this.config.storage.getItem(XanoStorageKeys.AuthToken);
+            const authToken = this.config.storage.getItem(
+                XanoStorageKeys.AuthToken
+            );
 
-            requestHeaders['Authorization'] = `Bearer ${authToken}`;
+            axiosConfig.headers['Authorization'] = `Bearer ${authToken}`;
         }
 
         if (this.hasDataSource()) {
-            requestHeaders['X-Data-Source'] = this.config.dataSource;
+            axiosConfig.headers['X-Data-Source'] = <string>(
+                this.config.dataSource
+            );
         }
 
         if (params.bodyParams) {
             const ret = this.buildFormData(params.bodyParams);
 
             if (ret.hasFile) {
-                requestHeaders['Content-Type'] = XanoContentType.Multipart;
+                axiosConfig.headers['Content-Type'] = XanoContentType.Multipart;
                 axiosConfig.data = ret.formData;
             } else {
-                requestHeaders['Content-Type'] = XanoContentType.JSON
+                axiosConfig.headers['Content-Type'] = XanoContentType.JSON;
                 axiosConfig.data = JSON.stringify(ret.rawFormData);
             }
         }
 
-        axiosConfig.headers = params.headerParams ? {...requestHeaders, ...params.headerParams} : requestHeaders;
+        return axios.request(axiosConfig).then((response: AxiosResponse) => {
+            const resp = new XanoResponse(
+                response,
+                this.config.responseObjectPrefix ?? ''
+            );
 
-        return axios.request(axiosConfig).then(
-            (response: AxiosResponse) => {
-                const resp = new XanoResponse(response, this.config.responseObjectPrefix ?? '');
-
-                if (response.status < 200 || response.status >= 300) {
-                    throw new XanoRequestError('There was an error with your request', resp);
-                }
-
-                return resp;
+            if (response.status < 200 || response.status >= 300) {
+                throw new XanoRequestError(
+                    'There was an error with your request',
+                    resp
+                );
             }
-        );
+
+            return resp;
+        });
     }
 
     public hasAuthToken(): boolean {
-        const authToken = this.config.storage.getItem(XanoStorageKeys.AuthToken);
+        const authToken = this.config.storage.getItem(
+            XanoStorageKeys.AuthToken
+        );
 
         return typeof authToken === 'string' && authToken.length > 0;
     }
@@ -140,7 +172,10 @@ export abstract class XanoBaseClient {
     }
 
     public hasDataSource(): boolean {
-        return (typeof this.config.dataSource === 'string' && this.config.dataSource.length > 0);
+        return (
+            typeof this.config.dataSource === 'string' &&
+            this.config.dataSource.length > 0
+        );
     }
 
     public setDataSource(dataSource: string | null): this {
@@ -149,7 +184,11 @@ export abstract class XanoBaseClient {
         return this;
     }
 
-    public delete(endpoint: string, params?: Record<any, any>, headers?: Record<any, any>): Promise<XanoResponse> {
+    public delete(
+        endpoint: string,
+        params?: Record<any, any>,
+        headers?: Record<any, any>
+    ): Promise<XanoResponse> {
         return this.request({
             bodyParams: params,
             endpoint: endpoint,
@@ -158,7 +197,11 @@ export abstract class XanoBaseClient {
         });
     }
 
-    public get(endpoint: string, params?: Record<any, any>, headers?: Record<any, any>): Promise<XanoResponse> {
+    public get(
+        endpoint: string,
+        params?: Record<any, any>,
+        headers?: Record<any, any>
+    ): Promise<XanoResponse> {
         return this.request({
             endpoint: endpoint,
             method: XanoRequestType.GET,
@@ -167,7 +210,11 @@ export abstract class XanoBaseClient {
         });
     }
 
-    public head(endpoint: string, params?: Record<any, any>, headers?: Record<any, any>): Promise<XanoResponse> {
+    public head(
+        endpoint: string,
+        params?: Record<any, any>,
+        headers?: Record<any, any>
+    ): Promise<XanoResponse> {
         return this.request({
             endpoint: endpoint,
             method: XanoRequestType.HEAD,
@@ -176,7 +223,11 @@ export abstract class XanoBaseClient {
         });
     }
 
-    public patch(endpoint: string, params?: Record<any, any>, headers?: Record<any, any>): Promise<XanoResponse> {
+    public patch(
+        endpoint: string,
+        params?: Record<any, any>,
+        headers?: Record<any, any>
+    ): Promise<XanoResponse> {
         return this.request({
             bodyParams: params,
             endpoint: endpoint,
@@ -185,7 +236,11 @@ export abstract class XanoBaseClient {
         });
     }
 
-    public post(endpoint: string, params?: Record<any, any>, headers?: Record<any, any>): Promise<XanoResponse> {
+    public post(
+        endpoint: string,
+        params?: Record<any, any>,
+        headers?: Record<any, any>
+    ): Promise<XanoResponse> {
         return this.request({
             bodyParams: params,
             endpoint: endpoint,
@@ -194,7 +249,11 @@ export abstract class XanoBaseClient {
         });
     }
 
-    public put(endpoint: string, params?: Record<any, any>, headers?: Record<any, any>): Promise<XanoResponse> {
+    public put(
+        endpoint: string,
+        params?: Record<any, any>,
+        headers?: Record<any, any>
+    ): Promise<XanoResponse> {
         return this.request({
             bodyParams: params,
             endpoint: endpoint,
