@@ -1,25 +1,25 @@
-import { XanoBaseStorage } from './base-storage';
+import { XanoBaseStorage } from "./base-storage";
 
 export class XanoObjectStorage extends XanoBaseStorage {
-    private storage: Record<string, string> = {};
+  private storage: Record<string, string> = {};
 
-    public clear(): void {
-        this.storage = {};
-    }
+  clear(): void {
+    this.storage = {};
+  }
 
-    public getAll(): Record<string, string> {
-        return this.storage;
-    }
+  getAll(): Record<string, string> {
+    return this.storage;
+  }
 
-    public getItem(key: string): string | null {
-        return this.storage[key] ?? null;
-    }
+  getItem(key: string): string | null {
+    return this.storage[key] ?? null;
+  }
 
-    public removeItem(key: string): void {
-        delete this.storage[key];
-    }
+  removeItem(key: string): void {
+    delete this.storage[key];
+  }
 
-    public setItem(key: string, value: string): void {
-        this.storage[key] = value;
-    }
+  setItem(key: string, value: string): void {
+    this.storage[key] = value;
+  }
 }

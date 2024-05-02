@@ -1,4 +1,4 @@
-import { AxiosResponse } from 'axios';
+import { AxiosResponse, AxiosResponseHeaders, RawAxiosResponseHeaders } from "axios";
 export declare class XanoResponse {
     private body;
     private headers;
@@ -9,7 +9,7 @@ export declare class XanoResponse {
     private prefixObject;
     private typeOf;
     getBody(objectPrefix?: string): any;
-    getHeaders(): Record<string, string>;
+    getHeaders(): RawAxiosResponseHeaders | AxiosResponseHeaders;
     getStatusCode(): number;
 }
 //# sourceMappingURL=response.d.ts.map
