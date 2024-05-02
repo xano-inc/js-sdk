@@ -1,4 +1,4 @@
-import { XanoRequestType } from '../enums/request-type';
+import { XanoRequestType } from "../enums/request-type";
 export interface XanoRequestParams {
     bodyParams?: Record<any, any>;
     headerParams?: Record<any, any>;

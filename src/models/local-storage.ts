@@ -1,23 +1,23 @@
-import { XanoBaseStorage } from './base-storage';
+import { XanoBaseStorage } from "./base-storage";
 
 export class XanoLocalStorage extends XanoBaseStorage {
-    public clear(): void {
-        localStorage.clear();
-    }
+  clear(): void {
+    localStorage.clear();
+  }
 
-    public getAll(): Record<string, string> {
-        return { ...localStorage };
-    }
+  getAll(): Record<string, string> {
+    return { ...localStorage };
+  }
 
-    public getItem(key: string): string | null {
-        return localStorage.getItem(key);
-    }
+  getItem(key: string): string | null {
+    return localStorage.getItem(key);
+  }
 
-    public removeItem(key: string): void {
-        localStorage.removeItem(key);
-    }
+  removeItem(key: string): void {
+    localStorage.removeItem(key);
+  }
 
-    public setItem(key: string, value: string): void {
-        localStorage.setItem(key, value);
-    }
+  setItem(key: string, value: string): void {
+    localStorage.setItem(key, value);
+  }
 }

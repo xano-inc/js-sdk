@@ -1,0 +1,1 @@
+{"version":3,"file":"realtime-channel-presence.d.ts","sourceRoot":"","sources":["../../src/interfaces/realtime-channel-presence.ts"],"names":[],"mappings":"AAAA,MAAM,WAAW,wBAAwB;IACvC,MAAM,EAAE,MAAM,CAAC,MAAM,EAAE,GAAG,CAAC,CAAC;IAC5B,WAAW,EAAE;QACX,MAAM,EAAE,MAAM,CAAC;QACf,MAAM,EAAE,MAAM,CAAC;KAChB,CAAC;IACF,QAAQ,EAAE,MAAM,CAAC;CAClB"}

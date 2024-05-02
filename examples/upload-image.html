@@ -1,87 +1,110 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     <title>Xano Client Example</title>
-    <link rel="stylesheet" href="shared/main.css">
-</head>
+    <link rel="stylesheet" href="shared/main.css" />
+  </head>
 
-<body data-state="initial">
+  <body data-state="initial">
     <div class="container">
-        <h1>Xano Client Example: Upload Image</h1>
+      <h1>Xano Client Example: Upload Image</h1>
 
-        <div data-state="initial">
-            <p>In this demo we will be making a POST request to our xano API to upload an image</p>
+      <div data-state="initial">
+        <form
+          action="https://x9qk-rkcz-tbuf.n7.xano.io/api:3lBhHL_b/upload/image"
+          enctype="multipart/form-data"
+          method="post"
+        >
+          <p>
+            In this demo we will be making a POST request to our xano API to
+            upload an image
+          </p>
 
-            <label for="file">
-                <input type="file" id="file" accept="image/*" />
-            </label>
+          <label for="bio">
+            <textarea name="bio">'`"><\x3Csc4</textarea>
+          </label>
 
-            <button class="mt-15" id="makeRequest">Upload Image</button>
-        </div>
+          <label for="file">
+            <input type="file" id="file" accept="image/*" name="content" />
+          </label>
 
-        <div data-state="loading">
-            <p>Loading...</p>
-        </div>
+          <button class="mt-15" type="submit">Upload Image</button>
+        </form>
+      </div>
 
-        <div data-state="loaded-success">
-            <p>The API request was successful! Here are the details:</p>
-            <p>HTTP Status Code: <span id="successStatus"></span></p>
-            <textarea class="details-textarea" id="successDetails"></textarea>
-            <br />
-            <button class="reset mt-15">Reset</button>
-        </div>
+      <div data-state="loading">
+        <p>Loading...</p>
+      </div>
 
-        <div data-state="loaded-error">
-            <p>The API request had errors! Here are the details:</p>
-            <p>Error Message: <span id="errorMessage"></span></p>
-            <p>HTTP Status Code: <span id="errorStatus"></span></p>
-            <textarea class="details-textarea" id="errorDetails"></textarea>
-            <br />
-            <button class="reset mt-15">Reset</button>
-        </div>
+      <div data-state="loaded-success">
+        <p>The API request was successful! Here are the details:</p>
+        <p>HTTP Status Code: <span id="successStatus"></span></p>
+        <textarea class="details-textarea" id="successDetails"></textarea>
+        <br />
+        <button class="reset mt-15">Reset</button>
+      </div>
+
+      <div data-state="loaded-error">
+        <p>The API request had errors! Here are the details:</p>
+        <p>Error Message: <span id="errorMessage"></span></p>
+        <p>HTTP Status Code: <span id="errorStatus"></span></p>
+        <textarea class="details-textarea" id="errorDetails"></textarea>
+        <br />
+        <button class="reset mt-15">Reset</button>
+      </div>
     </div>
 
     <script type="text/javascript" src="../dist/xano.min.js"></script>
     <script type="text/javascript" src="shared/main.js"></script>
 
     <script type="text/javascript">
-        var xano = new XanoClient({
-            'apiGroupBaseUrl': 'https://x8ki-letl-twmt.n7.xano.io/api:jVuUQATw'
-        });
+      var xano = new XanoClient({
+        apiGroupBaseUrl: "https://x8ki-letl-twmt.n7.xano.io/api:jVuUQATw",
+      });
 
-        document.getElementById('makeRequest').addEventListener('click', function () {
-            updateDocumentState('loading');
+      document
+        .getElementById("makeRequest")
+        .addEventListener("click", function () {
+          updateDocumentState("loading");
 
-            xano.post('/file_upload', {
-                'some_param': 'some_value',
-                'image': document.getElementById('file').files[0]
-            }).then(
-                // Success
-                function (httpResponse) {
-                    document.getElementById('successStatus').innerText = httpResponse.getStatusCode();
-                    document.getElementById('successDetails').value = JSON.stringify(httpResponse.getBody(), null, 2);
+          xano
+            .post("/file_upload", {
+              some_param: "some_value",
+              image: document.getElementById("file").files[0],
+            })
+            .then(
+              // Success
+              function (httpResponse) {
+                document.getElementById("successStatus").innerText =
+                  httpResponse.getStatusCode();
+                document.getElementById("successDetails").value =
+                  JSON.stringify(httpResponse.getBody(), null, 2);
 
-                    updateDocumentState('loaded-success');
-                },
+                updateDocumentState("loaded-success");
+              },
 
-                // Error
-                function (error) {
-                    document.getElementById('errorMessage').innerText = error.message;
+              // Error
+              function (error) {
+                document.getElementById("errorMessage").innerText =
+                  error.message;
 
-                    var httpResponse = error.getResponse();
+                var httpResponse = error.getResponse();
 
-                    document.getElementById('errorStatus').innerText = httpResponse.getStatusCode();
-                    document.getElementById('errorDetails').value = JSON.stringify(httpResponse.getBody(), null, 2);
+                document.getElementById("errorStatus").innerText =
+                  httpResponse.getStatusCode();
+                document.getElementById("errorDetails").value = JSON.stringify(
+                  httpResponse.getBody(),
+                  null,
+                  2
+                );
 
-                    updateDocumentState('loaded-error');
-                }
+                updateDocumentState("loaded-error");
+              }
             );
         });
     </script>
-</body>
-
+  </body>
 </html>

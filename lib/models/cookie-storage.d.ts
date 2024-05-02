@@ -1,4 +1,4 @@
-import { XanoBaseStorage } from './base-storage';
+import { XanoBaseStorage } from "./base-storage";
 export declare class XanoCookieStorage extends XanoBaseStorage {
     private cookiePath;
     private expirationDays;

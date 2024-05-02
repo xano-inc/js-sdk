@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Xano Client Example</title>
+    <link rel="stylesheet" href="shared/main.css" />
+    <style>
+      @-webkit-keyframes blink {
+        0%,
+        49% {
+          background-color: rgb(255, 254, 173);
+        }
+      }
+
+      .col {
+        border-radius: 3px;
+        border: 1px solid #e5e5e5;
+        flex-grow: 1;
+        margin: 10px;
+      }
+
+      .blink {
+        animation: blink 1s 1;
+      }
+
+      table {
+        margin: 0 auto;
+        text-align: left;
+
+        tbody {
+          tr {
+            &:nth-child(odd) {
+              background: #ededed;
+            }
+
+            td {
+              white-space: pre-wrap;
+            }
+          }
+        }
+      }
+
+      #connectionStatus {
+        &[status="connecting"] {
+          color: yellow;
+        }
+
+        &[status="connected"] {
+          color: green;
+        }
+
+        &[status="disconnected"] {
+          color: red;
+        }
+      }
+    </style>
+  </head>
+
+  <body data-state="initial">
+    <div class="container">
+      <h1>Xano Client Example: Realtime</h1>
+
+      <div data-state="initial">
+        Connection Status:
+        <span id="connectionStatus" status="connecting">Starting...</span> |
+        <button type="button" id="clearTable">Clear Table Rows</button>
+
+        <div class="d-flex">
+          <div class="col">
+            <h3>Open Channel</h3>
+            <table class="table table-striped w-100" id="openChannelTable">
+              <thead>
+                <tr>
+                  <th>Time</th>
+                  <th>Channel</th>
+                  <th>Event</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+
+          <div class="col">
+            <h3>Authenticated Channel</h3>
+            <table
+              class="table table-striped w-100"
+              id="authenticatedChannelTable"
+            >
+              <thead>
+                <tr>
+                  <th>Time</th>
+                  <th>Channel</th>
+                  <th>Event</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+
+          <div class="col">
+            <h3>Authenticated User Channel</h3>
+            <table
+              class="table table-striped w-100"
+              id="authenticatedUserChannelTable"
+            >
+              <thead>
+                <tr>
+                  <th>Time</th>
+                  <th>Channel</th>
+                  <th>Event</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script type="text/javascript" src="../dist/xano.min.js"></script>
+    <script type="text/javascript" src="shared/main.js"></script>
+
+    <script type="text/javascript">
+      var tokens = {
+        none: undefined,
+        user_id_1:
+          "eyJhbGciOiJBMjU2S1ciLCJlbmMiOiJBMjU2Q0JDLUhTNTEyIiwiemlwIjoiREVGIn0.dTbyA6CLcAMM6LZX7X2-Ovo0vDC5_v9AnJpQ0GWTtPrsHtlSguUfnGKtdwTB2HzbtDAcFkrVJ4etX_vkZQsl2d1BmmPgWYVo.YUm34Zt0zqYnWE_Cbrcw6w.V55MTMLf8s2jp2Le69EjnpMgX8nUB3OIPp0TsOL6MpdSn02zlBaqoxoBsaYC-HDRvEwWZuIr32LaIUV9Tk8GQqoWj0XpdyWKf6DxwKcBdin9w45iKcvSTg7ODY7k34mSWBTdPFEGkLSenfJan4YQ4RK8z4ztvbAOSU9DS2zh2jSb8RsXEUlwkR6QwY-MAgOofI9t3zOXmjD2uBFMWa2ehREHedhuj3G-Lu3TNjTMO1kE-bBQ36rzWAzqRykpCpHR58bUArkNDFO2N_LcyxAf3jheMT6q-wt3B7wo0cctRkYZMBOb6bkjHLPEm7oSTwxg.6orj16OWDt-T3hweqRhvEMRDtWjHhGg9iE_JKhKEORE",
+        user_id_2:
+          "eyJhbGciOiJBMjU2S1ciLCJlbmMiOiJBMjU2Q0JDLUhTNTEyIiwiemlwIjoiREVGIn0.EUUDF8WvDxs-8qom6clzHJjtyUXggUdohWyd9Oe-vp3Qxw2GXipEkVZAOxh3GBnDE02hXuSN4_B1GMfrCal76myxlAVyPubq.lN-KAY9qbVcgtVbwldEzYQ.C_7q72KP-qecKU11KWbv5dUIFjKTJYvFrZcT4I5NZFL19ep0HrBypTpswKHLrft2EH_26cGtqqNXEREs7mAGofgjGXij5Ne2mImEZUagT2HTq4JvNRd7kCXSSInmQwqTRBPLPOvmBhopXT1nFRqqSw.m8WLmm2xqX0GFMpvjXNHeuQcVJltC1TyBLySwuCmf80",
+      };
+
+      var xano = new XanoClient({
+        apiGroupBaseUrl: "http://localhost:9999/api:Eq6-2WrM",
+        authToken: tokens.user_id_1,
+      });
+
+      // --- New channel sim ---
+      // var channels = [];
+      // setInterval(function () {
+      //   if (Math.floor(Math.random() * 10000) % 2) {
+      //     channels.push(
+      //       xano.channel("test").on(function (params) {
+      //         if (params.command === "connection_status") {
+      //           onConnectionStatus(params);
+      //         } else {
+      //           onChannelEvent(params);
+      //         }
+      //       }, onChannelErrorEvent)
+      //     );
+      //   } else if (channels.length) {
+      //     channel = channels.pop();
+      //     channel.destroy();
+      //   }
+      // }, 3000);
+      // -------------------------
+
+      // --- Double Channel Sim ---
+      // const channelA = xano.channel("test").on(function (params) {
+      //   console.log("[DEBUG] Channel A", params);
+      //   if (params.command === "connection_status") {
+      //     onConnectionStatus(params);
+      //   } else {
+      //     onChannelEvent(params);
+      //   }
+      // }, onChannelErrorEvent);
+
+      // const channelB = xano.channel("test").on(function (params) {
+      //   console.log("[DEBUG] Channel B", params);
+      //   if (params.command === "connection_status") {
+      //     onConnectionStatus(params);
+      //   } else {
+      //     onChannelEvent(params);
+      //   }
+      // }, onChannelErrorEvent);
+
+      // setTimeout(function () {
+      //   console.log("[DEBUG] Destroying channel A");
+      //   channelA.destroy();
+      // }, 5000);
+
+      // setTimeout(function () {
+      //   console.log("[DEBUG] Destroying channel B");
+      //   channelB.destroy();
+      // }, 20000);
+
+      // setTimeout(function () {
+      //   xano.channel("test").on(function (params) {
+      //     console.log("[DEBUG] Channel C", params);
+      //     if (params.command === "connection_status") {
+      //       onConnectionStatus(params);
+      //     } else {
+      //       onChannelEvent(params);
+      //     }
+      //   }, onChannelErrorEvent);
+
+      //   const channelD = xano.channel("test").on(function (params) {
+      //     console.log("[DEBUG] Channel D", params);
+      //     if (params.command === "connection_status") {
+      //       onConnectionStatus(params);
+      //     } else {
+      //       onChannelEvent(params);
+      //     }
+      //   }, onChannelErrorEvent);
+
+      //   setTimeout(function () {
+      //     console.log("[DEBUG] Destroying channel D");
+      //     channelD.destroy();
+      //   }, 10000);
+      // }, 30000);
+      // -------------------------
+
+      // --- Presence ---
+      const channel = xano
+        .channel("test", {
+          presence: true,
+        })
+        .on(
+          function (params) {
+            if (params.command === "connection_status") {
+              onConnectionStatus(params);
+            } else {
+              onChannelEvent(params);
+            }
+          },
+          onChannelErrorEvent,
+          onChannelPresenceEvent
+        );
+      // -------------------------
+
+      function createColWithContent(content) {
+        var col = document.createElement("td");
+        col.innerHTML = content;
+        return col;
+      }
+
+      function onConnectionStatus(params) {
+        var statusElm = document.getElementById("connectionStatus");
+        statusElm.innerHTML = params.params.status;
+        statusElm.setAttribute("status", params.params.status);
+      }
+
+      function onChannelEvent(args) {
+        var tableId = "openChannelTable";
+        if (args.params.dbo_id && args.params.row_id) {
+          tableId = "authenticatedUserChannelTable";
+        } else if (args.params.dbo_id) {
+          tableId = "authenticatedChannelTable";
+        }
+
+        var table = document.getElementById(tableId);
+        var tableBody = table.getElementsByTagName("tbody")[0];
+
+        var row = document.createElement("tr");
+        row.classList.add("blink");
+
+        row.append(createColWithContent(new Date().toISOString()));
+        row.append(createColWithContent(args.params.channel));
+        row.append(
+          createColWithContent(JSON.stringify(args.params, null, "  "))
+        );
+
+        tableBody.prepend(row);
+      }
+
+      function onChannelErrorEvent(args) {
+        alert(`Error in ${args.params.channel}: ${args.params.message}`);
+      }
+
+      function onChannelPresenceEvent(params) {
+        console.log("presence event", params);
+      }
+
+      document
+        .getElementById("clearTable")
+        .addEventListener("click", function () {
+          var ids = [
+            "authenticatedChannelTable",
+            "authenticatedUserChannelTable",
+            "openChannelTable",
+          ];
+
+          for (var id of ids) {
+            var table = document.getElementById(id);
+            var tableBody = table.getElementsByTagName("tbody")[0];
+
+            tableBody.innerHTML = "";
+          }
+        });
+    </script>
+  </body>
+</html>

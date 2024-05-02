@@ -1,21 +1,21 @@
-import { XanoBaseClient } from './base-client';
-import { XanoLocalStorage } from './models/local-storage';
-import { XanoClientConfig } from './interfaces/client-config';
+import { XanoBaseClient } from "./base-client";
+import { XanoLocalStorage } from "./models/local-storage";
+import { XanoClientConfig } from "./interfaces/client-config";
 
 export class XanoClient extends XanoBaseClient {
-    constructor(config: XanoClientConfig) {
-        if (config['storage'] === undefined) {
-            config['storage'] = new XanoLocalStorage();
-        }
-
-        super(config);
+  constructor(config: Partial<XanoClientConfig>) {
+    if (config["storage"] === undefined) {
+      config["storage"] = new XanoLocalStorage();
     }
 
-    protected getFormDataInstance(): any {
-        return new FormData;
-    }
+    super(config);
+  }
 
-    protected appendFormData(formData: any, key: string, value: any): void {
-        formData.append(key, value);
-    }
+  protected getFormDataInstance(): any {
+    return new FormData();
+  }
+
+  protected appendFormData(formData: any, key: string, value: any): void {
+    formData.append(key, value);
+  }
 }

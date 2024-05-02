@@ -1,105 +1,103 @@
-import { AxiosResponse } from 'axios';
+import {
+  AxiosResponse,
+  AxiosResponseHeaders,
+  RawAxiosResponseHeaders,
+} from "axios";
 
 export class XanoResponse {
-    private body: any;
-    private headers: Record<string, string>;
-    private objectPrefix: string;
-    private status: number;
+  private body: any;
+  private headers: RawAxiosResponseHeaders | AxiosResponseHeaders;
+  private objectPrefix: string;
+  private status: number;
 
-    constructor(response: AxiosResponse, objectPrefix: string = '') {
-        this.body = response.data;
-        this.headers = response.headers ?? {};
-        this.objectPrefix = objectPrefix;
-        this.status = response.status;
+  constructor(response: AxiosResponse, objectPrefix: string = "") {
+    this.body = response.data;
+    this.headers = response.headers ?? {};
+    this.objectPrefix = objectPrefix;
+    this.status = response.status;
 
-        if (typeof this.body === 'string' && this.body.length > 0) {
-            const contentType = this.headers['content-type'] ?? '';
-            if (contentType.indexOf('application/json') === 0) {
-                try {
-                    this.body = JSON.parse(this.body);
-                } catch (e) {}
-            }
-        }
+    if (typeof this.body === "string" && this.body.length > 0) {
+      const contentType = this.headers["content-type"] ?? "";
+      if (contentType.indexOf("application/json") === 0) {
+        try {
+          this.body = JSON.parse(this.body);
+        } catch (e) {}
+      }
+    }
+  }
+
+  private prefixArray(arr: any[], objectPrefix: string): any[] {
+    let prefixedArray: any = [];
+
+    arr.forEach((item) => {
+      const type = this.typeOf(item);
+      if (type === "array") {
+        prefixedArray.push(this.prefixArray(item, objectPrefix));
+      } else if (type === "object") {
+        prefixedArray.push(this.prefixObject(item, objectPrefix));
+      } else {
+        prefixedArray.push(item);
+      }
+    });
+
+    return prefixedArray;
+  }
+
+  private prefixObject(
+    obj: Record<any, any>,
+    objectPrefix: string
+  ): Record<any, any> {
+    let prefixedObject = {};
+
+    Object.keys(obj).forEach((key) => {
+      const prefixedKey = `${objectPrefix}${key}`;
+      const type = this.typeOf(obj[key]);
+
+      if (type === "array") {
+        prefixedObject[prefixedKey] = this.prefixArray(obj[key], objectPrefix);
+      } else if (type === "object") {
+        prefixedObject[prefixedKey] = this.prefixObject(obj[key], objectPrefix);
+      } else {
+        prefixedObject[prefixedKey] = obj[key];
+      }
+    });
+
+    return prefixedObject;
+  }
+
+  private typeOf(data: any): string {
+    if (data === null) {
+      return "null";
     }
 
-    private prefixArray(arr: any[], objectPrefix: string): any[] {
-        let prefixedArray: any = [];
-
-        arr.forEach((item) => {
-            const type = this.typeOf(item);
-            if (type === 'array') {
-                prefixedArray.push(this.prefixArray(item, objectPrefix));
-            } else if (type === 'object') {
-                prefixedArray.push(this.prefixObject(item, objectPrefix));
-            } else {
-                prefixedArray.push(item);
-            }
-        });
-
-        return prefixedArray;
+    const type = typeof data;
+    if (type === "object" && Array.isArray(data)) {
+      return "array";
     }
 
-    private prefixObject(
-        obj: Record<any, any>,
-        objectPrefix: string
-    ): Record<any, any> {
-        let prefixedObject = {};
+    return type;
+  }
 
-        Object.keys(obj).forEach((key) => {
-            const prefixedKey = `${objectPrefix}${key}`;
-            const type = this.typeOf(obj[key]);
+  getBody(objectPrefix: string = ""): any {
+    objectPrefix = objectPrefix || this.objectPrefix;
 
-            if (type === 'array') {
-                prefixedObject[prefixedKey] = this.prefixArray(
-                    obj[key],
-                    objectPrefix
-                );
-            } else if (type === 'object') {
-                prefixedObject[prefixedKey] = this.prefixObject(
-                    obj[key],
-                    objectPrefix
-                );
-            } else {
-                prefixedObject[prefixedKey] = obj[key];
-            }
-        });
-
-        return prefixedObject;
+    if (objectPrefix) {
+      const type = this.typeOf(this.body);
+      if (type === "array") {
+        return this.prefixArray(this.body, objectPrefix);
+      } else if (type === "object") {
+        return this.prefixObject(this.body, objectPrefix);
+      }
     }
 
-    private typeOf(data: any): string {
-        if (data === null) {
-            return 'null';
-        }
+    return this.body;
+  }
 
-        const type = typeof data;
-        if (type === 'object' && Array.isArray(data)) {
-            return 'array';
-        }
+  getHeaders(): RawAxiosResponseHeaders | AxiosResponseHeaders {
+    return this.headers;
+  }
 
-        return type;
-    }
-
-    public getBody(objectPrefix: string = ''): any {
-        objectPrefix = objectPrefix || this.objectPrefix;
-
-        if (objectPrefix) {
-            const type = this.typeOf(this.body);
-            if (type === 'array') {
-                return this.prefixArray(this.body, objectPrefix);
-            } else if (type === 'object') {
-                return this.prefixObject(this.body, objectPrefix);
-            }
-        }
-
-        return this.body;
-    }
-
-    public getHeaders(): Record<string, string> {
-        return this.headers;
-    }
-
-    public getStatusCode(): number {
-        return this.status;
-    }
+  getStatusCode(): number {
+    return this.status;
+  }
 }

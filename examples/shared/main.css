@@ -42,3 +42,15 @@ body[data-state="loaded-error"] [data-state="loaded-error"] {
 label {
     display: block;
 }
+
+.d-flex {
+    display: flex;
+}
+
+.d-flex .col {
+    flex-grow: 1;
+}
+
+.w-100 {
+    width: 100%;
+}

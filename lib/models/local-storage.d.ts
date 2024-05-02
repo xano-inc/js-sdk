@@ -1,4 +1,4 @@
-import { XanoBaseStorage } from './base-storage';
+import { XanoBaseStorage } from "./base-storage";
 export declare class XanoLocalStorage extends XanoBaseStorage {
     clear(): void;
     getAll(): Record<string, string>;

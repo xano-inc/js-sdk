@@ -1,4 +1,4 @@
-import { XanoBaseStorage } from './base-storage';
+import { XanoBaseStorage } from "./base-storage";
 export declare class XanoObjectStorage extends XanoBaseStorage {
     private storage;
     clear(): void;
