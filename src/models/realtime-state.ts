@@ -11,7 +11,9 @@ export class XanoRealtimeState {
   private socket: WebSocket | null = null;
 
   private reconnectSettings = {
+    defaultReconnectInterval: 1000,
     reconnectInterval: 1000,
+    reconnecting: false,
   };
 
   private socketObserver = new Observable<IRealtimeCommand>((count: number) => {
@@ -36,6 +38,17 @@ export class XanoRealtimeState {
     return XanoRealtimeState._instance;
   }
 
+  private triggerReconnect(): void {
+    setTimeout(() => {
+      this.connect();
+    }, this.reconnectSettings.reconnectInterval);
+
+    this.reconnectSettings.reconnectInterval = Math.min(
+      2 * this.reconnectSettings.reconnectInterval,
+      60000
+    );
+  }
+
   private connect(): WebSocket | null {
     if (this.socket) {
       return this.socket;
@@ -46,6 +59,9 @@ export class XanoRealtimeState {
         "Error: Please configure realtimeConnectionHash setting before connecting to realtime"
       );
     }
+
+    this.reconnectSettings.reconnectInterval =
+      this.reconnectSettings.defaultReconnectInterval;
 
     const url = new URL(`${this.config.apiGroupBaseUrl}`);
 
@@ -95,14 +111,9 @@ export class XanoRealtimeState {
         },
       });
 
-      setTimeout(() => {
-        this.connect();
-      }, this.reconnectSettings.reconnectInterval);
-
-      this.reconnectSettings.reconnectInterval = Math.min(
-        2 * this.reconnectSettings.reconnectInterval,
-        60000
-      );
+      if (this.reconnectSettings.reconnecting) {
+        this.triggerReconnect();
+      }
     });
 
     this.socket.addEventListener("close", () => {
@@ -119,9 +130,14 @@ export class XanoRealtimeState {
           status: ERealtimeConnectionStatus.Disconnected,
         },
       });
+
+      this.reconnectSettings.reconnecting = true;
+      this.triggerReconnect();
     });
 
     this.socket.addEventListener("open", () => {
+      this.reconnectSettings.reconnecting = false;
+
       this.socketObserver.notify({
         command: ERealtimeCommand.ConnectionStatus,
         commandOptions: {},

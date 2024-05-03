@@ -9,6 +9,7 @@ export declare class XanoRealtimeState {
     private socketObserver;
     constructor();
     static getInstance(): XanoRealtimeState;
+    private triggerReconnect;
     private connect;
     private disconnect;
     getSocket(): WebSocket | null;
