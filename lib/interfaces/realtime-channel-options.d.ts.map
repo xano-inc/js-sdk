@@ -1,1 +1,1 @@
-{"version":3,"file":"realtime-channel-options.d.ts","sourceRoot":"","sources":["../../src/interfaces/realtime-channel-options.ts"],"names":[],"mappings":"AAAA,MAAM,WAAW,uBAAuB;IACtC,QAAQ,CAAC,EAAE,OAAO,CAAC;CACpB"}
+{"version":3,"file":"realtime-channel-options.d.ts","sourceRoot":"","sources":["../../src/interfaces/realtime-channel-options.ts"],"names":[],"mappings":"AAAA,MAAM,WAAW,uBAAuB;IACtC,QAAQ,CAAC,EAAE,OAAO,CAAC;IACnB,oBAAoB,CAAC,EAAE,OAAO,CAAC;CAChC"}

@@ -11,11 +11,7 @@ export class XanoRealtimeState {
   private socket: WebSocket | null = null;
 
   private reconnectSettings = {
-    attempts: 0,
-    decay: 1.5,
-    interval: 1_000,
-    maxAttempts: null,
-    maxInterval: 30_000,
+    reconnectInterval: 1000,
   };
 
   private socketObserver = new Observable<IRealtimeCommand>((count: number) => {
@@ -82,6 +78,31 @@ export class XanoRealtimeState {
       } catch (e) {
         // Silent
       }
+    });
+
+    this.socket.addEventListener("error", () => {
+      if (!this.socket) {
+        return;
+      }
+
+      this.socket = null;
+
+      this.socketObserver.notify({
+        command: ERealtimeCommand.ConnectionStatus,
+        commandOptions: {},
+        payload: {
+          status: ERealtimeConnectionStatus.Disconnected,
+        },
+      });
+
+      setTimeout(() => {
+        this.connect();
+      }, this.reconnectSettings.reconnectInterval);
+
+      this.reconnectSettings.reconnectInterval = Math.min(
+        2 * this.reconnectSettings.reconnectInterval,
+        60000
+      );
     });
 
     this.socket.addEventListener("close", () => {

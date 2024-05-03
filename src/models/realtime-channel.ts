@@ -13,6 +13,7 @@ import { realtimeBuildCommandUtil } from "../utils/realtime-build-message.util";
 
 export class XanoRealtimeChannel {
   private observed: boolean = false;
+  private offlineMessageQueue: string[] = [];
   private presenceCache: RealtimeClient[] = [];
   private socketObserver: Observable<IRealtimeCommand> =
     XanoRealtimeState.getInstance().setConfig(this.config).getSocketObserver();
@@ -37,6 +38,7 @@ export class XanoRealtimeChannel {
         switch (command.command) {
           case ERealtimeCommand.ConnectionStatus:
             this.realtimeChannel.handleConnectionUpdate(command);
+            this.realtimeChannel.processOfflineMessageQueue();
             break;
           case ERealtimeCommand.PresenceFull:
           case ERealtimeCommand.PresenceUpdate:
@@ -161,7 +163,29 @@ export class XanoRealtimeChannel {
       payload
     );
 
-    socket.send(message);
+    if (socket.readyState === WebSocket.OPEN) {
+      socket.send(message);
+    } else if (this.options.queueOfflineMessages) {
+      this.offlineMessageQueue.push(message);
+    }
+  }
+
+  private processOfflineMessageQueue(): void {
+    if (!this.options.queueOfflineMessages) {
+      return;
+    }
+
+    const socket = XanoRealtimeState.getInstance().getSocket();
+    if (socket === null) {
+      return;
+    }
+
+    while (this.offlineMessageQueue.length) {
+      const message = this.offlineMessageQueue.shift();
+      if (message) {
+        socket.send(message);
+      }
+    }
   }
 
   getPresence(): RealtimeClient[] {

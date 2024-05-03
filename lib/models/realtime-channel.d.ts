@@ -7,6 +7,7 @@ export declare class XanoRealtimeChannel {
     readonly options: Partial<IRealtimeChannelOptions>;
     private readonly config;
     private observed;
+    private offlineMessageQueue;
     private presenceCache;
     private socketObserver;
     private onFuncs;
@@ -17,6 +18,7 @@ export declare class XanoRealtimeChannel {
     on(onFunc: CallableFunction, onError?: CallableFunction): XanoRealtimeChannel;
     destroy(): void;
     message(payload: any, commandOptions?: Partial<IRealtimeCommandOptions>): void;
+    private processOfflineMessageQueue;
     getPresence(): RealtimeClient[];
 }
 //# sourceMappingURL=realtime-channel.d.ts.map
