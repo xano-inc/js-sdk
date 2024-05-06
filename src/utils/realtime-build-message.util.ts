@@ -1,13 +1,13 @@
 import { ERealtimeCommand } from "../enums/realtime-command";
-import { IRealtimeCommand } from "../interfaces/realtime-command";
-import { IRealtimeCommandOptions } from "../interfaces/realtime-command-options";
+import { XanoRealtimeCommand } from "../interfaces/realtime-command";
+import { XanoRealtimeCommandOptions } from "../interfaces/realtime-command-options";
 
 export const realtimeBuildCommandUtil = (
   command: ERealtimeCommand,
-  commandOptions: IRealtimeCommandOptions,
+  commandOptions: XanoRealtimeCommandOptions,
   payload: any = null
 ): string => {
-  return JSON.stringify(<IRealtimeCommand>{
+  return JSON.stringify(<XanoRealtimeCommand>{
     command,
     commandOptions,
     payload,

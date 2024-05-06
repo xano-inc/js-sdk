@@ -1,5 +1,5 @@
-export interface IRealtimeChannelOptions {
+export interface XanoRealtimeChannelOptions {
     presence?: boolean;
-    queueOfflineMessages?: boolean;
+    queueOfflineCommands?: boolean;
 }
 //# sourceMappingURL=realtime-channel-options.d.ts.map

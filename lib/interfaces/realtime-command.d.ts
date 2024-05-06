@@ -1,10 +1,10 @@
 import { ERealtimeCommand } from "../enums/realtime-command";
-import { IRealtimeClient } from "./realtime-client";
-import { IRealtimeCommandOptions } from "./realtime-command-options";
-export interface IRealtimeCommand {
-    client?: IRealtimeClient;
+import { XanoRealtimeClient } from "./realtime-client";
+import { XanoRealtimeCommandOptions } from "./realtime-command-options";
+export interface XanoRealtimeCommand {
+    client?: XanoRealtimeClient;
     command: ERealtimeCommand;
-    commandOptions?: IRealtimeCommandOptions;
+    commandOptions?: XanoRealtimeCommandOptions;
     payload: Record<string, any>;
 }
 //# sourceMappingURL=realtime-command.d.ts.map
