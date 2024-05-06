@@ -89,13 +89,13 @@ This is the primary client class of Xano. It can be instantiated with the follow
 
 | Param | Type | Default | Description |
 | --- | --- | --- | --- |
-| `apiGroupBaseUrl` | `string | null` | `null` | API Group Base URL can be found on the API Group dashboard |
-| `authToken` | `string | null` | `null` | Auth token generated in Xano from a login route (ex. `/auth/login`). Depending on `storage` this value will persist when set/cleared |
+| `apiGroupBaseUrl` | `string \| null` | `null` | API Group Base URL can be found on the API Group dashboard |
+| `authToken` | `string \| null` | `null` | Auth token generated in Xano from a login route (ex. `/auth/login`). Depending on `storage` this value will persist when set/cleared |
 | `customAxiosRequestConfig` | `Partial<AxiosRequestConfig>` | `{}` | For extreme edge cases, you can override the default Axios config that the SDK uses. [AxiosRequestConfig Documentation](https://axios-http.com/docs/req_config). Useful for ignoring SSL cert issues, etc |
-| `dataSource` | `string | null` | `null` | Name of the [Xano Data Source](https://docs.xano.com/database/data-sources) to use as the `X-Data-Source` header |
-| `instanceBaseUrl` | `string | null` | `null` | URL of the Xano instance to make requests to (ex. `https://x8ki-letl-twmt.n7.xano.io/`) |
-| `realtimeConnectionHash` | `string | null` | `null` | The connection hash found on the realtime settings panel within your instance workspace |
-| `responseObjectPrefix` | `string | null` | `null` | If the API response body is an object or an array of objects then this will prefix all keys with this value |
+| `dataSource` | `string \| null` | `null` | Name of the [Xano Data Source](https://docs.xano.com/database/data-sources) to use as the `X-Data-Source` header |
+| `instanceBaseUrl` | `string \| null` | `null` | URL of the Xano instance to make requests to (ex. `https://x8ki-letl-twmt.n7.xano.io/`) |
+| `realtimeConnectionHash` | `string \| null` | `null` | The connection hash found on the realtime settings panel within your instance workspace |
+| `responseObjectPrefix` | `string \| null` | `null` | If the API response body is an object or an array of objects then this will prefix all keys with this value |
 | `storage` | `XanoBaseStorage` | `XanoLocalStorage` | The storage mechanism where we store persistant information like `authToken` |
 
 Usage:
@@ -124,7 +124,7 @@ Depending on `storage` when configuring `XanoClient` this value could persist ac
 
 | Param | Type | Description |
 | --- | --- | --- |
-| `authToken` | `string | null` | Can be created from the `/auth/login` endpoint. `null` will clear the token |
+| `authToken` | `string \| null` | Can be created from the `/auth/login` endpoint. `null` will clear the token |
 
 Usage:
 ```js
@@ -148,7 +148,7 @@ More information about data sources can be [found here](https://docs.xano.com/da
 
 | Param | Type | Description |
 | --- | --- | --- |
-| `dataSource` | `string | null` | The name of the data source to use |
+| `dataSource` | `string \| null` | The name of the data source to use |
 
 Usage:
 ```js
@@ -398,7 +398,7 @@ Each class that extends `XanoBaseStorage` share the following functions:
 | --- | --- | --- | --- |
 | `clear` | | `void` | Clears all storage keys |
 | `getAll` | | `Record<string, string>` | Returns all data stored in `XanoBaseStorage` |
-| `getItem` | `key: string` | `string | null` | Returns the value for the `key`, or `null` if not set |
+| `getItem` | `key: string` | `string \| null` | Returns the value for the `key`, or `null` if not set |
 | `removeItem` | `key: string` | `void` | Removes the `key` and `value` from storage |
 | `setItem` | `key: string`, `value: string` | `void` | Updates storage for `key` with `value` |
 
