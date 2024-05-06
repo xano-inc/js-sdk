@@ -1,4 +1,4 @@
-export interface IRealtimeChannelOptions {
+export interface XanoRealtimeChannelOptions {
   presence?: boolean;
-  queueOfflineMessages?: boolean;
+  queueOfflineCommands?: boolean;
 }

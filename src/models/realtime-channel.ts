@@ -1,21 +1,21 @@
 import { ERealtimeCommand } from "../enums/realtime-command";
 import { ERealtimeConnectionStatus } from "../enums/realtime-connection-status";
 import { ERealtimePresenceAction } from "../enums/realtime-presence-action.enum";
-import { IRealtimeChannelOptions } from "../interfaces/realtime-channel-options";
-import { IRealtimeCommand } from "../interfaces/realtime-command";
-import { IRealtimeCommandOptions } from "../interfaces/realtime-command-options";
 import { Observable } from "./observable";
 import { Observer } from "./observer";
-import { RealtimeClient } from "./realtime-client";
 import { XanoClientConfig } from "../interfaces/client-config";
+import { XanoRealtimeChannelOptions } from "../interfaces/realtime-channel-options";
+import { XanoRealtimeClient } from "./realtime-client";
+import { XanoRealtimeCommand } from "../interfaces/realtime-command";
+import { XanoRealtimeCommandOptions } from "../interfaces/realtime-command-options";
 import { XanoRealtimeState } from "./realtime-state";
 import { realtimeBuildCommandUtil } from "../utils/realtime-build-message.util";
 
 export class XanoRealtimeChannel {
   private observed: boolean = false;
   private offlineMessageQueue: string[] = [];
-  private presenceCache: RealtimeClient[] = [];
-  private socketObserver: Observable<IRealtimeCommand> =
+  private presenceCache: XanoRealtimeClient[] = [];
+  private socketObserver: Observable<XanoRealtimeCommand> =
     XanoRealtimeState.getInstance().setConfig(this.config).getSocketObserver();
 
   private onFuncs: {
@@ -24,12 +24,12 @@ export class XanoRealtimeChannel {
   }[] = [];
 
   private realtimeObserver =
-    new (class XanoRealtimeObserver extends Observer<IRealtimeCommand> {
+    new (class XanoRealtimeObserver extends Observer<XanoRealtimeCommand> {
       constructor(private realtimeChannel: XanoRealtimeChannel) {
         super();
       }
 
-      update(command: IRealtimeCommand) {
+      update(command: XanoRealtimeCommand) {
         const channel = command?.commandOptions?.channel;
         if (channel && channel !== this.realtimeChannel.channel) {
           return;
@@ -60,7 +60,7 @@ export class XanoRealtimeChannel {
 
   constructor(
     public readonly channel: string,
-    public readonly options: Partial<IRealtimeChannelOptions>,
+    public readonly options: Partial<XanoRealtimeChannelOptions>,
     private readonly config: XanoClientConfig
   ) {
     const socket = XanoRealtimeState.getInstance().getSocket();
@@ -68,7 +68,7 @@ export class XanoRealtimeChannel {
       return;
     }
 
-    const command: IRealtimeCommand = {
+    const command: XanoRealtimeCommand = {
       command: ERealtimeCommand.ConnectionStatus,
       commandOptions: {},
       payload: {
@@ -83,7 +83,7 @@ export class XanoRealtimeChannel {
     this.handleConnectionUpdate(command);
   }
 
-  private handleConnectionUpdate(command: IRealtimeCommand): void {
+  private handleConnectionUpdate(command: XanoRealtimeCommand): void {
     if (command.payload.status !== ERealtimeConnectionStatus.Connected) {
       return;
     }
@@ -106,15 +106,15 @@ export class XanoRealtimeChannel {
     socket.send(message);
   }
 
-  private handlePresenceUpdate(command: IRealtimeCommand): void {
+  private handlePresenceUpdate(command: XanoRealtimeCommand): void {
     if (command.command === ERealtimeCommand.PresenceFull) {
       this.presenceCache = command.payload.presence.map(
-        (client) => new RealtimeClient(client, this)
+        (client) => new XanoRealtimeClient(client, this)
       );
     } else if (command.command === ERealtimeCommand.PresenceUpdate) {
       if (command.payload.action === ERealtimePresenceAction.Join) {
         this.presenceCache.push(
-          new RealtimeClient(command.payload.presence, this)
+          new XanoRealtimeClient(command.payload.presence, this)
         );
       } else if (command.payload.action === ERealtimePresenceAction.Leave) {
         this.presenceCache = this.presenceCache.filter(
@@ -151,7 +151,10 @@ export class XanoRealtimeChannel {
     this.socketObserver.removeObserver(this.realtimeObserver);
   }
 
-  message(payload: any, commandOptions: Partial<IRealtimeCommandOptions> = {}) {
+  message(
+    payload: any,
+    commandOptions: Partial<XanoRealtimeCommandOptions> = {}
+  ) {
     const socket = XanoRealtimeState.getInstance().getSocket();
     if (socket === null) {
       return;
@@ -165,13 +168,13 @@ export class XanoRealtimeChannel {
 
     if (socket.readyState === WebSocket.OPEN) {
       socket.send(message);
-    } else if (this.options.queueOfflineMessages) {
+    } else if (this.options.queueOfflineCommands) {
       this.offlineMessageQueue.push(message);
     }
   }
 
   private processOfflineMessageQueue(): void {
-    if (!this.options.queueOfflineMessages) {
+    if (!this.options.queueOfflineCommands) {
       return;
     }
 
@@ -188,7 +191,7 @@ export class XanoRealtimeChannel {
     }
   }
 
-  getPresence(): RealtimeClient[] {
+  getPresence(): XanoRealtimeClient[] {
     return this.presenceCache;
   }
 }

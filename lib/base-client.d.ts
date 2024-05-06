@@ -1,7 +1,7 @@
 import { XanoClientConfig } from "./interfaces/client-config";
 import { XanoRealtimeChannel } from "./models/realtime-channel";
+import { XanoRealtimeChannelOptions } from "./interfaces/realtime-channel-options";
 import { XanoResponse } from "./models/response";
-import { IRealtimeChannelOptions } from "./interfaces/realtime-channel-options";
 export declare abstract class XanoBaseClient {
     private config;
     constructor(config: Partial<XanoClientConfig>);
@@ -20,6 +20,6 @@ export declare abstract class XanoBaseClient {
     patch(endpoint: string, params?: Record<any, any>, headers?: Record<any, any>): Promise<XanoResponse>;
     post(endpoint: string, params?: Record<any, any>, headers?: Record<any, any>): Promise<XanoResponse>;
     put(endpoint: string, params?: Record<any, any>, headers?: Record<any, any>): Promise<XanoResponse>;
-    channel(channel: string, options?: Partial<IRealtimeChannelOptions>): XanoRealtimeChannel;
+    channel(channel: string, options?: Partial<XanoRealtimeChannelOptions>): XanoRealtimeChannel;
 }
 //# sourceMappingURL=base-client.d.ts.map

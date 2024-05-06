@@ -5,12 +5,12 @@ import { XanoFile } from "./models/file";
 import { XanoFormData } from "./interfaces/form-data";
 import { XanoObjectStorage } from "./models/object-storage";
 import { XanoRealtimeChannel } from "./models/realtime-channel";
+import { XanoRealtimeChannelOptions } from "./interfaces/realtime-channel-options";
 import { XanoRequestError } from "./errors/request";
 import { XanoRequestParams } from "./interfaces/request-params";
 import { XanoRequestType } from "./enums/request-type";
 import { XanoResponse } from "./models/response";
 import { XanoStorageKeys } from "./enums/storage-keys";
-import { IRealtimeChannelOptions } from "./interfaces/realtime-channel-options";
 
 export abstract class XanoBaseClient {
   private config: XanoClientConfig = {
@@ -18,6 +18,8 @@ export abstract class XanoBaseClient {
     authToken: null,
     customAxiosRequestConfig: {},
     dataSource: null,
+    instanceBaseUrl: null,
+    realtimeConnectionHash: null,
     responseObjectPrefix: "",
     storage: new XanoObjectStorage(),
   };
@@ -88,9 +90,15 @@ export abstract class XanoBaseClient {
   }
 
   private request(params: XanoRequestParams): Promise<any> {
+    if (!this.config.apiGroupBaseUrl && !this.config.instanceBaseUrl) {
+      throw new Error(
+        "Please configure apiGroupBaseUrl or instanceBaseUrl setting before making an API request"
+      );
+    }
+
     const axiosConfig = <AxiosRequestConfig>{
       ...this.config.customAxiosRequestConfig,
-      baseURL: this.config.apiGroupBaseUrl,
+      baseURL: this.config.apiGroupBaseUrl || this.config.instanceBaseUrl,
       method: params.method,
       params: params.urlParams,
       url: params.endpoint,
@@ -258,10 +266,18 @@ export abstract class XanoBaseClient {
 
   channel(
     channel: string,
-    options: Partial<IRealtimeChannelOptions> = {}
+    options: Partial<XanoRealtimeChannelOptions> = {}
   ): XanoRealtimeChannel {
-    if (!this.config.apiGroupBaseUrl) {
-      throw Error("XanoClient: apiGroupBaseUrl is required for realtime");
+    if (!this.config.instanceBaseUrl && !this.config.apiGroupBaseUrl) {
+      throw new Error(
+        "Please configure instanceBaseUrl or apiGroupBaseUrl setting before connecting to realtime"
+      );
+    }
+
+    if (!this.config.realtimeConnectionHash) {
+      throw new Error(
+        "Please configure realtimeConnectionHash setting before connecting to realtime"
+      );
     }
 
     return new XanoRealtimeChannel(channel, options, this.config);

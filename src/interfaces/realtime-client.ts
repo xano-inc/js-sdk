@@ -1,4 +1,4 @@
-export interface IRealtimeClient {
+export interface XanoRealtimeClient {
   extras: Record<string, any>;
   permissions: {
     dbo_id: number;

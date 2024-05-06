@@ -1,8 +1,8 @@
 import { ERealtimeCommand } from "../enums/realtime-command";
 import { ERealtimeConnectionStatus } from "../enums/realtime-connection-status";
-import { IRealtimeCommand } from "../interfaces/realtime-command";
 import { Observable } from "./observable";
 import { XanoClientConfig } from "../interfaces/client-config";
+import { XanoRealtimeCommand } from "../interfaces/realtime-command";
 
 export class XanoRealtimeState {
   private static _instance = new XanoRealtimeState();
@@ -16,18 +16,20 @@ export class XanoRealtimeState {
     reconnecting: false,
   };
 
-  private socketObserver = new Observable<IRealtimeCommand>((count: number) => {
-    if (count) {
-      this.connect();
-    } else {
-      this.disconnect();
+  private socketObserver = new Observable<XanoRealtimeCommand>(
+    (count: number) => {
+      if (count) {
+        this.connect();
+      } else {
+        this.disconnect();
+      }
     }
-  });
+  );
 
   constructor() {
     if (XanoRealtimeState._instance) {
       throw new Error(
-        "Error: Instantiation failed: Use XanoRealtimeState.getInstance() instead of new."
+        "Instantiation failed: Use XanoRealtimeState.getInstance() instead of new."
       );
     }
 
@@ -54,29 +56,32 @@ export class XanoRealtimeState {
       return this.socket;
     }
 
+    if (!this.config.instanceBaseUrl && !this.config.apiGroupBaseUrl) {
+      throw new Error(
+        "Please configure instanceBaseUrl or apiGroupBaseUrl setting before connecting to realtime"
+      );
+    }
+
     if (!this.config.realtimeConnectionHash) {
       throw new Error(
-        "Error: Please configure realtimeConnectionHash setting before connecting to realtime"
+        "Please configure realtimeConnectionHash setting before connecting to realtime"
       );
     }
 
     this.reconnectSettings.reconnectInterval =
       this.reconnectSettings.defaultReconnectInterval;
 
-    const url = new URL(`${this.config.apiGroupBaseUrl}`);
+    const url = new URL(
+      `${this.config.instanceBaseUrl || this.config.apiGroupBaseUrl}`
+    );
 
     let protocols;
     if (this.config.authToken) {
       protocols = [this.config.authToken];
     }
 
-    let domain = `wss://${url.hostname}`;
-    if (this.config.realtimeConnectionUrlOverride) {
-      domain = this.config.realtimeConnectionUrlOverride;
-    }
-
     this.socket = new WebSocket(
-      `${domain}/rt/${this.config.realtimeConnectionHash}`,
+      `wss://${url.hostname}/rt/${this.config.realtimeConnectionHash}`,
       protocols
     );
 
@@ -166,7 +171,7 @@ export class XanoRealtimeState {
     return this;
   }
 
-  getSocketObserver(): Observable<IRealtimeCommand> {
+  getSocketObserver(): Observable<XanoRealtimeCommand> {
     return this.socketObserver;
   }
 }

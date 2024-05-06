@@ -1,10 +1,10 @@
 import { ERealtimeCommand } from "../enums/realtime-command";
-import { IRealtimeClient } from "../interfaces/realtime-client";
+import { XanoRealtimeChannel } from "./realtime-channel";
+import { XanoRealtimeClient as IXanoRealtimeClient } from "../interfaces/realtime-client";
 import { XanoRealtimeState } from "./realtime-state";
 import { realtimeBuildCommandUtil } from "../utils/realtime-build-message.util";
-import { XanoRealtimeChannel } from "./realtime-channel";
 
-export class RealtimeClient implements IRealtimeClient {
+export class XanoRealtimeClient implements IXanoRealtimeClient {
   private readonly channel: XanoRealtimeChannel;
 
   extras: Record<string, any>;
@@ -14,7 +14,7 @@ export class RealtimeClient implements IRealtimeClient {
   };
   socketId: string;
 
-  constructor(client: IRealtimeClient, channel: XanoRealtimeChannel) {
+  constructor(client: IXanoRealtimeClient, channel: XanoRealtimeChannel) {
     Object.assign(this, client);
     this.channel = channel;
   }

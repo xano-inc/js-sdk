@@ -1,6 +1,6 @@
-import { IRealtimeClient } from "../interfaces/realtime-client";
 import { XanoRealtimeChannel } from "./realtime-channel";
-export declare class RealtimeClient implements IRealtimeClient {
+import { XanoRealtimeClient as IXanoRealtimeClient } from "../interfaces/realtime-client";
+export declare class XanoRealtimeClient implements IXanoRealtimeClient {
     private readonly channel;
     extras: Record<string, any>;
     permissions: {
@@ -8,7 +8,7 @@ export declare class RealtimeClient implements IRealtimeClient {
         row_id: number;
     };
     socketId: string;
-    constructor(client: IRealtimeClient, channel: XanoRealtimeChannel);
+    constructor(client: IXanoRealtimeClient, channel: XanoRealtimeChannel);
     message(payload: any): void;
 }
 //# sourceMappingURL=realtime-client.d.ts.map

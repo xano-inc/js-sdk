@@ -1,6 +1,6 @@
-import { IRealtimeCommand } from "../interfaces/realtime-command";
 import { Observable } from "./observable";
 import { XanoClientConfig } from "../interfaces/client-config";
+import { XanoRealtimeCommand } from "../interfaces/realtime-command";
 export declare class XanoRealtimeState {
     private static _instance;
     private config;
@@ -14,6 +14,6 @@ export declare class XanoRealtimeState {
     private disconnect;
     getSocket(): WebSocket | null;
     setConfig(config: XanoClientConfig): this;
-    getSocketObserver(): Observable<IRealtimeCommand>;
+    getSocketObserver(): Observable<XanoRealtimeCommand>;
 }
 //# sourceMappingURL=realtime-state.d.ts.map

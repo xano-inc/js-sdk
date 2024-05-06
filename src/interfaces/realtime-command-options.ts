@@ -1,4 +1,4 @@
-export interface IRealtimeCommandOptions {
+export interface XanoRealtimeCommandOptions {
   authenticated?: boolean;
   channel?: string;
   socketId?: string;
