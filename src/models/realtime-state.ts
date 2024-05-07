@@ -68,9 +68,6 @@ export class XanoRealtimeState {
       );
     }
 
-    this.reconnectSettings.reconnectInterval =
-      this.reconnectSettings.defaultReconnectInterval;
-
     const url = new URL(
       `${this.config.instanceBaseUrl || this.config.apiGroupBaseUrl}`
     );
@@ -101,8 +98,12 @@ export class XanoRealtimeState {
       }
     });
 
-    this.socket.addEventListener("error", () => {
+    this.socket.addEventListener("close", (e: CloseEvent) => {
       if (!this.socket) {
+        if (this.reconnectSettings.reconnecting) {
+          this.triggerReconnect();
+        }
+
         return;
       }
 
@@ -116,32 +117,24 @@ export class XanoRealtimeState {
         },
       });
 
-      if (this.reconnectSettings.reconnecting) {
+      const reconnectCodes = [
+        1006, // Abnormal Closure
+        1011, // Internal Error
+        1012, // Service Restart
+        1013, // Try Again Later
+        1014, // Bad Gateway
+      ];
+
+      if (reconnectCodes.includes(e.code)) {
+        this.reconnectSettings.reconnecting = true;
         this.triggerReconnect();
       }
     });
 
-    this.socket.addEventListener("close", () => {
-      if (!this.socket) {
-        return;
-      }
-
-      this.socket = null;
-
-      this.socketObserver.notify({
-        command: ERealtimeCommand.ConnectionStatus,
-        commandOptions: {},
-        payload: {
-          status: ERealtimeConnectionStatus.Disconnected,
-        },
-      });
-
-      this.reconnectSettings.reconnecting = true;
-      this.triggerReconnect();
-    });
-
     this.socket.addEventListener("open", () => {
       this.reconnectSettings.reconnecting = false;
+      this.reconnectSettings.reconnectInterval =
+        this.reconnectSettings.defaultReconnectInterval;
 
       this.socketObserver.notify({
         command: ERealtimeCommand.ConnectionStatus,
