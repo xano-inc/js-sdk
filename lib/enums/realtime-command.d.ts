@@ -1,11 +1,11 @@
 export declare enum ERealtimeCommand {
-    ConnectionStatus = "[Realtime] Connection Status",
-    Error = "[Realtime] Error",
-    Event = "[Realtime] Event",
-    Join = "[Realtime] Join",
-    Leave = "[Realtime] Leave",
-    Message = "[Realtime] Message",
-    PresenceFull = "[Realtime] Presence Full",
-    PresenceUpdate = "[Realtime] Presence Update"
+    ConnectionStatus = "connection_status",
+    Error = "error",
+    Event = "event",
+    Join = "join",
+    Leave = "leave",
+    Message = "message",
+    PresenceFull = "presence_full",
+    PresenceUpdate = "presence_update"
 }
 //# sourceMappingURL=realtime-command.d.ts.map
