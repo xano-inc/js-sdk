@@ -1,8 +1,8 @@
-import { ERealtimeCommand } from "../enums/realtime-command";
+import { ERealtimeAction } from "../enums/realtime-action";
 import { ERealtimeConnectionStatus } from "../enums/realtime-connection-status";
 import { Observable } from "./observable";
 import { XanoClientConfig } from "../interfaces/client-config";
-import { XanoRealtimeCommand } from "../interfaces/realtime-command";
+import { XanoRealtimeAction } from "../interfaces/realtime-action";
 
 export class XanoRealtimeState {
   private static _instance = new XanoRealtimeState();
@@ -16,7 +16,7 @@ export class XanoRealtimeState {
     reconnecting: false,
   };
 
-  private socketObserver = new Observable<XanoRealtimeCommand>(
+  private socketObserver = new Observable<XanoRealtimeAction>(
     (count: number) => {
       if (count) {
         this.connect();
@@ -85,11 +85,11 @@ export class XanoRealtimeState {
     this.socket.addEventListener("message", (event) => {
       try {
         const data = JSON.parse(event.data);
-        if (data?.command) {
+        if (data?.action) {
           this.socketObserver.notify({
+            action: data.action,
             client: data?.client || undefined,
-            command: data.command,
-            commandOptions: data?.commandOptions || undefined,
+            options: data?.options || undefined,
             payload: data.payload,
           });
         }
@@ -110,8 +110,8 @@ export class XanoRealtimeState {
       this.socket = null;
 
       this.socketObserver.notify({
-        command: ERealtimeCommand.ConnectionStatus,
-        commandOptions: {},
+        action: ERealtimeAction.ConnectionStatus,
+        options: {},
         payload: {
           status: ERealtimeConnectionStatus.Disconnected,
         },
@@ -137,8 +137,8 @@ export class XanoRealtimeState {
         this.reconnectSettings.defaultReconnectInterval;
 
       this.socketObserver.notify({
-        command: ERealtimeCommand.ConnectionStatus,
-        commandOptions: {},
+        action: ERealtimeAction.ConnectionStatus,
+        options: {},
         payload: {
           status: ERealtimeConnectionStatus.Connected,
         },
@@ -164,7 +164,7 @@ export class XanoRealtimeState {
     return this;
   }
 
-  getSocketObserver(): Observable<XanoRealtimeCommand> {
+  getSocketObserver(): Observable<XanoRealtimeAction> {
     return this.socketObserver;
   }
 }

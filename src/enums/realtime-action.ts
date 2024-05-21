@@ -1,4 +1,4 @@
-export enum ERealtimeCommand {
+export enum ERealtimeAction {
   ConnectionStatus = "connection_status",
   Error = "error",
   Event = "event",

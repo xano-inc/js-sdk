@@ -1,4 +1,4 @@
-export declare enum ERealtimeCommand {
+export declare enum ERealtimeAction {
     ConnectionStatus = "connection_status",
     Error = "error",
     Event = "event",
@@ -8,4 +8,4 @@ export declare enum ERealtimeCommand {
     PresenceFull = "presence_full",
     PresenceUpdate = "presence_update"
 }
-//# sourceMappingURL=realtime-command.d.ts.map
+//# sourceMappingURL=realtime-action.d.ts.map

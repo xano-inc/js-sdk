@@ -1,7 +1,7 @@
 import { XanoClientConfig } from "../interfaces/client-config";
+import { XanoRealtimeActionOptions } from "../interfaces/realtime-action-options";
 import { XanoRealtimeChannelOptions } from "../interfaces/realtime-channel-options";
 import { XanoRealtimeClient } from "./realtime-client";
-import { XanoRealtimeCommandOptions } from "../interfaces/realtime-command-options";
 export declare class XanoRealtimeChannel {
     readonly channel: string;
     readonly options: Partial<XanoRealtimeChannelOptions>;
@@ -17,7 +17,7 @@ export declare class XanoRealtimeChannel {
     private handlePresenceUpdate;
     on(onFunc: CallableFunction, onError?: CallableFunction): XanoRealtimeChannel;
     destroy(): void;
-    message(payload: any, commandOptions?: Partial<XanoRealtimeCommandOptions>): void;
+    message(payload: any, actionOptions?: Partial<XanoRealtimeActionOptions>): void;
     private processOfflineMessageQueue;
     getPresence(): XanoRealtimeClient[];
 }

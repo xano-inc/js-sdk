@@ -1,8 +1,8 @@
-import { ERealtimeCommand } from "../enums/realtime-command";
+import { ERealtimeAction } from "../enums/realtime-action";
 import { XanoRealtimeChannel } from "./realtime-channel";
 import { XanoRealtimeClient as IXanoRealtimeClient } from "../interfaces/realtime-client";
 import { XanoRealtimeState } from "./realtime-state";
-import { realtimeBuildCommandUtil } from "../utils/realtime-build-message.util";
+import { realtimeBuildActionUtil } from "../utils/realtime-build-action.util";
 
 export class XanoRealtimeClient implements IXanoRealtimeClient {
   private readonly channel: XanoRealtimeChannel;
@@ -25,8 +25,8 @@ export class XanoRealtimeClient implements IXanoRealtimeClient {
       return;
     }
 
-    const message = realtimeBuildCommandUtil(
-      ERealtimeCommand.Message,
+    const message = realtimeBuildActionUtil(
+      ERealtimeAction.Message,
       {
         channel: this.channel.channel,
         socketId: this.socketId,

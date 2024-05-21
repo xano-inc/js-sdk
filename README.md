@@ -76,8 +76,8 @@ const  xano = new  XanoClient({
 	realtimeConnectionHash: "1lK90n16tnnylJpJ0Xa7Km6_KxA",
 });
 
-const channel = xano.channel("some_channel").on(function(command) {
-	console.log("Received command", command);
+const channel = xano.channel("some_channel").on(function(action) {
+	console.log("Received action", action);
 });
 
 channel.message({ message: "Hello world!" });
@@ -437,8 +437,8 @@ The `on` returns an event stream that can be subscribed two with a success and e
 
 | Param | Type | Required | Description |
 | --- | --- | --- | --- |
-| `onMessage` | `CallableFunction<XanoRealtimeCommand>` | `yes` | A callback function that gets called when the channel receives a message |
-| `onError` | `CallableFunction<XanoRealtimeCommand>` | `no` | A callback function that gets called when the channel receives an error message |
+| `onMessage` | `CallableFunction<XanoRealtimeAction>` | `yes` | A callback function that gets called when the channel receives a message |
+| `onError` | `CallableFunction<XanoRealtimeAction>` | `no` | A callback function that gets called when the channel receives an error message |
 
 Usage:
 ```js
@@ -458,7 +458,7 @@ Sends a message from the client to the channel
 | Param | Type | Required | Description |
 | --- | --- | --- | --- |
 | `payload` | `any` | `yes` | Any JSON stringable message to send to the channel |
-| `commandOptions` | `Partial<XanoRealtimeCommandOptions>` | `no` | Message options to send with the message |
+| `options` | `Partial<XanoRealtimeActionOptions>` | `no` | Message options to send with the message |
 
 Usage:
 ```js
@@ -506,35 +506,35 @@ Leaves the channel and disconnects from the realtime websocket server if its the
 | Param | Type | Default | Description |
 | --- | --- | --- | --- |
 | `presence` | `boolean` | `false` | Subscribes to channel presence to see who else is in the channel and events when others join/leave |
-| `queueOfflineCommands` | `boolean` | `true` | In the event of a disconnect, or when sending commands before the channel connection is established, commands will be put in a queue and sent as soon as the connection is established |
+| `queueOfflineActions` | `boolean` | `true` | In the event of a disconnect, or when sending actions before the channel connection is established, actions will be put in a queue and sent as soon as the connection is established |
 
 ### XanoRealtimeClient
-Presence user or initiator of a command
+Presence user or initiator of a action
 
 | Param | Type | Default | Description |
 | --- | --- | --- | --- |
 | `extras` | `Record<string, any>` | `{}` | When authenticated this is the extras that are configured with the auth token |
 | `permissions` | `Record<{ dbo_id: number; row_id: number}>` | `{ dbo_id: 0, row_id: 0}` | Permissions are set through the `authToken` supplied when configuring `XanoClient`. `dbo_id` is the table ID that the client is authenticated with, `row_id` is the row of the client |
-| `socketId` | `string` | | Internal socket ID used for sending private commands |
+| `socketId` | `string` | | Internal socket ID used for sending private actions |
 
-### XanoRealtimeCommand
-The command payload sent and received through the `XanoRealtimeChannel`
-
-| Param | Type | Default | Description |
-| --- | --- | --- | --- |
-| `client?` | `XanoRealtimeClient` | `{}` | The authenticated client that initiated the command |
-| `command` | `ERealtimeCommand` | | The command sent/received |
-| `commandOptions` | `XanoRealtimeCommandOptions` | | Options sent with the command |
-| `payload` | `Record<string, any>` | | The payload sent with the command |
-
-### XanoRealtimeCommandOptions
-The command options when sending and receiving commands through the `XanoRealtimeChannel.message`
+### XanoRealtimeAction
+The action payload sent and received through the `XanoRealtimeChannel`
 
 | Param | Type | Default | Description |
 | --- | --- | --- | --- |
-| `authenticated?` | `boolean` | `false` | If the command received is for authenticated clients only |
-| `channel` | `string` | | The channel name that the command is intended for |
-| `socketId` | `string` | | The socketId for the recipient or sender of the command |
+| `client?` | `XanoRealtimeClient` | `{}` | The authenticated client that initiated the action |
+| `action` | `ERealtimeAction` | | The action sent/received |
+| `actionOptions` | `XanoRealtimeActionOptions` | | Options sent with the action |
+| `payload` | `Record<string, any>` | | The payload sent with the action |
+
+### XanoRealtimeActionOptions
+The action options when sending and receiving actions through the `XanoRealtimeChannel.message`
+
+| Param | Type | Default | Description |
+| --- | --- | --- | --- |
+| `authenticated?` | `boolean` | `false` | If the action received is for authenticated clients only |
+| `channel` | `string` | | The channel name that the action is intended for |
+| `socketId` | `string` | | The socketId for the recipient or sender of the action |
 
 ## TypeScript support
 This package includes TypeScript declarations. We support projects using TypeScript versions >= 3.1.
