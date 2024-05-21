@@ -524,7 +524,7 @@ The action payload sent and received through the `XanoRealtimeChannel`
 | --- | --- | --- | --- |
 | `client?` | `XanoRealtimeClient` | `{}` | The authenticated client that initiated the action |
 | `action` | `ERealtimeAction` | | The action sent/received |
-| `actionOptions` | `XanoRealtimeActionOptions` | | Options sent with the action |
+| `options` | `XanoRealtimeActionOptions` | | Options sent with the action |
 | `payload` | `Record<string, any>` | | The payload sent with the action |
 
 ### XanoRealtimeActionOptions
