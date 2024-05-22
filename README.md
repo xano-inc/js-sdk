@@ -471,7 +471,6 @@ The `on` returns an event stream that can be subscribed to with an action, succe
 
 Usage:
 ```js
-
 // Using the string action
 channel.on("message", 
 	(action) => {
