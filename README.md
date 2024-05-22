@@ -76,8 +76,16 @@ const  xano = new  XanoClient({
 	realtimeConnectionHash: "1lK90n16tnnylJpJ0Xa7Km6_KxA",
 });
 
-const channel = xano.channel("some_channel").on(function(action) {
+const channel = xano.channel("some_channel");
+
+// Listening to all events
+channel.on(function(action) {
 	console.log("Received action", action);
+});
+
+// Listening to specific events (full list in src/enums/realtime-action.ts)
+channel.on("message", function(action) {
+	console.log("Received message", action);
 });
 
 channel.message({ message: "Hello world!" });
@@ -432,18 +440,51 @@ const channel = xano.channel("stats", {
 });
 ```
 
-### XanoRealtimeChannel.on
-The `on` returns an event stream that can be subscribed two with a success and error function:
+### XanoRealtimeChannel.on (all events)
+The `on` returns an event stream that can be subscribed to with a success and error function:
 
 | Param | Type | Required | Description |
 | --- | --- | --- | --- |
-| `onMessage` | `CallableFunction<XanoRealtimeAction>` | `yes` | A callback function that gets called when the channel receives a message |
+| `onAction` | `CallableFunction<XanoRealtimeAction>` | `yes` | A callback function that gets called when the channel receives an action |
 | `onError` | `CallableFunction<XanoRealtimeAction>` | `no` | A callback function that gets called when the channel receives an error message |
 
 Usage:
 ```js
 channel.on(
-	(message) => {
+	(action) => {
+		// Success!
+	},
+	(error) => {
+		// Failure
+	}
+);
+```
+
+### XanoRealtimeChannel.on (specific events)
+The `on` returns an event stream that can be subscribed to with an action, success function, and error function:
+
+| Param | Type | Required | Description |
+| --- | --- | --- | --- |
+| `action` | `ERealtimeAction` | `yes` | The action you want to subscribe to |
+| `onAction` | `CallableFunction<XanoRealtimeAction>` | `yes` | A callback function that gets called when the channel receives an action |
+| `onError` | `CallableFunction<XanoRealtimeAction>` | `no` | A callback function that gets called when the channel receives an error message |
+
+Usage:
+```js
+
+// Using the string action
+channel.on("message", 
+	(action) => {
+		// Success!
+	},
+	(error) => {
+		// Failure
+	}
+);
+
+// Using the typescript enum:
+channel.on(ERealtimeAction.Message, 
+	(action) => {
 		// Success!
 	},
 	(error) => {
@@ -457,8 +498,8 @@ Sends a message from the client to the channel
 
 | Param | Type | Required | Description |
 | --- | --- | --- | --- |
-| `payload` | `any` | `yes` | Any JSON stringable message to send to the channel |
-| `options` | `Partial<XanoRealtimeActionOptions>` | `no` | Message options to send with the message |
+| `payload` | `any` | `yes` | Any JSON stringable payload to send to the channel |
+| `options` | `Partial<XanoRealtimeActionOptions>` | `no` | Action options to send with the action |
 
 Usage:
 ```js

@@ -1,3 +1,4 @@
+import { ERealtimeAction } from "../enums/realtime-action";
 import { XanoClientConfig } from "../interfaces/client-config";
 import { XanoRealtimeActionOptions } from "../interfaces/realtime-action-options";
 import { XanoRealtimeChannelOptions } from "../interfaces/realtime-channel-options";
@@ -15,6 +16,7 @@ export declare class XanoRealtimeChannel {
     constructor(channel: string, options: Partial<XanoRealtimeChannelOptions>, config: XanoClientConfig);
     private handleConnectionUpdate;
     private handlePresenceUpdate;
+    on(action: ERealtimeAction, onFunc: CallableFunction, onError?: CallableFunction): XanoRealtimeChannel;
     on(onFunc: CallableFunction, onError?: CallableFunction): XanoRealtimeChannel;
     destroy(): void;
     message(payload: any, actionOptions?: Partial<XanoRealtimeActionOptions>): void;

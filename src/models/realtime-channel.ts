@@ -19,8 +19,9 @@ export class XanoRealtimeChannel {
     XanoRealtimeState.getInstance().setConfig(this.config).getSocketObserver();
 
   private onFuncs: {
-    onFunc: CallableFunction;
+    action?: ERealtimeAction;
     onError?: CallableFunction;
+    onFunc: CallableFunction;
   }[] = [];
 
   private realtimeObserver =
@@ -47,6 +48,10 @@ export class XanoRealtimeChannel {
         }
 
         for (const onFunc of this.realtimeChannel.onFuncs) {
+          if (onFunc.action && onFunc.action !== action.action) {
+            continue;
+          }
+
           if (action.action === ERealtimeAction.Error) {
             if (onFunc.onError) {
               onFunc.onError(action);
@@ -77,6 +82,10 @@ export class XanoRealtimeChannel {
     };
 
     for (const onFunc of this.onFuncs) {
+      if (onFunc.action && onFunc.action !== action.action) {
+        continue;
+      }
+
       onFunc.onFunc(action);
     }
 
@@ -125,15 +134,28 @@ export class XanoRealtimeChannel {
   }
 
   on(
+    action: ERealtimeAction,
     onFunc: CallableFunction,
     onError?: CallableFunction
-  ): XanoRealtimeChannel {
+  ): XanoRealtimeChannel;
+
+  on(onFunc: CallableFunction, onError?: CallableFunction): XanoRealtimeChannel;
+
+  on(...args): XanoRealtimeChannel {
     if (!this.observed) {
       this.socketObserver.addObserver(this.realtimeObserver, true);
       this.observed = true;
     }
 
-    this.onFuncs.push({ onFunc, onError });
+    if (typeof args[0] === "string") {
+      this.onFuncs.push({
+        action: <ERealtimeAction>args[0],
+        onError: args[2],
+        onFunc: args[1],
+      });
+    } else {
+      this.onFuncs.push({ onFunc: args[0], onError: args[1] });
+    }
 
     return this;
   }
