@@ -22,5 +22,6 @@ export declare class XanoRealtimeChannel {
     message(payload: any, actionOptions?: Partial<XanoRealtimeActionOptions>): void;
     private processOfflineMessageQueue;
     getPresence(): XanoRealtimeClient[];
+    history(): void;
 }
 //# sourceMappingURL=realtime-channel.d.ts.map

@@ -10,5 +10,6 @@ export declare class XanoRealtimeClient implements IXanoRealtimeClient {
     socketId: string;
     constructor(client: IXanoRealtimeClient, channel: XanoRealtimeChannel);
     message(payload: any): void;
+    history(): void;
 }
 //# sourceMappingURL=realtime-client.d.ts.map

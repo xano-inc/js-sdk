@@ -520,6 +520,20 @@ Usage:
 const users = channel.getPresence();
 ```
 
+### XanoRealtimeChannel.history
+Sends a message to realtime requesting the latest channel history. The response will be sent through the history action
+
+History is only available on channels with message history enabled
+
+Usage:
+```js
+channel.history();
+
+channel.on('history', function(action) {
+	console.log('history', action);
+});
+```
+
 ### XanoRealtimeChannel.destroy
 Leaves the channel and disconnects from the realtime websocket server if its the last open channel. You will need to create a new `XanoRealtimeChannel` instance to rejoin or interact with the channel again.
 
@@ -540,11 +554,26 @@ for (const client of presence) {
 }
 ```
 
+### XanoRealtimeClient.history
+Sends a message to realtime requesting the latest channel history. The response will be sent through the history action
+
+History is only available on channels with message history enabled
+
+Usage:
+```js
+client.history();
+
+channel.on('history', function(action) {
+	console.log('history', action);
+});
+```
+
 ### XanoRealtimeChannelOptions
 Leaves the channel and disconnects from the realtime websocket server if its the last open channel. You will need to create a new `XanoRealtimeChannel` instance to rejoin or interact with the channel again.
 
 | Param | Type | Default | Description |
 | --- | --- | --- | --- |
+| `history` | `boolean` | `false` | Returns the channel message history on join (if its enabled on a channel)
 | `presence` | `boolean` | `false` | Subscribes to channel presence to see who else is in the channel and events when others join/leave |
 | `queueOfflineActions` | `boolean` | `true` | In the event of a disconnect, or when sending actions before the channel connection is established, actions will be put in a queue and sent as soon as the connection is established |
 

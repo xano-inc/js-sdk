@@ -2,6 +2,7 @@ export declare enum ERealtimeAction {
     ConnectionStatus = "connection_status",
     Error = "error",
     Event = "event",
+    History = "history",
     Join = "join",
     Leave = "leave",
     Message = "message",

@@ -108,6 +108,7 @@ export class XanoRealtimeChannel {
         channel: this.channel,
       },
       {
+        history: this.options.history || false,
         presence: this.options.presence || false,
       }
     );
@@ -215,5 +216,18 @@ export class XanoRealtimeChannel {
 
   getPresence(): XanoRealtimeClient[] {
     return this.presenceCache;
+  }
+
+  history(): void {
+    const socket = XanoRealtimeState.getInstance().getSocket();
+    if (socket === null) {
+      return;
+    }
+
+    const message = realtimeBuildActionUtil(ERealtimeAction.History, {
+      channel: this.channel,
+    });
+
+    socket.send(message);
   }
 }

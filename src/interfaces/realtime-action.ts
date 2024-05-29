@@ -6,5 +6,5 @@ export interface XanoRealtimeAction {
   action: ERealtimeAction;
   client?: XanoRealtimeClient;
   options?: XanoRealtimeActionOptions;
-  payload: Record<string, any>;
+  payload: any;
 }

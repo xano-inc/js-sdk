@@ -36,4 +36,18 @@ export class XanoRealtimeClient implements IXanoRealtimeClient {
 
     socket.send(message);
   }
+
+  history(): void {
+    const socket = XanoRealtimeState.getInstance().getSocket();
+    if (socket === null) {
+      return;
+    }
+
+    const message = realtimeBuildActionUtil(ERealtimeAction.History, {
+      channel: this.channel.channel,
+      socketId: this.socketId,
+    });
+
+    socket.send(message);
+  }
 }
