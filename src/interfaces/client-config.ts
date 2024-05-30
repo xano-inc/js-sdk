@@ -7,6 +7,7 @@ export interface XanoClientConfig {
   customAxiosRequestConfig?: Partial<AxiosRequestConfig>;
   dataSource?: string | null;
   instanceBaseUrl?: string | null;
+  realtimeAuthToken?: string | null;
   realtimeConnectionHash?: string | null;
   responseObjectPrefix?: string | null;
   storage: XanoBaseStorage;

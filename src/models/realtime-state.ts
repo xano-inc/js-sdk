@@ -73,8 +73,10 @@ export class XanoRealtimeState {
     );
 
     let protocols;
-    if (this.config.authToken) {
-      protocols = [this.config.authToken];
+
+    const authToken = this.config.realtimeAuthToken || this.config.authToken;
+    if (authToken) {
+      protocols = [authToken];
     }
 
     this.socket = new WebSocket(
