@@ -102,7 +102,7 @@ This is the primary client class of Xano. It can be instantiated with the follow
 | `customAxiosRequestConfig` | `Partial<AxiosRequestConfig>` | `{}` | For extreme edge cases, you can override the default Axios config that the SDK uses. [AxiosRequestConfig Documentation](https://axios-http.com/docs/req_config). Useful for ignoring SSL cert issues, etc |
 | `dataSource` | `string \| null` | `null` | Name of the [Xano Data Source](https://docs.xano.com/database/data-sources) to use as the `X-Data-Source` header |
 | `instanceBaseUrl` | `string \| null` | `null` | URL of the Xano instance to make requests to (ex. `https://x8ki-letl-twmt.n7.xano.io/`) |
-| `realtimeAuthToken` | `string \| null` | `null` | Auth token used when connecting to realtime. If not present, it will default to `authToken`
+| `realtimeAuthToken` | `string \| null` | `null` | Auth token used when connecting to realtime. **NOTICE:** If not present, it will default to `authToken` until sunset on July 1st, 2024, then it will be required for realtime authentication. [More details...](https://docs.xano.com/building-features/realtime#xano-auth--realtime) |
 | `realtimeConnectionHash` | `string \| null` | `null` | The connection hash found on the realtime settings panel within your instance workspace |
 | `responseObjectPrefix` | `string \| null` | `null` | If the API response body is an object or an array of objects then this will prefix all keys with this value |
 | `storage` | `XanoBaseStorage` | `XanoLocalStorage` | The storage mechanism where we store persistant information like `authToken` |
