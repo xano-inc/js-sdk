@@ -43,6 +43,20 @@ export abstract class XanoBaseClient {
         this.config.storage.removeItem(XanoStorageKeys.AuthToken);
       }
     }
+
+    if (config?.realtimeAuthToken !== undefined) {
+      if (
+        typeof this.config.realtimeAuthToken === "string" &&
+        this.config.realtimeAuthToken.length > 0
+      ) {
+        this.config.storage.setItem(
+          XanoStorageKeys.RealtimeAuthToken,
+          this.config.realtimeAuthToken
+        );
+      } else {
+        this.config.storage.removeItem(XanoStorageKeys.RealtimeAuthToken);
+      }
+    }
   }
 
   protected abstract getFormDataInstance(): any;
@@ -155,20 +169,41 @@ export abstract class XanoBaseClient {
     });
   }
 
-  hasAuthToken(): boolean {
-    const authToken = this.config.storage.getItem(XanoStorageKeys.AuthToken);
+  private storeToken(
+    authToken: string | null,
+    storageKey: XanoStorageKeys
+  ): void {
+    if (authToken === null) {
+      this.config.storage.removeItem(storageKey);
+    } else {
+      this.config.storage.setItem(storageKey, authToken);
+    }
+  }
+
+  private hasToken(storageKey: XanoStorageKeys): boolean {
+    const authToken = this.config.storage.getItem(storageKey);
 
     return typeof authToken === "string" && authToken.length > 0;
   }
 
-  setAuthToken(authToken: string | null): this {
-    if (authToken === null) {
-      this.config.storage.removeItem(XanoStorageKeys.AuthToken);
-    } else {
-      this.config.storage.setItem(XanoStorageKeys.AuthToken, authToken);
-    }
+  hasAuthToken(): boolean {
+    return this.hasToken(XanoStorageKeys.AuthToken);
+  }
 
+  setAuthToken(authToken: string | null): this {
+    this.storeToken(authToken, XanoStorageKeys.AuthToken);
     this.config.authToken = authToken;
+
+    return this;
+  }
+
+  hasRealtimeAuthToken(): boolean {
+    return this.hasToken(XanoStorageKeys.RealtimeAuthToken);
+  }
+
+  setRealtimeAuthToken(authToken: string | null): this {
+    this.storeToken(authToken, XanoStorageKeys.RealtimeAuthToken);
+    this.config.realtimeAuthToken = authToken;
 
     return this;
   }

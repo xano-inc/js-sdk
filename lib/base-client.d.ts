@@ -10,8 +10,12 @@ export declare abstract class XanoBaseClient {
     private buildFormData;
     private isFileType;
     private request;
+    private storeToken;
+    private hasToken;
     hasAuthToken(): boolean;
     setAuthToken(authToken: string | null): this;
+    hasRealtimeAuthToken(): boolean;
+    setRealtimeAuthToken(authToken: string | null): this;
     hasDataSource(): boolean;
     setDataSource(dataSource: string | null): this;
     delete(endpoint: string, params?: Record<any, any>, headers?: Record<any, any>): Promise<XanoResponse>;

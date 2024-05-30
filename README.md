@@ -140,6 +140,30 @@ Usage:
 xano.setAuthToken("eyJhbGciOiJBMjU2S1ciLCJlbmMiOiJBM....");
 ```
 
+### `XanoClient.hasRealtimeAuthToken`
+Checks to see if the `realtimeAuthToken` has been set.
+
+Usage:
+```js
+xano.setRealtimeAuthToken("eyJhbGciOiJBMjU2S1ciLCJlbmMiOiJBM....");
+
+console.log(xano.hasRealtimeAuthToken()); // true
+```
+
+### `XanoClient.setRealtimeAuthToken`
+Sets the realtime authentication token which is used on new realtime connections.
+
+Depending on `storage` when configuring `XanoClient` this value could persist across browser reloads.
+
+| Param | Type | Description |
+| --- | --- | --- |
+| `authToken` | `string \| null` | Can be created from the `/auth/login` endpoint. `null` will clear the token |
+
+Usage:
+```js
+xano.setRealtimeAuthToken("eyJhbGciOiJBMjU2S1ciLCJlbmMiOiJBM....");
+```
+
 ### `XanoClient.hasDataSource`
 Checks to see if the `dataSource` has been set.
 
