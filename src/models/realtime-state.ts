@@ -130,6 +130,7 @@ export class XanoRealtimeState {
         1012, // Service Restart
         1013, // Try Again Later
         1014, // Bad Gateway
+        4000, // Internal: Reconnect
       ];
 
       if (reconnectCodes.includes(e.code)) {
@@ -160,6 +161,10 @@ export class XanoRealtimeState {
       this.socket.close(1000);
       this.socket = null;
     }
+  }
+
+  reconnect(): void {
+    this.socket?.close(4000);
   }
 
   getSocket(): WebSocket | null {

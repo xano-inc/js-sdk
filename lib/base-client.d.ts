@@ -8,10 +8,10 @@ export declare abstract class XanoBaseClient {
     protected abstract getFormDataInstance(): any;
     protected abstract appendFormData(formData: any, key: string, value: any): void;
     private buildFormData;
+    private hasToken;
     private isFileType;
     private request;
     private storeToken;
-    private hasToken;
     hasAuthToken(): boolean;
     setAuthToken(authToken: string | null): this;
     hasRealtimeAuthToken(): boolean;
@@ -25,5 +25,6 @@ export declare abstract class XanoBaseClient {
     post(endpoint: string, params?: Record<any, any>, headers?: Record<any, any>): Promise<XanoResponse>;
     put(endpoint: string, params?: Record<any, any>, headers?: Record<any, any>): Promise<XanoResponse>;
     channel(channel: string, options?: Partial<XanoRealtimeChannelOptions>): XanoRealtimeChannel;
+    realtimeReconnect(): this;
 }
 //# sourceMappingURL=base-client.d.ts.map

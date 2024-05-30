@@ -11,6 +11,7 @@ import { XanoRequestParams } from "./interfaces/request-params";
 import { XanoRequestType } from "./enums/request-type";
 import { XanoResponse } from "./models/response";
 import { XanoStorageKeys } from "./enums/storage-keys";
+import { XanoRealtimeState } from "./models/realtime-state";
 
 export abstract class XanoBaseClient {
   private config: XanoClientConfig = {
@@ -91,6 +92,12 @@ export abstract class XanoBaseClient {
       hasFile,
       rawFormData,
     };
+  }
+
+  private hasToken(storageKey: XanoStorageKeys): boolean {
+    const authToken = this.config.storage.getItem(storageKey);
+
+    return typeof authToken === "string" && authToken.length > 0;
   }
 
   private isFileType(instance: any): boolean {
@@ -178,12 +185,6 @@ export abstract class XanoBaseClient {
     } else {
       this.config.storage.setItem(storageKey, authToken);
     }
-  }
-
-  private hasToken(storageKey: XanoStorageKeys): boolean {
-    const authToken = this.config.storage.getItem(storageKey);
-
-    return typeof authToken === "string" && authToken.length > 0;
   }
 
   hasAuthToken(): boolean {
@@ -316,5 +317,10 @@ export abstract class XanoBaseClient {
     }
 
     return new XanoRealtimeChannel(channel, options, this.config);
+  }
+
+  realtimeReconnect(): this {
+    XanoRealtimeState.getInstance().reconnect();
+    return this;
   }
 }

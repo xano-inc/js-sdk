@@ -12,6 +12,7 @@ export declare class XanoRealtimeState {
     private triggerReconnect;
     private connect;
     private disconnect;
+    reconnect(): void;
     getSocket(): WebSocket | null;
     setConfig(config: XanoClientConfig): this;
     getSocketObserver(): Observable<XanoRealtimeAction>;

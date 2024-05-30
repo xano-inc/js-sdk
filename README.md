@@ -162,6 +162,7 @@ Depending on `storage` when configuring `XanoClient` this value could persist ac
 Usage:
 ```js
 xano.setRealtimeAuthToken("eyJhbGciOiJBMjU2S1ciLCJlbmMiOiJBM....");
+xano.realtimeReconnect();
 ```
 
 ### `XanoClient.hasDataSource`
@@ -463,6 +464,15 @@ Usage:
 const channel = xano.channel("stats", {
 	presence:  true,
 });
+```
+
+### `XanoClient.realtimeReconnect`
+If you are connected to the realtime websocket server this will trigger a reconnect. This function is usefull after updating your `realtimeAuthToken` to trigger re-authentication.
+
+Usage:
+```js
+xano.setRealtimeAuthToken("eyJhbGciOiJBMjU2S1ciLCJlbmMiOiJBM....");
+xano.realtimeReconnect();
 ```
 
 ### XanoRealtimeChannel.on (all events)
