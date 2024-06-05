@@ -1,6 +1,6 @@
 {
     "name": "@xano/js-sdk",
-    "version": "1.0.35",
+    "version": "1.0.36",
     "description": "Xano JavaScript SDK",
     "main": "lib/index",
     "types": "lib/index.d",
