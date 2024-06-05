@@ -6,12 +6,13 @@ import { XanoFormData } from "./interfaces/form-data";
 import { XanoObjectStorage } from "./models/object-storage";
 import { XanoRealtimeChannel } from "./models/realtime-channel";
 import { XanoRealtimeChannelOptions } from "./interfaces/realtime-channel-options";
+import { XanoRealtimeState } from "./models/realtime-state";
 import { XanoRequestError } from "./errors/request";
 import { XanoRequestParams } from "./interfaces/request-params";
 import { XanoRequestType } from "./enums/request-type";
 import { XanoResponse } from "./models/response";
 import { XanoStorageKeys } from "./enums/storage-keys";
-import { XanoRealtimeState } from "./models/realtime-state";
+import { XanoStreamingCallback } from "./types/xano-streaming-callback.type";
 
 export abstract class XanoBaseClient {
   private config: XanoClientConfig = {
@@ -110,7 +111,7 @@ export abstract class XanoBaseClient {
     return instance instanceof XanoFile;
   }
 
-  private request(params: XanoRequestParams): Promise<any> {
+  private request(params: XanoRequestParams): Promise<XanoResponse> {
     if (!this.config.apiGroupBaseUrl && !this.config.instanceBaseUrl) {
       throw new Error(
         "Please configure apiGroupBaseUrl or instanceBaseUrl setting before making an API request"
@@ -125,6 +126,10 @@ export abstract class XanoBaseClient {
       url: params.endpoint,
       validateStatus: () => true,
     };
+
+    if (params.streamingCallback) {
+      axiosConfig.onDownloadProgress = params.streamingCallback;
+    }
 
     if (!axiosConfig.headers) {
       axiosConfig.headers = {};
@@ -238,12 +243,14 @@ export abstract class XanoBaseClient {
   get(
     endpoint: string,
     params?: Record<any, any>,
-    headers?: Record<any, any>
+    headers?: Record<any, any>,
+    streamingCallback?: XanoStreamingCallback
   ): Promise<XanoResponse> {
     return this.request({
       endpoint: endpoint,
       headerParams: headers,
       method: XanoRequestType.GET,
+      streamingCallback,
       urlParams: params,
     });
   }
@@ -264,39 +271,45 @@ export abstract class XanoBaseClient {
   patch(
     endpoint: string,
     params?: Record<any, any>,
-    headers?: Record<any, any>
+    headers?: Record<any, any>,
+    streamingCallback?: XanoStreamingCallback
   ): Promise<XanoResponse> {
     return this.request({
       bodyParams: params,
       endpoint: endpoint,
       headerParams: headers,
       method: XanoRequestType.PATCH,
+      streamingCallback,
     });
   }
 
   post(
     endpoint: string,
     params?: Record<any, any>,
-    headers?: Record<any, any>
+    headers?: Record<any, any>,
+    streamingCallback?: XanoStreamingCallback
   ): Promise<XanoResponse> {
     return this.request({
       bodyParams: params,
       endpoint: endpoint,
       headerParams: headers,
       method: XanoRequestType.POST,
+      streamingCallback,
     });
   }
 
   put(
     endpoint: string,
     params?: Record<any, any>,
-    headers?: Record<any, any>
+    headers?: Record<any, any>,
+    streamingCallback?: XanoStreamingCallback
   ): Promise<XanoResponse> {
     return this.request({
       bodyParams: params,
       endpoint: endpoint,
       headerParams: headers,
       method: XanoRequestType.PUT,
+      streamingCallback,
     });
   }
 
