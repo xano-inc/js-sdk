@@ -113,7 +113,7 @@ export abstract class XanoBaseClient {
     return instance instanceof XanoFile;
   }
 
-  private request(params: XanoRequestParams): Promise<XanoResponse | void> {
+  private request(params: XanoRequestParams): Promise<XanoResponse> {
     if (!this.config.apiGroupBaseUrl && !this.config.instanceBaseUrl) {
       throw new Error(
         "Please configure apiGroupBaseUrl or instanceBaseUrl setting before making an API request"
@@ -253,7 +253,7 @@ export abstract class XanoBaseClient {
     endpoint: string,
     params?: Record<any, any>,
     headers?: Record<any, any>
-  ): Promise<XanoResponse | void> {
+  ): Promise<XanoResponse> {
     return this.request({
       bodyParams: params,
       endpoint: endpoint,
@@ -267,7 +267,7 @@ export abstract class XanoBaseClient {
     params?: Record<any, any>,
     headers?: Record<any, any>,
     streamingCallback?: XanoStreamingCallback
-  ): Promise<XanoResponse | void> {
+  ): Promise<XanoResponse> {
     return this.request({
       endpoint: endpoint,
       headerParams: headers,
@@ -281,7 +281,7 @@ export abstract class XanoBaseClient {
     endpoint: string,
     params?: Record<any, any>,
     headers?: Record<any, any>
-  ): Promise<XanoResponse | void> {
+  ): Promise<XanoResponse> {
     return this.request({
       endpoint: endpoint,
       headerParams: headers,
@@ -295,7 +295,7 @@ export abstract class XanoBaseClient {
     params?: Record<any, any>,
     headers?: Record<any, any>,
     streamingCallback?: XanoStreamingCallback
-  ): Promise<XanoResponse | void> {
+  ): Promise<XanoResponse> {
     return this.request({
       bodyParams: params,
       endpoint: endpoint,
@@ -310,7 +310,7 @@ export abstract class XanoBaseClient {
     params?: Record<any, any>,
     headers?: Record<any, any>,
     streamingCallback?: XanoStreamingCallback
-  ): Promise<XanoResponse | void> {
+  ): Promise<XanoResponse> {
     return this.request({
       bodyParams: params,
       endpoint: endpoint,
@@ -325,7 +325,7 @@ export abstract class XanoBaseClient {
     params?: Record<any, any>,
     headers?: Record<any, any>,
     streamingCallback?: XanoStreamingCallback
-  ): Promise<XanoResponse | void> {
+  ): Promise<XanoResponse> {
     return this.request({
       bodyParams: params,
       endpoint: endpoint,

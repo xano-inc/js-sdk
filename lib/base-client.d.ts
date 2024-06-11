@@ -19,12 +19,12 @@ export declare abstract class XanoBaseClient {
     setRealtimeAuthToken(authToken: string | null): this;
     hasDataSource(): boolean;
     setDataSource(dataSource: string | null): this;
-    delete(endpoint: string, params?: Record<any, any>, headers?: Record<any, any>): Promise<XanoResponse | void>;
-    get(endpoint: string, params?: Record<any, any>, headers?: Record<any, any>, streamingCallback?: XanoStreamingCallback): Promise<XanoResponse | void>;
-    head(endpoint: string, params?: Record<any, any>, headers?: Record<any, any>): Promise<XanoResponse | void>;
-    patch(endpoint: string, params?: Record<any, any>, headers?: Record<any, any>, streamingCallback?: XanoStreamingCallback): Promise<XanoResponse | void>;
-    post(endpoint: string, params?: Record<any, any>, headers?: Record<any, any>, streamingCallback?: XanoStreamingCallback): Promise<XanoResponse | void>;
-    put(endpoint: string, params?: Record<any, any>, headers?: Record<any, any>, streamingCallback?: XanoStreamingCallback): Promise<XanoResponse | void>;
+    delete(endpoint: string, params?: Record<any, any>, headers?: Record<any, any>): Promise<XanoResponse>;
+    get(endpoint: string, params?: Record<any, any>, headers?: Record<any, any>, streamingCallback?: XanoStreamingCallback): Promise<XanoResponse>;
+    head(endpoint: string, params?: Record<any, any>, headers?: Record<any, any>): Promise<XanoResponse>;
+    patch(endpoint: string, params?: Record<any, any>, headers?: Record<any, any>, streamingCallback?: XanoStreamingCallback): Promise<XanoResponse>;
+    post(endpoint: string, params?: Record<any, any>, headers?: Record<any, any>, streamingCallback?: XanoStreamingCallback): Promise<XanoResponse>;
+    put(endpoint: string, params?: Record<any, any>, headers?: Record<any, any>, streamingCallback?: XanoStreamingCallback): Promise<XanoResponse>;
     channel(channel: string, options?: Partial<XanoRealtimeChannelOptions>): XanoRealtimeChannel;
     realtimeReconnect(): this;
 }
