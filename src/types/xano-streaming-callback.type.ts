@@ -1,3 +1,3 @@
-import { AxiosProgressEvent } from "axios";
+import { XanoEventStream } from "../models/event-stream";
 
-export type XanoStreamingCallback = (progressEvent: AxiosProgressEvent) => void;
+export type XanoStreamingCallback = (eventStream: XanoEventStream) => void;

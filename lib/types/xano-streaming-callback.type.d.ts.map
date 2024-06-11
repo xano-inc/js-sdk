@@ -1,1 +1,1 @@
-{"version":3,"file":"xano-streaming-callback.type.d.ts","sourceRoot":"","sources":["../../src/types/xano-streaming-callback.type.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,kBAAkB,EAAE,MAAM,OAAO,CAAC;AAE3C,oBAAY,qBAAqB,GAAG,CAAC,aAAa,EAAE,kBAAkB,KAAK,IAAI,CAAC"}
+{"version":3,"file":"xano-streaming-callback.type.d.ts","sourceRoot":"","sources":["../../src/types/xano-streaming-callback.type.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,eAAe,EAAE,MAAM,wBAAwB,CAAC;AAEzD,MAAM,MAAM,qBAAqB,GAAG,CAAC,WAAW,EAAE,eAAe,KAAK,IAAI,CAAC"}
