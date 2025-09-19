@@ -1,5 +1,9 @@
 # Changelog for Xano JavaScript SDK
 
+## 3.0.0
+* Update Axios to latest to fix potential security vulnerabilities
+* Migrate package from Gitlab to Github
+
 ## 1.0.0
 * feature: Support for all supported Xano request types (GET, POST, PATCH, PUT, HEAD, DELETE)
 * feature: Added examples for all use cases
