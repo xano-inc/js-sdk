@@ -1,4 +1,3 @@
-/// <reference types="node" />
 export declare class XanoFile {
     private name;
     private buffer;
