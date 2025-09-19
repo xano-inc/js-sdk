@@ -74,14 +74,8 @@ export class XanoRealtimeState {
 
     let protocols;
 
-    // @TODO: Remove and sunset defaulting to authToken, scheduled July 1st, 2024
     if (this.config.realtimeAuthToken) {
       protocols = [this.config.realtimeAuthToken];
-    } else if (this.config.authToken) {
-      protocols = [this.config.authToken];
-      console.warn(
-        "[XanoClient] The use of authToken to authenticate with realtime will be sunset July 1st, 2024. Please use realtimeAuthToken instead. More info: https://docs.xano.com/building-features/realtime#xano-auth--realtime"
-      );
     }
 
     this.socket = new WebSocket(
