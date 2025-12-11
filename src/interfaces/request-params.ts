@@ -2,7 +2,7 @@ import { XanoRequestType } from "../enums/request-type";
 import { XanoStreamingCallback } from "../types/xano-streaming-callback.type";
 
 export interface XanoRequestParams {
-  bodyParams?: Record<any, any>;
+  bodyParams?: Record<any, any> | string;
   endpoint: string;
   headerParams?: Record<any, any>;
   method: XanoRequestType;

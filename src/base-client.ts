@@ -70,10 +70,19 @@ export abstract class XanoBaseClient {
     value: any
   ): void;
 
-  private buildFormData(bodyData: Record<any, any>): XanoFormData {
+  private buildFormData(bodyData: Record<any, any> | string): XanoFormData {
     const formData = this.getFormDataInstance();
+
     let hasFile = false;
     let rawFormData: Record<any, any> = {};
+
+    if (typeof bodyData === "string") {
+        return {
+            formData: bodyData,
+            hasFile: false,
+            rawFormData: bodyData,
+        };
+    }
 
     Object.entries(bodyData).forEach((entry: any) => {
       const isFileType = this.isFileType(entry[1]);
@@ -90,7 +99,7 @@ export abstract class XanoBaseClient {
       }
     });
 
-    return <XanoFormData>{
+    return {
       formData,
       hasFile,
       rawFormData,
@@ -161,6 +170,8 @@ export abstract class XanoBaseClient {
       if (ret.hasFile) {
         axiosConfig.headers["Content-Type"] = XanoContentType.Multipart;
         axiosConfig.data = ret.formData;
+      } else if (typeof ret.rawFormData === "string") {
+        axiosConfig.data = ret.rawFormData;
       } else {
         axiosConfig.headers["Content-Type"] = XanoContentType.JSON;
         axiosConfig.data = JSON.stringify(ret.rawFormData);
@@ -292,7 +303,7 @@ export abstract class XanoBaseClient {
 
   patch(
     endpoint: string,
-    params?: Record<any, any>,
+    params?: Record<any, any> | string,
     headers?: Record<any, any>,
     streamingCallback?: XanoStreamingCallback
   ): Promise<XanoResponse> {
@@ -307,7 +318,7 @@ export abstract class XanoBaseClient {
 
   post(
     endpoint: string,
-    params?: Record<any, any>,
+    params?: Record<any, any> | string,
     headers?: Record<any, any>,
     streamingCallback?: XanoStreamingCallback
   ): Promise<XanoResponse> {
@@ -322,7 +333,7 @@ export abstract class XanoBaseClient {
 
   put(
     endpoint: string,
-    params?: Record<any, any>,
+    params?: Record<any, any> | string,
     headers?: Record<any, any>,
     streamingCallback?: XanoStreamingCallback
   ): Promise<XanoResponse> {
@@ -357,5 +368,28 @@ export abstract class XanoBaseClient {
   realtimeReconnect(): this {
     XanoRealtimeState.getInstance().reconnect();
     return this;
+  }
+
+  startJob(args: {
+    workspaceId: number,
+    doc: string,
+    args?: Record<string, unknown>
+  }): Promise<XanoResponse> {
+    return this.post(`/api:meta/beta/workspace/${args.workspaceId}/ephemeral/job`, {
+        doc: args.doc,
+        args: args.args
+    }, {
+        "Content-Type": XanoContentType.JSON
+    });
+  }
+
+  startService(args: {
+    workspaceId: number,
+    doc: string
+  }): Promise<XanoResponse> {
+    return this.post(`/api:meta/beta/workspace/${args.workspaceId}/ephemeral/service`, args.doc, {
+        "Accept": XanoContentType.JSON,
+        "Content-Type": XanoContentType.XanoScript
+    });
   }
 }

@@ -22,10 +22,19 @@ export declare abstract class XanoBaseClient {
     delete(endpoint: string, params?: Record<any, any>, headers?: Record<any, any>): Promise<XanoResponse>;
     get(endpoint: string, params?: Record<any, any>, headers?: Record<any, any>, streamingCallback?: XanoStreamingCallback): Promise<XanoResponse>;
     head(endpoint: string, params?: Record<any, any>, headers?: Record<any, any>): Promise<XanoResponse>;
-    patch(endpoint: string, params?: Record<any, any>, headers?: Record<any, any>, streamingCallback?: XanoStreamingCallback): Promise<XanoResponse>;
-    post(endpoint: string, params?: Record<any, any>, headers?: Record<any, any>, streamingCallback?: XanoStreamingCallback): Promise<XanoResponse>;
-    put(endpoint: string, params?: Record<any, any>, headers?: Record<any, any>, streamingCallback?: XanoStreamingCallback): Promise<XanoResponse>;
+    patch(endpoint: string, params?: Record<any, any> | string, headers?: Record<any, any>, streamingCallback?: XanoStreamingCallback): Promise<XanoResponse>;
+    post(endpoint: string, params?: Record<any, any> | string, headers?: Record<any, any>, streamingCallback?: XanoStreamingCallback): Promise<XanoResponse>;
+    put(endpoint: string, params?: Record<any, any> | string, headers?: Record<any, any>, streamingCallback?: XanoStreamingCallback): Promise<XanoResponse>;
     channel(channel: string, options?: Partial<XanoRealtimeChannelOptions>): XanoRealtimeChannel;
     realtimeReconnect(): this;
+    startJob(args: {
+        workspaceId: number;
+        doc: string;
+        args?: Record<string, unknown>;
+    }): Promise<XanoResponse>;
+    startService(args: {
+        workspaceId: number;
+        doc: string;
+    }): Promise<XanoResponse>;
 }
 //# sourceMappingURL=base-client.d.ts.map

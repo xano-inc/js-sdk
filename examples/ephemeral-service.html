@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Xano Client Example</title>
+    <link rel="stylesheet" href="shared/main.css">
+    <style>
+        textarea {
+            width: 350px;
+            min-height: 100px;
+        }
+        input {
+            width: 350px;
+        }
+    </style>
+</head>
+
+<body data-state="initial">
+    <div class="container">
+        <h1>Xano Client Example: Ephemeral Service</h1>
+
+        <div data-state="initial">
+            <p>In this demo we will be using executing an Ephemeral Service using the details below:</p>
+            <div>
+                <label for="instanceUrl">Instance URL</label>
+                <input type="text" id="instanceUrl" value="https://xxfo-0dml-kzcl.dev.xano.io/" />
+            </div>
+            <div class="mt-15">
+                <label for="authToken">Meta API Token</label>
+                <input type="text" id="authToken" value="" />
+            </div>
+            <div class="mt-15">
+                <label for="workspaceId">Workspace ID</label>
+                <input type="text" id="workspaceId" value="109" />
+            </div>
+            <div class="mt-15">
+                <label for="doc">Multidoc</label>
+                <textarea id="doc">
+workspace job-inputs {
+}
+---
+function $main {
+    input {
+        json args
+    }
+
+    stack {
+    }
+
+    response = $input.args
+}
+                </textarea>
+            </div>
+
+            <button class="mt-15" id="makeRequest">Start Service</button>
+        </div>
+
+        <div data-state="loading">
+            <p>Loading...</p>
+        </div>
+
+        <div data-state="loaded-success">
+            <p>The service was started successful! Here are the details:</p>
+            <textarea class="details-textarea" id="successDetails"></textarea>
+            <br />
+            <button class="reset mt-15">Reset</button>
+        </div>
+
+        <div data-state="loaded-error">
+            <p>The service had errors! Here are the details:</p>
+            <p>Error Message: <span id="errorMessage"></span></p>
+            <p>HTTP Status Code: <span id="errorStatus"></span></p>
+            <textarea class="details-textarea" id="errorDetails"></textarea>
+            <br />
+            <button class="reset mt-15">Reset</button>
+        </div>
+    </div>
+
+    <script type="text/javascript" src="../dist/xano.min.js"></script>
+    <script type="text/javascript" src="shared/main.js"></script>
+
+    <script type="text/javascript">
+
+        document.getElementById('makeRequest').addEventListener('click', function () {
+            updateDocumentState('loading');
+
+            var xano = new XanoClient({
+                'instanceBaseUrl': document.getElementById('instanceUrl').value,
+                'authToken': document.getElementById('authToken').value
+            });
+
+            xano.startService({
+                workspaceId: document.getElementById('workspaceId').value,
+                doc: document.getElementById('doc').value,
+            }).then((httpResponse) => {
+                document.getElementById('successDetails').value = JSON.stringify(httpResponse.getBody(), null, 2);
+                updateDocumentState('loaded-success');
+            }, handleError);
+        });
+
+        function handleError(error) {
+            document.getElementById('errorMessage').innerText = error.message;
+
+            var httpResponse = error.getResponse();
+
+            document.getElementById('errorStatus').innerText = httpResponse.getStatusCode();
+            document.getElementById('errorDetails').value = JSON.stringify(httpResponse.getBody(), null, 2);
+
+            updateDocumentState('loaded-error');
+        }
+    </script>
+</body>
+
+</html>

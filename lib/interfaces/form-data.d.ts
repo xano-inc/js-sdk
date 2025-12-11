@@ -1,6 +1,6 @@
 export interface XanoFormData {
     formData: any;
     hasFile: boolean;
-    rawFormData: Record<any, any>;
+    rawFormData: Record<any, any> | string;
 }
 //# sourceMappingURL=form-data.d.ts.map
