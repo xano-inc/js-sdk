@@ -20,38 +20,26 @@
 
 <body data-state="initial">
     <div class="container">
-        <h1>Xano Client Example: Ephemeral Service</h1>
+        <h1>Xano Client Example: Ephemeral Lambda</h1>
 
         <div data-state="initial">
-            <p>In this demo we will be using executing an Ephemeral Service using the details below:</p>
+            <p>In this demo we will be using executing an Ephemeral Lambda using the details below:</p>
             <div>
                 <label for="instanceUrl">Instance URL</label>
-                <input type="text" id="instanceUrl" value="https://xxfo-0dml-kzcl.dev.xano.io/" />
+                <input type="text" id="instanceUrl" value="http://localhost:9999/" />
             </div>
             <div class="mt-15">
                 <label for="authToken">Meta API Token</label>
                 <input type="text" id="authToken" value="" />
             </div>
             <div class="mt-15">
-                <label for="doc">Multidoc</label>
-                <textarea id="doc">
-workspace job-inputs {
-}
----
-function $main {
-    input {
-        json args
-    }
-
-    stack {
-    }
-
-    response = $input.args
-}
+                <label for="code">JS Code</label>
+                <textarea id="code">
+return 'hello';
                 </textarea>
             </div>
 
-            <button class="mt-15" id="makeRequest">Start Service</button>
+            <button class="mt-15" id="makeRequest">Run Lambda</button>
         </div>
 
         <div data-state="loading">
@@ -59,14 +47,14 @@ function $main {
         </div>
 
         <div data-state="loaded-success">
-            <p>The service was started successful! Here are the details:</p>
+            <p>The job run was successful! Here are the details:</p>
             <textarea class="details-textarea" id="successDetails"></textarea>
             <br />
             <button class="reset mt-15">Reset</button>
         </div>
 
         <div data-state="loaded-error">
-            <p>The service had errors! Here are the details:</p>
+            <p>The job run had errors! Here are the details:</p>
             <p>Error Message: <span id="errorMessage"></span></p>
             <p>HTTP Status Code: <span id="errorStatus"></span></p>
             <textarea class="details-textarea" id="errorDetails"></textarea>
@@ -87,8 +75,10 @@ function $main {
                 'authToken': document.getElementById('authToken').value
             });
 
-            xano.startService({
-                doc: document.getElementById('doc').value,
+            document.getElementById('successDetails').value = '';
+
+            xano.runLambda({
+                code: document.getElementById('code').value,
             }).then((httpResponse) => {
                 document.getElementById('successDetails').value = JSON.stringify(httpResponse.getBody(), null, 2);
                 updateDocumentState('loaded-success');

@@ -370,24 +370,58 @@ export abstract class XanoBaseClient {
     return this;
   }
 
-  startJob(args: {
-    workspaceId: number,
-    doc: string,
-    args?: Record<string, unknown>
+  runLambda(args: {
+    code: string,
+    timeout?: number,
+    streamingCallback?: XanoStreamingCallback
   }): Promise<XanoResponse> {
-    return this.post(`/api:meta/beta/workspace/${args.workspaceId}/ephemeral/job`, {
-        doc: args.doc,
-        args: args.args
-    }, {
-        "Content-Type": XanoContentType.JSON
+    let timeout = Number(args.timeout || 10);
+    if (isNaN(timeout)) {
+        timeout = 10;
+    }
+
+    return this.startJob({
+        doc: `
+workspace job-lambda {
+}
+---
+function $main {
+  input {
+  }
+
+  stack {
+    api.lambda {
+      code = ${JSON.stringify(args.code)}
+      timeout = ${timeout}
+    } as $x1
+  }
+
+  response = $x1
+}
+        `,
+        args: {},
+        streamingCallback: args.streamingCallback
     });
   }
 
-  startService(args: {
-    workspaceId: number,
-    doc: string
+  startJob(args: {
+    doc: string,
+    args?: Record<string, unknown>,
+    streamingCallback?: XanoStreamingCallback
   }): Promise<XanoResponse> {
-    return this.post(`/api:meta/beta/workspace/${args.workspaceId}/ephemeral/service`, args.doc, {
+    return this.post(`/api:meta/beta/ephemeral/job`, {
+        doc: args.doc,
+        args: args.args,
+        streaming: args.streamingCallback ? true: false
+    }, {
+        "Content-Type": XanoContentType.JSON
+    }, args.streamingCallback);
+  }
+
+  startService(args: {
+    doc: string,
+  }): Promise<XanoResponse> {
+    return this.post(`/api:meta/beta/ephemeral/service`, args.doc, {
         "Accept": XanoContentType.JSON,
         "Content-Type": XanoContentType.XanoScript
     });

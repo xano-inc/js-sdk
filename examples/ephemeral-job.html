@@ -26,15 +26,11 @@
             <p>In this demo we will be using executing an Ephemeral Job using the details below:</p>
             <div>
                 <label for="instanceUrl">Instance URL</label>
-                <input type="text" id="instanceUrl" value="https://xxfo-0dml-kzcl.dev.xano.io/" />
+                <input type="text" id="instanceUrl" value="http://localhost:9999/" />
             </div>
             <div class="mt-15">
                 <label for="authToken">Meta API Token</label>
                 <input type="text" id="authToken" value="" />
-            </div>
-            <div class="mt-15">
-                <label for="workspaceId">Workspace ID</label>
-                <input type="text" id="workspaceId" value="109" />
             </div>
             <div class="mt-15">
                 <label for="doc">Multidoc</label>
@@ -43,14 +39,38 @@ workspace job-inputs {
 }
 ---
 function $main {
-    input {
-        json args
+  input {
+    bool condition?
+  }
+
+  stack {
+    for (5) {
+        each as $index {
+            debug.log {
+                value = "hello"
+            }
+
+            util.sleep {
+                value = $var.index
+            }
+        }
     }
 
-    stack {
-    }
+    conditional {
+      if ($input.condition) {
+        security.create_uuid as $x1
+      }
 
-    response = $input.args
+      else {
+        security.random_number {
+          min = 0
+          max = 9007199254740991
+        } as $x1
+      }
+    }
+  }
+
+  response = $x1
 }
                 </textarea>
             </div>
@@ -58,9 +78,7 @@ function $main {
                 <label for="args">Args</label>
                 <textarea id="args">
 {
-    "args": {
-        "a":"b"
-    }
+    "condition": true
 }
                 </textarea>
             </div>
@@ -93,7 +111,6 @@ function $main {
     <script type="text/javascript" src="shared/main.js"></script>
 
     <script type="text/javascript">
-
         document.getElementById('makeRequest').addEventListener('click', function () {
             updateDocumentState('loading');
 
@@ -109,12 +126,17 @@ function $main {
                 // silent
             }
 
+            document.getElementById('successDetails').value = '';
+
             xano.startJob({
-                workspaceId: document.getElementById('workspaceId').value,
                 doc: document.getElementById('doc').value,
-                args
+                args,
+                streamingCallback: function(eventStream) {
+                    updateDocumentState('loaded-success');
+                    document.getElementById('successDetails').value += JSON.stringify(eventStream, null, '  ') + "\n--------\n";
+                }
             }).then((httpResponse) => {
-                document.getElementById('successDetails').value = JSON.stringify(httpResponse.getBody(), null, 2);
+                // document.getElementById('successDetails').value = JSON.stringify(httpResponse.getBody(), null, 2);
                 updateDocumentState('loaded-success');
             }, handleError);
         });

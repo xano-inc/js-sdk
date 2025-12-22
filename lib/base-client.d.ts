@@ -27,13 +27,17 @@ export declare abstract class XanoBaseClient {
     put(endpoint: string, params?: Record<any, any> | string, headers?: Record<any, any>, streamingCallback?: XanoStreamingCallback): Promise<XanoResponse>;
     channel(channel: string, options?: Partial<XanoRealtimeChannelOptions>): XanoRealtimeChannel;
     realtimeReconnect(): this;
+    runLambda(args: {
+        code: string;
+        timeout?: number;
+        streamingCallback?: XanoStreamingCallback;
+    }): Promise<XanoResponse>;
     startJob(args: {
-        workspaceId: number;
         doc: string;
         args?: Record<string, unknown>;
+        streamingCallback?: XanoStreamingCallback;
     }): Promise<XanoResponse>;
     startService(args: {
-        workspaceId: number;
         doc: string;
     }): Promise<XanoResponse>;
 }
