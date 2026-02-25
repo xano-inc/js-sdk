@@ -62,9 +62,9 @@ export class XanoRealtimeState {
       );
     }
 
-    if (!this.config.realtimeConnectionHash) {
+    if (!this.config.realtimeConnectionCanonical && !this.config.realtimeConnectionHash) {
       throw new Error(
-        "Please configure realtimeConnectionHash setting before connecting to realtime"
+        "Please configure realtimeConnectionCanonical setting before connecting to realtime"
       );
     }
 
@@ -79,7 +79,7 @@ export class XanoRealtimeState {
     }
 
     this.socket = new WebSocket(
-      `wss://${url.hostname}/rt/${this.config.realtimeConnectionHash}`,
+      `wss://${url.hostname}/rt/${this.config.realtimeConnectionCanonical || this.config.realtimeConnectionHash}`,
       protocols
     );
 

@@ -23,6 +23,7 @@ export abstract class XanoBaseClient {
     customAxiosRequestConfig: {},
     dataSource: null,
     instanceBaseUrl: null,
+    realtimeConnectionCanonical: null,
     realtimeConnectionHash: null,
     responseObjectPrefix: "",
     storage: new XanoObjectStorage(),
@@ -345,9 +346,9 @@ export abstract class XanoBaseClient {
       );
     }
 
-    if (!this.config.realtimeConnectionHash) {
+    if (!this.config.realtimeConnectionCanonical && !this.config.realtimeConnectionHash) {
       throw new Error(
-        "Please configure realtimeConnectionHash setting before connecting to realtime"
+        "Please configure realtimeConnectionCanonical setting before connecting to realtime"
       );
     }
 

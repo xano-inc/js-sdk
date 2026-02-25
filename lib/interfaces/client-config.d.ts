@@ -7,6 +7,8 @@ export interface XanoClientConfig {
     dataSource?: string | null;
     instanceBaseUrl?: string | null;
     realtimeAuthToken?: string | null;
+    realtimeConnectionCanonical?: string | null;
+    /** @deprecated Use realtimeConnectionCanonical instead */
     realtimeConnectionHash?: string | null;
     responseObjectPrefix?: string | null;
     storage: XanoBaseStorage;
