@@ -9,6 +9,7 @@ export class XanoRealtimeState {
 
   private config: XanoClientConfig;
   private socket: WebSocket | null = null;
+  private generatedClientId: string | null = null;
 
   private reconnectSettings = {
     defaultReconnectInterval: 1000,
@@ -38,6 +39,33 @@ export class XanoRealtimeState {
 
   static getInstance(): XanoRealtimeState {
     return XanoRealtimeState._instance;
+  }
+
+  /** True when this client is configured for the v2 (OpenSwoole) tier. */
+  isV2(): boolean {
+    return this.config?.realtimeVersion === 2;
+  }
+
+  /**
+   * The stable client id a resumed join is keyed on (v2 only).
+   *
+   * It must be identical across a reconnect or the server treats the returning
+   * client as a new one and replays nothing, so it is generated ONCE per
+   * process and cached — never derived from the socket, whose fd is recycled.
+   * An explicit `realtimeClientId` wins, which is how an app can persist one
+   * across page loads (localStorage) and resume a gap spanning a reload.
+   */
+  getClientId(): string {
+    if (this.config?.realtimeClientId) {
+      return this.config.realtimeClientId;
+    }
+
+    if (!this.generatedClientId) {
+      const rand = Math.random().toString(36).slice(2, 10);
+      this.generatedClientId = `xano-${Date.now().toString(36)}-${rand}`;
+    }
+
+    return this.generatedClientId;
   }
 
   private triggerReconnect(): void {
@@ -78,8 +106,17 @@ export class XanoRealtimeState {
       protocols = [this.config.realtimeAuthToken];
     }
 
+    // v1 and v2 are separate services reached on different paths: `/rt/` is the
+    // legacy NestJS tier, `/ws/` the OpenSwoole one. The ingress strips the
+    // prefix before the tier sees it, so the canonical is all that reaches the
+    // server in both cases.
+    const path = this.isV2() ? "ws" : "rt";
+    const canonical =
+      this.config.realtimeConnectionCanonical ||
+      this.config.realtimeConnectionHash;
+
     this.socket = new WebSocket(
-      `wss://${url.hostname}/rt/${this.config.realtimeConnectionCanonical || this.config.realtimeConnectionHash}`,
+      `wss://${url.hostname}/${path}/${canonical}`,
       protocols
     );
 
