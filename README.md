@@ -505,7 +505,7 @@ Most of the API is identical — `channel()`, `on()`, `message()`, `getPresence(
 | --- | --- | --- |
 | Publishing | `channel.message(payload)` | `channel.message(payload)` — but the channel needs a [`messageType`](#xanorealtimechanneloptions) naming which message object handles it |
 | Presence members | keyed per **socket** | keyed per **identity**, so two tabs of one user collapse to a single member |
-| Guaranteed delivery | not available | `at_least_once` channels, with [`channel.ack()`](#xanorealtimechannelack) and replay of missed messages |
+| Guaranteed delivery | not available | `at_least_once` channels — messages missed while offline are redelivered through your normal `message` handler |
 | Message history | `channel.history()` | replayed automatically on join (channel `conversation` setting) |
 
 Everything else — reconnect behaviour, event names you subscribe to, error handling — is the same.
@@ -554,16 +554,36 @@ const xano = new XanoClient({
 });
 ```
 
-Redelivered messages arrive as `replay` actions, and a resumed join reports `payload.resumed === true`:
+**Redelivered messages arrive through your normal `message` handler.** There is no separate replay handler to write and no second code path to keep in sync — a message you missed is the same message, so it is delivered the same way:
 
 ```js
-channel.on("replay", function(action) {
-	console.log("missed while offline:", action.payload);
-	channel.ack(action.id); // advance the cursor so it is not replayed again
+channel.on("message", function(action) {
+	// Fires for live messages AND for ones redelivered after a reconnect.
+	render(action.payload);
 });
 ```
 
-**Call [`channel.ack()`](#xanorealtimechannelack) for messages you have handled.** If you never ack, the cursor never advances and every reconnect replays the channel's whole retained window.
+If a replay genuinely needs different treatment — suppressing a notification sound, say — branch on the marker:
+
+```js
+channel.on("message", function(action) {
+	render(action.payload);
+	if (!action.replayed) {
+		playSound();
+	}
+});
+```
+
+Acknowledgement is automatic too: the SDK advances the cursor after your handlers have run, so a handler that **throws** leaves the message unacknowledged and it is redelivered next time. Take over with [`manualAck`](#xanorealtimechanneloptions) if "handled" means something the SDK cannot see, like persisted to your own database:
+
+```js
+const channel = xano.channel("orders", { manualAck: true });
+
+channel.on("message", async function(action) {
+	await db.save(action.payload);
+	channel.ack(action.id);
+});
+```
 
 ### `XanoClient.channel`
 Connects the `XanoClient` to a realtime websocket channel.
@@ -660,9 +680,9 @@ channel.message({ message: "Hello world!" }, {
 ```
 
 ### XanoRealtimeChannel.ack
-**v2 only.** Advances this client's durable cursor on an `at_least_once` channel, marking everything up to that message as handled.
+**v2 only.** Advances this client's durable cursor on an `at_least_once` channel, marking everything up to that message as handled. The cursor is what bounds the [replay after a reconnect](#resuming-missed-messages-v2).
 
-Acking is what bounds the [replay after a reconnect](#resuming-missed-messages-v2). It is deliberately explicit rather than automatic on delivery — the SDK cannot know your handler actually succeeded. **If you never ack, every reconnect replays the channel's entire retained window.**
+**You normally do not call this** — the SDK acks automatically once your handlers have run. Use it with the [`manualAck`](#xanorealtimechanneloptions) channel option when acknowledgement should wait for something the SDK cannot observe, such as a database write.
 
 No-op on v1 and on channels without `at_least_once` delivery.
 
@@ -672,8 +692,10 @@ No-op on v1 and on channels without `at_least_once` delivery.
 
 Usage:
 ```js
-channel.on("message", function(action) {
-	handle(action.payload);
+const channel = xano.channel("orders", { manualAck: true });
+
+channel.on("message", async function(action) {
+	await db.save(action.payload);
 	channel.ack(action.id);
 });
 ```
@@ -747,9 +769,13 @@ Leaves the channel and disconnects from the realtime websocket server if its the
 | `presence` | `boolean` | `false` | Subscribes to channel presence to see who else is in the channel and events when others join/leave |
 | `queueOfflineActions` | `boolean` | `true` | In the event of a disconnect, or when sending actions before the channel connection is established, actions will be put in a queue and sent as soon as the connection is established |
 | `messageType` | `string` | | **v2 only.** The channel message object that handles what you publish with `channel.message()`. A v2 channel can define several messages, so there is no default — set the one this channel should route to |
+| `manualAck` | `boolean` | `false` | **v2 only.** Stop the SDK acking each message after your handlers run, and call [`channel.ack()`](#xanorealtimechannelack) yourself instead. Use when "handled" means something the SDK cannot see, like a completed database write |
 
 ### XanoRealtimeAction.id
-**v2 only.** Delivered `message` and `replay` actions carry an `id` — the stream id of that message on an `at_least_once` channel. Pass it to [`channel.ack()`](#xanorealtimechannelack) once you have handled the message.
+**v2 only.** Delivered messages carry an `id` — the stream id of that message on an `at_least_once` channel. You only need it with [`manualAck`](#xanorealtimechanneloptions).
+
+### XanoRealtimeAction.replayed
+**v2 only.** `true` when a message is being redelivered because it was missed while disconnected. Replays arrive through the **normal `message` handler**, so this is only for the rare case where a replay should be treated differently from a live message.
 
 ### XanoRealtimeClient
 Presence user or initiator of a action

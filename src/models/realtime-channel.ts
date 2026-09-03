@@ -36,15 +36,30 @@ export class XanoRealtimeChannel {
         super();
       }
 
-      update(action: XanoRealtimeAction) {
+      update(rawAction: XanoRealtimeAction) {
         // v1 addresses a frame with `options.channel`; v2 puts `channel` at the
         // top level. Reading both is what lets one observer serve either tier —
         // checking only options.channel would pass every v2 frame to every
         // channel, since the field is simply absent there.
-        const channel = action?.options?.channel ?? action?.channel;
+        const channel = rawAction?.options?.channel ?? rawAction?.channel;
         if (channel && channel !== this.realtimeChannel.channel) {
           return;
         }
+
+        // A `replay` is the same message the app already knows how to handle,
+        // redelivered because it was missed while offline. Surfacing it as its
+        // own action would force every app to register a second handler with
+        // logic identical to its `message` one -- and the failure mode of
+        // forgetting is silent and rare: messages vanish only for users who
+        // happen to reconnect across a gap. So it is normalised to `message`
+        // carrying `replayed: true`, which follows the tier's OWN precedent for
+        // conversation-transcript replay (delivered as `message` with
+        // `conversation: true`, not as a distinct action). An app that wants to
+        // treat a replay differently branches on the marker.
+        const action =
+          rawAction.action === ERealtimeAction.Replay
+            ? { ...rawAction, action: ERealtimeAction.Message, replayed: true }
+            : rawAction;
 
         switch (action.action) {
           case ERealtimeAction.ConnectionStatus:
@@ -77,6 +92,14 @@ export class XanoRealtimeChannel {
             onFunc.onFunc(action);
           }
         }
+
+        // Advance the durable cursor once the handlers have seen the message.
+        // Doing it here rather than making the app call ack() removes the other
+        // silent-failure step: forgetting to ack does not break anything
+        // visibly, it just makes every reconnect replay the whole retained
+        // window. Deliberately AFTER the handler loop, so a handler that throws
+        // leaves the cursor unadvanced and the message is redelivered.
+        this.realtimeChannel.autoAck(action);
       }
     })(this);
 
@@ -328,12 +351,33 @@ export class XanoRealtimeChannel {
   }
 
   /**
+   * Acknowledge a delivered message automatically, unless the app opted out.
+   *
+   * A handler that throws propagates out of the observer before this runs, so
+   * the cursor is not advanced and the tier redelivers on the next resumed
+   * join -- which is the behaviour an at_least_once channel is chosen for.
+   */
+  private autoAck(action: XanoRealtimeAction): void {
+    if (this.options.manualAck) {
+      return;
+    }
+
+    if (action.action !== ERealtimeAction.Message || !action.id) {
+      return;
+    }
+
+    this.ack(action.id);
+  }
+
+  /**
    * Advance this client's durable cursor on an `at_least_once` channel (v2).
    *
+   * Called automatically for every delivered message, so an app only needs
+   * this when it sets `manualAck` to defer acknowledgement past the handler --
+   * e.g. until the message is persisted or a user has actually seen it.
+   *
    * Only meaningful with a stable client_id: the cursor is stored against it,
-   * and it is what bounds the replay after a resumed join. Acking is the
-   * client's assertion that everything up to `cursor` is safely handled, so it
-   * is deliberately explicit rather than automatic on delivery.
+   * and it is what bounds the replay after a resumed join.
    */
   ack(cursor: string): void {
     const state = XanoRealtimeState.getInstance();

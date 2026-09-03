@@ -52,6 +52,12 @@ describe('realtime v2 wire format', () => {
     expect(ERealtimeAction.Broadcast).toEqual('broadcast');
     expect(ERealtimeAction.Message).toEqual('message');
   });
+
+  test('Replay is still a known action so the wire frame can be recognised', () => {
+    // The SDK normalises it into Message before the app sees it; the member
+    // exists so the observer can identify the incoming frame.
+    expect(ERealtimeAction.Replay).toEqual('replay');
+  });
 });
 
 describe('realtime v2 state', () => {

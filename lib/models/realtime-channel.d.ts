@@ -47,12 +47,22 @@ export declare class XanoRealtimeChannel {
     destroy(): void;
     message(payload: any, actionOptions?: Partial<XanoRealtimeActionOptions>): void;
     /**
+     * Acknowledge a delivered message automatically, unless the app opted out.
+     *
+     * A handler that throws propagates out of the observer before this runs, so
+     * the cursor is not advanced and the tier redelivers on the next resumed
+     * join -- which is the behaviour an at_least_once channel is chosen for.
+     */
+    private autoAck;
+    /**
      * Advance this client's durable cursor on an `at_least_once` channel (v2).
      *
+     * Called automatically for every delivered message, so an app only needs
+     * this when it sets `manualAck` to defer acknowledgement past the handler --
+     * e.g. until the message is persisted or a user has actually seen it.
+     *
      * Only meaningful with a stable client_id: the cursor is stored against it,
-     * and it is what bounds the replay after a resumed join. Acking is the
-     * client's assertion that everything up to `cursor` is safely handled, so it
-     * is deliberately explicit rather than automatic on delivery.
+     * and it is what bounds the replay after a resumed join.
      */
     ack(cursor: string): void;
     private processOfflineMessageQueue;
