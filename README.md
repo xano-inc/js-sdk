@@ -68,6 +68,8 @@ NodeJS users should refer to our [XanoFile](#xanofile) class.
 ### Connecting to Realtime
 Connecting to realtime is as simple as supplying a channel name and listening for events. The client will automatically authenticate if the `authToken` setting is set.
 
+The client also **reconnects and re-joins your channels automatically** if the connection drops — see [Automatic reconnection](#automatic-reconnection).
+
 ```js
 import { XanoClient, XanoSessionStorage } from  "@xano/js-sdk";
 
@@ -91,6 +93,26 @@ channel.on("message", function(action) {
 channel.message({ message: "Hello world!" });
 ```
 
+**On Realtime v2**, add `realtimeVersion: 2` and name the message object that handles what you publish. Everything else is the same:
+
+```js
+const  xano = new  XanoClient({
+	instanceBaseUrl:  "https://x8ki-letl-twmt.n7.xano.io/",
+	realtimeConnectionCanonical: "rtmain01",
+	realtimeVersion: 2,
+});
+
+const channel = xano.channel("lobby", { messageType: "say" });
+
+channel.on("message", function(action) {
+	console.log("Received message", action);
+});
+
+channel.message({ text: "Hello world!" });
+```
+
+Not sure which one you are on? See [Realtime v1 vs v2](#realtime-v1-vs-v2).
+
 ## Client Documentation
 ### `XanoClient`
 This is the primary client class of Xano. It can be instantiated with the following parameters:
@@ -105,6 +127,8 @@ This is the primary client class of Xano. It can be instantiated with the follow
 | `realtimeAuthToken` | `string \| null` | `null` | Auth token used when connecting to realtime. **NOTICE:** If not present, it will default to `authToken` until sunset on July 1st, 2024, then it will be required for realtime authentication. [More details...](https://docs.xano.com/building-features/realtime#xano-auth--realtime) |
 | `realtimeConnectionCanonical` | `string \| null` | `null` | The connection canonical found on the realtime settings panel within your instance workspace |
 | `realtimeConnectionHash` | `string \| null` | `null` | **Deprecated.** Use `realtimeConnectionCanonical` instead. Still supported for backwards compatibility |
+| `realtimeVersion` | `1 \| 2` | `1` | Which realtime tier to connect to. Leave unset for v1. Set to `2` for a workspace using [Realtime v2](#realtime-v1-vs-v2) |
+| `realtimeClientId` | `string \| null` | `null` | **v2 only.** Stable client identity used to resume after a reconnect. Generated automatically if omitted; supply your own (persisted in `localStorage`) to also resume across a page reload |
 | `responseObjectPrefix` | `string \| null` | `null` | If the API response body is an object or an array of objects then this will prefix all keys with this value |
 | `storage` | `XanoBaseStorage` | `XanoLocalStorage` | The storage mechanism where we store persistant information like `authToken` |
 
@@ -450,6 +474,97 @@ const  xano = new  XanoClient({
 ## Realtime Documentation
 Every Xano instance comes with a realtime socket server that can be enabled on a per-workspace basis that supports Xano to client messaging, client to public channel messaging, client to private channel messaging, and client to client (private) messaging.
 
+### Realtime v1 vs v2
+
+Xano has **two realtime implementations**, and they are different services. This SDK speaks both.
+
+**Which one am I on?** A workspace is on **v2** if it has an enabled **realtime server** (with a canonical) under Realtime in your workspace. If you configure realtime with only a connection canonical from the older realtime settings panel, you are on **v1**. The two never serve the same workspace at once, so this is a per-app setting — the client cannot detect it for you.
+
+```js
+// v1 — the default. Nothing changes for existing apps.
+const xano = new XanoClient({
+	instanceBaseUrl: "https://x8ki-letl-twmt.n7.xano.io/",
+	realtimeConnectionCanonical: "1lK90n16tnnylJpJ0Xa7Km6_KxA",
+});
+
+// v2 — opt in explicitly.
+const xano = new XanoClient({
+	instanceBaseUrl: "https://x8ki-letl-twmt.n7.xano.io/",
+	realtimeConnectionCanonical: "rtmain01",
+	realtimeVersion: 2,
+});
+```
+
+**`realtimeVersion` defaults to `1`, so upgrading the SDK changes nothing for an existing v1 app.**
+
+#### What differs
+
+Most of the API is identical — `channel()`, `on()`, `message()`, `getPresence()` and `destroy()` work the same on both. The differences:
+
+| | v1 | v2 |
+| --- | --- | --- |
+| Publishing | `channel.message(payload)` | `channel.message(payload)` — but the channel needs a [`messageType`](#xanorealtimechanneloptions) naming which message object handles it |
+| Presence members | keyed per **socket** | keyed per **identity**, so two tabs of one user collapse to a single member |
+| Guaranteed delivery | not available | `at_least_once` channels, with [`channel.ack()`](#xanorealtimechannelack) and replay of missed messages |
+| Message history | `channel.history()` | replayed automatically on join (channel `conversation` setting) |
+
+Everything else — reconnect behaviour, event names you subscribe to, error handling — is the same.
+
+### Automatic reconnection
+
+**The SDK reconnects on its own, on both v1 and v2.** You do not need to write reconnect logic.
+
+If a connection drops abnormally — a deploy, a pod restart, a network blip, an idle timeout — the client:
+
+1. reconnects with exponential backoff (1s, doubling, capped at 60s),
+2. **re-joins every channel you had joined**, and
+3. on v2, resumes your position so messages you missed while offline are redelivered.
+
+This is automatic. Your `on()` handlers stay attached across a reconnect and keep firing.
+
+The close codes that trigger a reconnect are `1006` (abnormal closure), `1011`, `1012`, `1013`, `1014`, and `4000`. A clean close — `channel.destroy()`, or code `1000` — deliberately does **not** reconnect.
+
+You can observe it if you want to reflect connection state in your UI:
+
+```js
+channel.on("connection_status", function(action) {
+	// action.payload.status is "connected" or "disconnected"
+	setOnline(action.payload.status === "connected");
+});
+```
+
+#### Resuming missed messages (v2)
+
+On a v2 channel with `delivery.guarantee = at_least_once`, reconnecting also replays what you missed. That is keyed on a **stable client id**, which the SDK generates and reuses automatically for the life of the page.
+
+To resume across a **page reload** as well, persist the id yourself:
+
+```js
+let clientId = localStorage.getItem("xano_client_id");
+if (!clientId) {
+	clientId = crypto.randomUUID();
+	localStorage.setItem("xano_client_id", clientId);
+}
+
+const xano = new XanoClient({
+	instanceBaseUrl: "https://x8ki-letl-twmt.n7.xano.io/",
+	realtimeConnectionCanonical: "rtmain01",
+	realtimeVersion: 2,
+	realtimeClientId: clientId,
+});
+```
+
+Redelivered messages arrive as `replay` actions, and a resumed join reports `payload.resumed === true`:
+
+```js
+channel.on("replay", function(action) {
+	console.log("missed while offline:", action.payload);
+	channel.ack(action.id); // advance the cursor so it is not replayed again
+});
+```
+
+**Call [`channel.ack()`](#xanorealtimechannelack) for messages you have handled.** If you never ack, the cursor never advances and every reconnect replays the channel's whole retained window.
+
 ### `XanoClient.channel`
 Connects the `XanoClient` to a realtime websocket channel.
 
@@ -544,6 +659,25 @@ channel.message({ message: "Hello world!" }, {
 });
 ```
 
+### XanoRealtimeChannel.ack
+**v2 only.** Advances this client's durable cursor on an `at_least_once` channel, marking everything up to that message as handled.
+
+Acking is what bounds the [replay after a reconnect](#resuming-missed-messages-v2). It is deliberately explicit rather than automatic on delivery — the SDK cannot know your handler actually succeeded. **If you never ack, every reconnect replays the channel's entire retained window.**
+
+No-op on v1 and on channels without `at_least_once` delivery.
+
+| Param | Type | Required | Description |
+| --- | --- | --- | --- |
+| `cursor` | `string` | `yes` | The stream id of the handled message, available as `action.id` |
+
+Usage:
+```js
+channel.on("message", function(action) {
+	handle(action.payload);
+	channel.ack(action.id);
+});
+```
+
 ### XanoRealtimeChannel.getPresence
 Sends a message from the client to the channel. 
 
@@ -612,6 +746,10 @@ Leaves the channel and disconnects from the realtime websocket server if its the
 | `history` | `boolean` | `false` | Returns the channel message history on join (if its enabled on a channel)
 | `presence` | `boolean` | `false` | Subscribes to channel presence to see who else is in the channel and events when others join/leave |
 | `queueOfflineActions` | `boolean` | `true` | In the event of a disconnect, or when sending actions before the channel connection is established, actions will be put in a queue and sent as soon as the connection is established |
+| `messageType` | `string` | | **v2 only.** The channel message object that handles what you publish with `channel.message()`. A v2 channel can define several messages, so there is no default — set the one this channel should route to |
+
+### XanoRealtimeAction.id
+**v2 only.** Delivered `message` and `replay` actions carry an `id` — the stream id of that message on an `at_least_once` channel. Pass it to [`channel.ack()`](#xanorealtimechannelack) once you have handled the message.
 
 ### XanoRealtimeClient
 Presence user or initiator of a action
