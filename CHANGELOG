@@ -1,5 +1,16 @@
 # Changelog for Xano JavaScript SDK
 
+## 3.1.0
+* feature: Support for Realtime v2 via the `realtimeVersion: 2` client setting. Defaults to `1`, so existing apps are unaffected
+* feature: Realtime connections reconnect automatically and re-join their channels — on both v1 and v2 — after an abnormal close (deploy, pod restart, network drop)
+* feature: On a v2 `at_least_once` channel, messages missed while disconnected are redelivered through the normal `message` handler, marked with `replayed: true`. Cursor acknowledgement is automatic, and waits for `async` handlers to finish
+* feature: New `manualAck` channel option and `channel.ack(id)` for apps that acknowledge after their own work (e.g. a database write)
+* feature: New `messageType` channel option, naming the v2 channel message a publish routes to
+* fix: Top-level frame fields (`id`, `channel`, `type`) are no longer dropped when parsing an incoming realtime frame
+
+## 3.0.1
+* feature: Add `realtimeConnectionCanonical`, with backwards-compatible support for `realtimeConnectionHash`
+
 ## 3.0.0
 * Update Axios to latest to fix potential security vulnerabilities
 * Migrate package from Gitlab to Github
