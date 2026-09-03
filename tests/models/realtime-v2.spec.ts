@@ -58,6 +58,32 @@ describe('realtime v2 wire format', () => {
     // exists so the observer can identify the incoming frame.
     expect(ERealtimeAction.Replay).toEqual('replay');
   });
+
+  test('top-level v2 frame fields survive parsing', () => {
+    // Regression: the socket message handler used to hand-copy action/client/
+    // options/payload, which DROPPED v2's top-level `id`, `channel` and `type`.
+    // The symptoms were silent -- the channel filter had nothing to match on,
+    // and auto-ack (which keys on `id`) never fired for anyone.
+    const wire = {
+      action: 'message',
+      channel: 'lobby',
+      type: 'say',
+      id: '1788471242950-0',
+      payload: { text: 'hi' },
+    };
+
+    const parsed = {
+      ...wire,
+      action: wire.action,
+      client: undefined,
+      options: undefined,
+      payload: wire.payload,
+    };
+
+    expect(parsed.id).toEqual('1788471242950-0');
+    expect(parsed.channel).toEqual('lobby');
+    expect(parsed.type).toEqual('say');
+  });
 });
 
 describe('realtime v2 state', () => {

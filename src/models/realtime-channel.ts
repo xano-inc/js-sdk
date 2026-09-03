@@ -79,6 +79,14 @@ export class XanoRealtimeChannel {
             break;
         }
 
+        // An async handler returns a promise the moment it hits its first
+        // await, so "the loop finished" does NOT mean the work finished.
+        // Acking there would report a message durably handled while the write
+        // it depends on is still in flight -- and a crash in that window loses
+        // the message with the cursor already advanced past it. Collect
+        // whatever the handlers return and let autoAck wait on it.
+        const pending: Promise<unknown>[] = [];
+
         for (const onFunc of this.realtimeChannel.onFuncs) {
           if (onFunc.action && onFunc.action !== action.action) {
             continue;
@@ -89,17 +97,24 @@ export class XanoRealtimeChannel {
               onFunc.onError(action);
             }
           } else {
-            onFunc.onFunc(action);
+            // A synchronous throw propagates, exactly as it did before
+            // auto-ack existed -- the loop stops and the app sees the error.
+            // autoAck is never reached, so the cursor stays put and the message
+            // is redelivered, which is the outcome we want anyway.
+            const returned = onFunc.onFunc(action);
+            if (returned && typeof returned.then === "function") {
+              pending.push(returned);
+            }
           }
         }
 
-        // Advance the durable cursor once the handlers have seen the message.
+        // Advance the durable cursor once the handlers have actually finished.
         // Doing it here rather than making the app call ack() removes the other
         // silent-failure step: forgetting to ack does not break anything
         // visibly, it just makes every reconnect replay the whole retained
-        // window. Deliberately AFTER the handler loop, so a handler that throws
-        // leaves the cursor unadvanced and the message is redelivered.
-        this.realtimeChannel.autoAck(action);
+        // window. A handler that throws -- or whose promise rejects -- leaves
+        // the cursor unadvanced, so the message is redelivered.
+        this.realtimeChannel.autoAck(action, pending);
       }
     })(this);
 
@@ -353,11 +368,16 @@ export class XanoRealtimeChannel {
   /**
    * Acknowledge a delivered message automatically, unless the app opted out.
    *
-   * A handler that throws propagates out of the observer before this runs, so
-   * the cursor is not advanced and the tier redelivers on the next resumed
-   * join -- which is the behaviour an at_least_once channel is chosen for.
+   * Waits for anything the handlers returned, so an `async` handler is acked
+   * when its work COMPLETES rather than when it first awaits. A handler that
+   * throws, or whose promise rejects, leaves the cursor unadvanced and the
+   * message is redelivered on the next resumed join -- which is the behaviour
+   * an at_least_once channel is chosen for.
    */
-  private autoAck(action: XanoRealtimeAction): void {
+  private autoAck(
+    action: XanoRealtimeAction,
+    pending: Promise<unknown>[] = []
+  ): void {
     if (this.options.manualAck) {
       return;
     }
@@ -366,7 +386,21 @@ export class XanoRealtimeChannel {
       return;
     }
 
-    this.ack(action.id);
+    const cursor = action.id;
+
+    if (pending.length === 0) {
+      this.ack(cursor);
+      return;
+    }
+
+    // `all` rather than `allSettled`: one failed handler means this message is
+    // not fully handled, so it must stay unacked and be redelivered. The catch
+    // keeps that from surfacing as an unhandled rejection -- the app already
+    // saw its own error.
+    Promise.all(pending).then(
+      () => this.ack(cursor),
+      () => undefined
+    );
   }
 
   /**

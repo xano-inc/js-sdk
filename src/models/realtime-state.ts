@@ -124,7 +124,14 @@ export class XanoRealtimeState {
       try {
         const data = JSON.parse(event.data);
         if (data?.action) {
+          // Spread the frame rather than hand-copying four known fields: v2
+          // carries `channel`, `type` and the stream `id` at the TOP level, and
+          // a field-by-field copy silently dropped all three -- which left the
+          // channel filter with nothing to match on and made auto-ack a no-op,
+          // since it keys on `id`. The explicit fields below still normalise
+          // the v1 shape.
           this.socketObserver.notify({
+            ...data,
             action: data.action,
             client: data?.client || undefined,
             options: data?.options || undefined,

@@ -49,9 +49,11 @@ export declare class XanoRealtimeChannel {
     /**
      * Acknowledge a delivered message automatically, unless the app opted out.
      *
-     * A handler that throws propagates out of the observer before this runs, so
-     * the cursor is not advanced and the tier redelivers on the next resumed
-     * join -- which is the behaviour an at_least_once channel is chosen for.
+     * Waits for anything the handlers returned, so an `async` handler is acked
+     * when its work COMPLETES rather than when it first awaits. A handler that
+     * throws, or whose promise rejects, leaves the cursor unadvanced and the
+     * message is redelivered on the next resumed join -- which is the behaviour
+     * an at_least_once channel is chosen for.
      */
     private autoAck;
     /**
