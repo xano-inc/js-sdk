@@ -679,6 +679,17 @@ channel.message({ message: "Hello world!" }, {
 });
 ```
 
+**On v2**, a publish must name the channel message object it routes to. Set it once per channel with [`messageType`](#xanorealtimechanneloptions), or override it for a single call:
+
+```js
+const channel = xano.channel("lobby", { messageType: "chat" });
+
+channel.message({ text: "Hello world!" });              // routes to `chat`
+channel.message({ text: "/me waves" }, { type: "emote" }); // routes to `emote`
+```
+
+A v2 publish with no type — neither on the channel nor on the call — throws, since the server has no default to fall back on.
+
 ### XanoRealtimeChannel.ack
 **v2 only.** Advances this client's durable cursor on an `at_least_once` channel, marking everything up to that message as handled. The cursor is what bounds the [replay after a reconnect](#resuming-missed-messages-v2).
 
@@ -701,11 +712,13 @@ channel.on("message", async function(action) {
 ```
 
 ### XanoRealtimeChannel.getPresence
-Sends a message from the client to the channel. 
+Returns the channel's current presence roster.
 
 Presence is only available on channels joined with `XanoRealtimeChannelOptions.presence` set to `true`
 
 Returns an array of `XanoRealtimeClient`
+
+The roster never includes you — the server snapshots it before recording the joining client — so a client alone in a channel sees an empty array.
 
 Usage:
 ```js
@@ -716,6 +729,8 @@ const users = channel.getPresence();
 Sends a message to realtime requesting the latest channel history. The response will be sent through the history action
 
 History is only available on channels with message history enabled
+
+**v1 only.** v2 has no `history` action and this is a no-op there; a v2 channel replays its transcript automatically when you join with the `history` option set.
 
 Usage:
 ```js
