@@ -1,5 +1,22 @@
 # Changelog for Xano JavaScript SDK
 
+## 3.1.0
+* feature: Support for Realtime v2 via the `realtimeVersion: 2` client setting. Defaults to `1`, so existing apps are unaffected
+* feature: On a v2 `at_least_once` channel, messages missed while disconnected are redelivered through the normal `message` handler, marked with `replayed: true`. Cursor acknowledgement is automatic, and waits for `async` handlers to finish. Existing automatic reconnection now re-joins v2 channels and resumes from the acknowledged cursor
+* feature: New `manualAck` channel option and `channel.ack(id)` for apps that acknowledge after their own work (e.g. a database write)
+* feature: New `messageType` channel option, naming the v2 channel message a publish routes to. A single call can override it with `channel.message(payload, { type })`
+* feature: The realtime types the documentation refers to (`ERealtimeAction`, `XanoRealtimeChannel`, `XanoRealtimeClient` and the realtime interfaces) are now exported from the package entry point
+* fix: Top-level frame fields (`id`, `channel`, `type`) are no longer dropped when parsing an incoming realtime frame
+* fix: Constructing a realtime channel no longer discards the client config, which made a v2 client behave as v1 — omitting the `client_id` that resume depends on
+* fix: A v2 cursor acknowledgement now carries the stream id where the server reads it. Acks were silently discarded, so every reconnect replayed the channel's entire retained stream
+* fix: A v2 channel is joined once per connection. The join was re-sent on a timer shorter than the server's handshake, duplicating the join trigger, the presence snapshot and the replayed transcript on every connect
+* fix: A per-call `message()` type is sent where the server reads it, instead of being ignored with `Unknown message type:`. A v2 publish with no type configured now fails with a message naming the channel
+* fix: One member leaving a v2 presence channel no longer empties the whole roster
+* fix: `channel.history()` no longer provokes a server error on v2, where the action does not exist
+
+## 3.0.1
+* feature: Add `realtimeConnectionCanonical`, with backwards-compatible support for `realtimeConnectionHash`
+
 ## 3.0.0
 * Update Axios to latest to fix potential security vulnerabilities
 * Migrate package from Gitlab to Github
