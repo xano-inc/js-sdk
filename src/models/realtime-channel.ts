@@ -12,32 +12,30 @@ import { XanoRealtimeState } from "./realtime-state";
 import { realtimeBuildActionUtil } from "../utils/realtime-build-action.util";
 
 export class XanoRealtimeChannel {
-  /** Retry budget for a join refused by the v2 auth_pending guard. */
-  private static readonly JOIN_MAX_ATTEMPTS = 5;
-  private static readonly JOIN_RETRY_MS = 400;
   /**
-   * The tier's refusal for a frame that beat the handshake. Matched as a
-   * substring because it arrives as a plain error frame with no code.
+   * How often a join requested before the socket is ready checks again. A
+   * channel with an `on()` handler does not need it: it joins from the
+   * `connected` status, which is announced the moment the socket is ready. A
+   * channel with no handler never sees that status, and depends on this.
    */
-  private static readonly JOIN_NOT_READY = "Connection is not ready";
+  private static readonly JOIN_RETRY_MS = 400;
 
   private observed: boolean = false;
   private offlineMessageQueue: string[] = [];
   private presenceCache: XanoRealtimeClient[] = [];
-  /** Cleared on every disconnect so a reconnect re-proves the join landed. */
-  private joinAcknowledged: boolean = false;
   /**
-   * The join awaiting acknowledgement, retained so a refusal can re-send it.
-   * Null whenever there is nothing outstanding to retry.
+   * The socket this channel's join was sent on. A join goes out at most once
+   * per socket, and a new socket (after a reconnect) gets its own.
    */
-  private pendingJoin: { message: string; attempt: number } | null = null;
+  private joinSentOn: WebSocket | null = null;
+  /** The pending re-check for a join requested before the socket was ready. */
+  private joinTimer: ReturnType<typeof setTimeout> | null = null;
   // NOT `setConfig(this.config)`: a field initializer runs BEFORE the
   // constructor body assigns its parameter properties, so `this.config` is
   // still undefined here and that call wiped the state's config. Every
   // config-derived decision then read undefined -- `isV2()` answered false on a
-  // v2 client, so the join omitted `client_id` (silently breaking resume) and
-  // the v2-only join retry never armed. The constructor sets the config itself,
-  // after the parameter properties exist.
+  // v2 client, so the join omitted `client_id` (silently breaking resume). The
+  // constructor sets the config itself, after the parameter properties exist.
   private socketObserver: Observable<XanoRealtimeAction> =
     XanoRealtimeState.getInstance().getSocketObserver();
 
@@ -82,17 +80,6 @@ export class XanoRealtimeChannel {
           case ERealtimeAction.ConnectionStatus:
             this.realtimeChannel.handleConnectionUpdate(action);
             this.realtimeChannel.processOfflineMessageQueue();
-            break;
-          case ERealtimeAction.Join:
-            // The tier's own confirmation that this channel is joined; it is
-            // what stops the join retry above.
-            this.realtimeChannel.markJoinAcknowledged();
-            break;
-          case ERealtimeAction.Error:
-            // The `auth_pending` refusal is the ONLY signal that a join needs
-            // re-sending, so it drives the retry. Handed on to the app's error
-            // handlers below either way.
-            this.realtimeChannel.handleJoinRefused(action);
             break;
           case ERealtimeAction.PresenceFull:
           case ERealtimeAction.PresenceUpdate:
@@ -175,20 +162,12 @@ export class XanoRealtimeChannel {
     this.handleConnectionUpdate(action);
   }
 
-  /** The tier confirmed this channel is joined; stops the join retry. */
-  private markJoinAcknowledged(): void {
-    this.joinAcknowledged = true;
-    this.pendingJoin = null;
-  }
-
   private handleConnectionUpdate(action: XanoRealtimeAction): void {
     if (action.payload.status !== ERealtimeConnectionStatus.Connected) {
-      // A dropped socket joins nothing, so the next Connected must re-prove the
-      // join rather than trusting the previous connection's acknowledgement.
-      // The outstanding join dies with the socket it was sent on; the next
-      // Connected issues a fresh one.
-      this.joinAcknowledged = false;
-      this.pendingJoin = null;
+      // A dropped socket joins nothing. The next socket gets its own join,
+      // sent from the `connected` status that announces it.
+      this.joinSentOn = null;
+      this.clearJoinTimer();
       return;
     }
 
@@ -216,107 +195,69 @@ export class XanoRealtimeChannel {
       presence: this.options.presence || false,
     });
 
-    this.sendJoin(socket, message);
+    this.requestJoin(message);
   }
 
   /**
-   * Send the join, re-sending only if the v2 tier explicitly REFUSES it.
+   * Send this channel's join on the current socket: once, and only when the
+   * socket is ready.
    *
-   * A v2 handshake builds an ApplicationContext AFTER the socket opens, and any
-   * frame arriving before that is refused with "Connection is not ready" — the
-   * `auth_pending` guard. The refusal is a normal error frame, not a close, so
-   * an un-retried join is simply LOST and the channel stays silently unjoined:
-   * the socket looks healthy while no messages ever arrive. That is most likely
-   * precisely on the reconnect path, where the app is not there to re-issue it.
+   * On v2 a frame sent before the tier has authenticated the socket is refused
+   * with "Connection is not ready" and dropped, so a join sent too early is
+   * lost and the channel stays silently unjoined: the socket looks healthy and
+   * no messages ever arrive. XanoRealtimeState pings the tier until it answers
+   * and only then reports the socket ready (see isReady()), so a join sent
+   * after that is never refused this way.
    *
-   * The retry is driven by that refusal and NOT by a timer, because the tier
-   * exposes no ready signal and the handshake has no bounded duration — its own
-   * harness simply sleeps 900ms before sending anything. A timer shorter than
-   * the handshake re-sends a join that was merely in flight, and a duplicate
-   * join is expensive rather than idempotent: it re-runs the channel's join
-   * trigger, re-sends the presence snapshot, re-fires presence_join, and
-   * replays the conversation transcript and the at-least-once gap a second time
-   * — straight into the app's message handler, with no `replayed` marker to
-   * filter the duplicates by. Waiting for the refusal costs nothing on the
-   * happy path and cannot duplicate a join that the tier accepted.
+   * Re-sending the join when it is refused does not work instead. The refusal
+   * names no channel, so with several channels one channel's refusal also
+   * reaches a channel whose join was accepted and re-sends that one. And the
+   * refusals come back within a round trip, so a count-bounded retry (this
+   * used to stop after five) is used up long before a slow handshake ends.
    *
-   * v1 has no such guard, so this only retries for v2.
+   * Once per socket, because a duplicate join is not harmless: it re-runs the
+   * channel's join trigger, re-sends the presence snapshot, re-fires
+   * presence_join, and replays the conversation transcript and the
+   * at-least-once gap a second time, straight into the app's message handler.
+   * Several paths ask for the join on the same socket: the constructor, the
+   * `connected` status, the last status replayed to a new `on()` observer, and
+   * the re-check timer below. Only the first one to find the socket ready
+   * sends it.
    */
-  private sendJoin(socket: WebSocket, message: string, attempt = 0): void {
+  private requestJoin(message: string): void {
     const state = XanoRealtimeState.getInstance();
+    const socket = state.getSocket();
 
-    if (!state.isV2() || attempt >= XanoRealtimeChannel.JOIN_MAX_ATTEMPTS) {
-      this.pendingJoin = null;
-      if (socket.readyState === WebSocket.OPEN) {
-        socket.send(message);
-      }
-      return;
-    }
-
-    // Re-read the live socket each attempt: a reconnect in flight replaces it,
-    // and sending on the previous one would go nowhere.
-    const current = state.getSocket();
-    if (current === null) {
-      this.pendingJoin = null;
-      return;
-    }
-
-    // Not open YET is the one case a timer is still right for: there is no
-    // frame to be refused, so nothing else can wake us.
-    if (current.readyState !== WebSocket.OPEN) {
-      this.pendingJoin = { message, attempt };
-      setTimeout(
-        () => this.retryJoinIfUnacknowledged(socket, message, attempt),
-        XanoRealtimeChannel.JOIN_RETRY_MS
-      );
-      return;
-    }
-
-    // Retained so an incoming refusal knows what to re-send, and cleared as
-    // soon as the tier acknowledges the join.
-    this.pendingJoin = { message, attempt };
-    current.send(message);
-  }
-
-  /**
-   * Re-send a join the tier refused with the `auth_pending` guard.
-   *
-   * Ignores any other error frame: a refused join is the only error this can
-   * fix, and re-sending on e.g. an authorization failure would just repeat it.
-   */
-  private handleJoinRefused(action: XanoRealtimeAction): void {
-    const pending = this.pendingJoin;
-    if (pending === null || this.joinAcknowledged) {
-      return;
-    }
-
-    const message = action?.payload?.message;
-    if (
-      typeof message !== "string" ||
-      !message.includes(XanoRealtimeChannel.JOIN_NOT_READY)
-    ) {
-      return;
-    }
-
-    const socket = XanoRealtimeState.getInstance().getSocket();
+    // No socket: the `connected` status for the next one joins it.
     if (socket === null) {
+      this.clearJoinTimer();
       return;
     }
 
-    this.retryJoinIfUnacknowledged(socket, pending.message, pending.attempt);
+    if (this.joinSentOn === socket) {
+      return;
+    }
+
+    if (state.isReady()) {
+      this.clearJoinTimer();
+      this.joinSentOn = socket;
+      socket.send(message);
+      return;
+    }
+
+    if (this.joinTimer === null) {
+      this.joinTimer = setTimeout(() => {
+        this.joinTimer = null;
+        this.requestJoin(message);
+      }, XanoRealtimeChannel.JOIN_RETRY_MS);
+    }
   }
 
-  private retryJoinIfUnacknowledged(
-    socket: WebSocket,
-    message: string,
-    attempt: number
-  ): void {
-    if (this.joinAcknowledged) {
-      this.pendingJoin = null;
-      return;
+  private clearJoinTimer(): void {
+    if (this.joinTimer !== null) {
+      clearTimeout(this.joinTimer);
+      this.joinTimer = null;
     }
-
-    this.sendJoin(socket, message, attempt + 1);
   }
 
   private handlePresenceUpdate(action: XanoRealtimeAction): void {
@@ -417,8 +358,15 @@ export class XanoRealtimeChannel {
   }
 
   destroy(): void {
-    const socket = XanoRealtimeState.getInstance().getSocket();
-    if (socket !== null) {
+    this.clearJoinTimer();
+
+    const state = XanoRealtimeState.getInstance();
+    const socket = state.getSocket();
+
+    // Only a channel joined on this socket has anything to leave. Sending on a
+    // socket that is not ready yet would throw (still connecting) or be
+    // refused (v2, not authenticated), and the join has not gone out then.
+    if (socket !== null && socket === this.joinSentOn && state.isReady()) {
       const message = realtimeBuildActionUtil(ERealtimeAction.Leave, {
         channel: this.channel,
       });
@@ -426,6 +374,7 @@ export class XanoRealtimeChannel {
       socket.send(message);
     }
 
+    this.joinSentOn = null;
     this.socketObserver.removeObserver(this.realtimeObserver);
   }
 
@@ -481,8 +430,9 @@ export class XanoRealtimeChannel {
   }
 
   private sendOrQueue(socket: WebSocket, message: string): void {
-
-    if (socket.readyState === WebSocket.OPEN) {
+    // Ready rather than merely open: on v2 a frame sent before the tier has
+    // authenticated the socket is refused and dropped (see isReady()).
+    if (XanoRealtimeState.getInstance().isReady()) {
       socket.send(message);
     } else if (this.options.queueOfflineActions) {
       this.offlineMessageQueue.push(message);
@@ -544,7 +494,7 @@ export class XanoRealtimeChannel {
     }
 
     const socket = state.getSocket();
-    if (socket === null || socket.readyState !== WebSocket.OPEN) {
+    if (socket === null || !state.isReady()) {
       return;
     }
 
@@ -572,8 +522,11 @@ export class XanoRealtimeChannel {
       return;
     }
 
-    const socket = XanoRealtimeState.getInstance().getSocket();
-    if (socket === null) {
+    // Runs on every connection_status, including a `connected` replayed to a
+    // new observer after the socket it described has been replaced.
+    const state = XanoRealtimeState.getInstance();
+    const socket = state.getSocket();
+    if (socket === null || !state.isReady()) {
       return;
     }
 
