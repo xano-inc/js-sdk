@@ -7,63 +7,56 @@ export declare class XanoRealtimeChannel {
     readonly channel: string;
     readonly options: Partial<XanoRealtimeChannelOptions>;
     private readonly config;
-    /** Retry budget for a join refused by the v2 auth_pending guard. */
-    private static readonly JOIN_MAX_ATTEMPTS;
-    private static readonly JOIN_RETRY_MS;
     /**
-     * The tier's refusal for a frame that beat the handshake. Matched as a
-     * substring because it arrives as a plain error frame with no code.
+     * How often a join requested before the socket is ready checks again. A
+     * channel with an `on()` handler does not need it: it joins from the
+     * `connected` status, which is announced the moment the socket is ready. A
+     * channel with no handler never sees that status, and depends on this.
      */
-    private static readonly JOIN_NOT_READY;
+    private static readonly JOIN_RETRY_MS;
     private observed;
     private offlineMessageQueue;
     private presenceCache;
-    /** Cleared on every disconnect so a reconnect re-proves the join landed. */
-    private joinAcknowledged;
     /**
-     * The join awaiting acknowledgement, retained so a refusal can re-send it.
-     * Null whenever there is nothing outstanding to retry.
+     * The socket this channel's join was sent on. A join goes out at most once
+     * per socket, and a new socket (after a reconnect) gets its own.
      */
-    private pendingJoin;
+    private joinSentOn;
+    /** The pending re-check for a join requested before the socket was ready. */
+    private joinTimer;
     private socketObserver;
     private onFuncs;
     private realtimeObserver;
     constructor(channel: string, options: Partial<XanoRealtimeChannelOptions>, config: XanoClientConfig);
-    /** The tier confirmed this channel is joined; stops the join retry. */
-    private markJoinAcknowledged;
     private handleConnectionUpdate;
     /**
-     * Send the join, re-sending only if the v2 tier explicitly REFUSES it.
+     * Send this channel's join on the current socket: once, and only when the
+     * socket is ready.
      *
-     * A v2 handshake builds an ApplicationContext AFTER the socket opens, and any
-     * frame arriving before that is refused with "Connection is not ready" — the
-     * `auth_pending` guard. The refusal is a normal error frame, not a close, so
-     * an un-retried join is simply LOST and the channel stays silently unjoined:
-     * the socket looks healthy while no messages ever arrive. That is most likely
-     * precisely on the reconnect path, where the app is not there to re-issue it.
+     * On v2 a frame sent before the tier has authenticated the socket is refused
+     * with "Connection is not ready" and dropped, so a join sent too early is
+     * lost and the channel stays silently unjoined: the socket looks healthy and
+     * no messages ever arrive. XanoRealtimeState pings the tier until it answers
+     * and only then reports the socket ready (see isReady()), so a join sent
+     * after that is never refused this way.
      *
-     * The retry is driven by that refusal and NOT by a timer, because the tier
-     * exposes no ready signal and the handshake has no bounded duration — its own
-     * harness simply sleeps 900ms before sending anything. A timer shorter than
-     * the handshake re-sends a join that was merely in flight, and a duplicate
-     * join is expensive rather than idempotent: it re-runs the channel's join
-     * trigger, re-sends the presence snapshot, re-fires presence_join, and
-     * replays the conversation transcript and the at-least-once gap a second time
-     * — straight into the app's message handler, with no `replayed` marker to
-     * filter the duplicates by. Waiting for the refusal costs nothing on the
-     * happy path and cannot duplicate a join that the tier accepted.
+     * Re-sending the join when it is refused does not work instead. The refusal
+     * names no channel, so with several channels one channel's refusal also
+     * reaches a channel whose join was accepted and re-sends that one. And the
+     * refusals come back within a round trip, so a count-bounded retry (this
+     * used to stop after five) is used up long before a slow handshake ends.
      *
-     * v1 has no such guard, so this only retries for v2.
+     * Once per socket, because a duplicate join is not harmless: it re-runs the
+     * channel's join trigger, re-sends the presence snapshot, re-fires
+     * presence_join, and replays the conversation transcript and the
+     * at-least-once gap a second time, straight into the app's message handler.
+     * Several paths ask for the join on the same socket: the constructor, the
+     * `connected` status, the last status replayed to a new `on()` observer, and
+     * the re-check timer below. Only the first one to find the socket ready
+     * sends it.
      */
-    private sendJoin;
-    /**
-     * Re-send a join the tier refused with the `auth_pending` guard.
-     *
-     * Ignores any other error frame: a refused join is the only error this can
-     * fix, and re-sending on e.g. an authorization failure would just repeat it.
-     */
-    private handleJoinRefused;
-    private retryJoinIfUnacknowledged;
+    private requestJoin;
+    private clearJoinTimer;
     private handlePresenceUpdate;
     /**
      * v2 members are refcounted per IDENTITY, not per socket, so a member has no

@@ -93,7 +93,7 @@ channel.on("message", function(action) {
 channel.message({ message: "Hello world!" });
 ```
 
-**On Realtime v2**, add `realtimeVersion: 2` and name the message object that handles what you publish. Everything else is the same:
+**On Realtime v2**, add `realtimeVersion: 2`, name the message object that handles what you publish, and publish once the channel has joined:
 
 ```js
 const  xano = new  XanoClient({
@@ -108,7 +108,11 @@ channel.on("message", function(action) {
 	console.log("Received message", action);
 });
 
-channel.message({ text: "Hello world!" });
+// The server refuses a publish to a channel it has not joined you to yet.
+// `join` fires when it has, again after each automatic reconnect.
+channel.on("join", function() {
+	channel.message({ text: "Hello world!" });
+});
 ```
 
 Not sure which one you are on? See [Realtime v1 vs v2](#realtime-v1-vs-v2).
@@ -533,6 +537,8 @@ channel.on("connection_status", function(action) {
 });
 ```
 
+On v2, `connected` fires once the server has finished accepting the connection, which can be a moment after the socket opens: the server authenticates the socket and runs the realtime server's `connect` trigger first, and refuses anything sent before that. The SDK waits for it before it joins your channels. To publish, wait for the channel's `join` event, as in the [v2 example](#connecting-to-realtime): a message sent before the connection is ready is not sent, and one sent before the join is accepted is refused with `You must join the channel before broadcasting`.
+
 #### Resuming missed messages (v2)
 
 On a v2 channel with `delivery.guarantee = at_least_once`, reconnecting also replays what you missed. That is keyed on a **stable client id**, which the SDK generates and reuses automatically for the life of the page.
@@ -782,7 +788,7 @@ Leaves the channel and disconnects from the realtime websocket server if its the
 | --- | --- | --- | --- |
 | `history` | `boolean` | `false` | Returns the channel message history on join (if its enabled on a channel)
 | `presence` | `boolean` | `false` | Subscribes to channel presence to see who else is in the channel and events when others join/leave |
-| `queueOfflineActions` | `boolean` | `true` | In the event of a disconnect, or when sending actions before the channel connection is established, actions will be put in a queue and sent as soon as the connection is established |
+| `queueOfflineActions` | `boolean` | `false` | In the event of a disconnect, or when sending actions before the channel connection is established, actions will be put in a queue and sent as soon as the connection is established |
 | `messageType` | `string` | | **v2 only.** The channel message object that handles what you publish with `channel.message()`. A v2 channel can define several messages, so there is no default — set the one this channel should route to |
 | `manualAck` | `boolean` | `false` | **v2 only.** Stop the SDK acking each message after your handlers run, and call [`channel.ack()`](#xanorealtimechannelack) yourself instead. Use when "handled" means something the SDK cannot see, like a completed database write |
 

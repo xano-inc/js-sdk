@@ -20,8 +20,11 @@ export class XanoRealtimeClient implements IXanoRealtimeClient {
   }
 
   message(payload: any): void {
-    const socket = XanoRealtimeState.getInstance().getSocket();
-    if (socket === null) {
+    // A member of a roster from before a reconnect can be messaged while the
+    // new socket is not ready yet (see XanoRealtimeState.isReady()).
+    const state = XanoRealtimeState.getInstance();
+    const socket = state.getSocket();
+    if (socket === null || !state.isReady()) {
       return;
     }
 
@@ -38,8 +41,9 @@ export class XanoRealtimeClient implements IXanoRealtimeClient {
   }
 
   history(): void {
-    const socket = XanoRealtimeState.getInstance().getSocket();
-    if (socket === null) {
+    const state = XanoRealtimeState.getInstance();
+    const socket = state.getSocket();
+    if (socket === null || !state.isReady()) {
       return;
     }
 

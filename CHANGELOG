@@ -1,5 +1,11 @@
 # Changelog for Xano JavaScript SDK
 
+## 3.1.1
+* fix: A v2 client joins its channels and sends messages only after the server has accepted the connection, which it finds out by pinging until the server answers. A join sent earlier was refused with "Connection is not ready" and, after five immediate retries, lost: the channel stayed silently unjoined whenever the server took longer than five round trips to accept a connection. A refused join is no longer re-sent either, which also re-sent other channels' accepted joins. `connection_status` now reports `connected` at that point on v2, rather than when the socket opens
+* fix: A channel created while the connection is opening, or just after it opens, sends its join exactly once. It could send it twice (v1 and v2), and on v1 a channel with no `on()` handler never joined
+* fix: `channel.destroy()`, and `message()`/`history()` on a presence member, no longer throw when the socket has not opened yet, and `destroy()` no longer sends a `leave` for a channel that never joined
+* docs: The v2 example publishes once the channel has joined, and the `queueOfflineActions` default is documented as `false`, which is what it has always been
+
 ## 3.1.0
 * feature: Support for Realtime v2 via the `realtimeVersion: 2` client setting. Defaults to `1`, so existing apps are unaffected
 * feature: On a v2 `at_least_once` channel, messages missed while disconnected are redelivered through the normal `message` handler, marked with `replayed: true`. Cursor acknowledgement is automatic, and waits for `async` handlers to finish. Existing automatic reconnection now re-joins v2 channels and resumes from the acknowledged cursor
